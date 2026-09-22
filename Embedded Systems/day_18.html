@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 18: Flash Memory, EEPROM &amp; File Systems (FatFS) - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>75%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 3.1</span>
+                <h1>Day 18: Flash Memory, EEPROM &amp; File Systems (FatFS)</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> You need to store configuration, logs, and firmware images persistently across power cycles. Flash memory has limited write cycles, erase-before-write constraints, and wear. How do you manage it safely?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 3.1</span>
+                            <span class="plan-badge plan-badge-secondary">Module 3: Advanced Embedded Architecture</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Master NOR Flash vs NAND Flash vs true EEPROM architectural and physical tradeoffs.</li><li>Implement dual-sector EEPROM emulation to store parameters with zero power-cut data loss.</li><li>Integrate ChaN&#x27;s FatFS to read and write FAT32 filesystems on microSD cards and SPI flash.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Floating-gate charge trapping physics and erase-before-write constraints.</li><li>FAT32 File Allocation Table cluster chains and power-loss corruption prevention.</li><li>Wear leveling algorithms for distributing write stress across silicon sectors.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 18.1: EEPROM emulation variable write and page transfer in C.</li><li>Program 18.2: Bare-metal SPI driver for W25Q32 external NOR flash.</li><li>Program 18.3: Mounting FatFS, creating directory, and appending sensor CSV log.</li><li>Program 18.4: Power-safe high-throughput FatFS block logger with periodic sync.</li><li>Program 18.5: Wear-leveling block map with write count tracking in C.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Writing beyond a 256-byte NOR flash page boundary, causing silent address wraparound.</li><li>Omitting f_sync() or f_close(), leaving uncommitted FAT allocation records in volatile RAM.</li><li>Logging directly to a single flash sector in a tight loop, destroying the sector in days.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</h2>
+<p>Persistent storage is foundational for embedded engineering: calibration offsets, encryption credentials, event logs, and firmware update images must survive complete power loss. However, non-volatile solid-state memory exhibits physical and metallurgical constraints fundamentally distinct from RAM:
+<ul>
+    <li><strong>Endurance Limits:</strong> Every flash write/erase cycle stresses the microscopic dielectric oxide layer insulating floating-gate or charge-trap transistors. After 10,000 to 100,000 cycles, the oxide breaks down, permanently trapping charge and creating bad blocks.</li>
+    <li><strong>Asymmetric Granularity:</strong> Flash memory allows byte or word-level reading, page-level writing (programming), but requires <em>sector or block-level erasing</em>. You cannot overwrite a byte without erasing an entire multi-kilobyte block.</li>
+</ul>
+</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-18_0-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-18_0-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 18.0-1: Solid-State Flash Memory Cell Architectures (NOR vs NAND)</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">NOR Flash Architecture</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Parallel bit-cell connections provide ultra-fast random read access, allowi...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">NAND Flash Architecture</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Serial cell strings maximize silicon density for massive mass storage (SD c...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">True EEPROM</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Dual-transistor bit cell allows single-byte erasing and writing with extrem...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 18.0-1: Solid-State Flash Memory Cell Architectures (NOR vs NAND)
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>NOR Flash Architecture:</strong> Parallel bit-cell connections provide ultra-fast random read access, allowing the CPU to execute code directly from flash (eXecute-In-Place / XIP).</li><li><strong>NAND Flash Architecture:</strong> Serial cell strings maximize silicon density for massive mass storage (SD cards, eMMC, SSDs), but require software bad-block management and Error Correction Code (ECC).</li><li><strong>True EEPROM:</strong> Dual-transistor bit cell allows single-byte erasing and writing with extreme endurance (&gt; 1,000,000 cycles), but possesses low storage density.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</h2>
+<p>Because true on-chip EEPROM increases silicon fabrication wafer costs, modern microcontrollers emulate EEPROM using internal NOR Flash. By designating two identical Flash sectors (e.g., <em>Page 0</em> and <em>Page 1</em>), the firmware writes key-value parameter pairs sequentially. When the active page fills up, valid parameters are copied to the alternate page, and the old page is erased in the background.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-18_0-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-18_0-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 18.0-2: Dual-Sector EEPROM Emulation State Machine</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Page Header (Valid / Era</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        First 32-bit word in sector declares its state (0xFFFF=Erased, 0x0000=Recei...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Key-Value Element Format</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Each variable is written as a 16-bit Virtual Address + 16-bit Data Value.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Append-Only Updates</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Modifying a parameter simply writes a new entry at the next free address wi...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Atomic Page Swap</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Garbage collection only moves the latest version of each variable, minimizi...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 18.0-2: Dual-Sector EEPROM Emulation State Machine
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Page Header (Valid / Erased):</strong> First 32-bit word in sector declares its state (0xFFFF=Erased, 0x0000=Receiving, 0x1111=Valid).</li><li><strong>Key-Value Element Format:</strong> Each variable is written as a 16-bit Virtual Address + 16-bit Data Value.</li><li><strong>Append-Only Updates:</strong> Modifying a parameter simply writes a new entry at the next free address without erasing.</li><li><strong>Atomic Page Swap:</strong> Garbage collection only moves the latest version of each variable, minimizing flash wear.</li>
+    </ul>
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define PAGE0_BASE          0x08010000U
+#define PAGE1_BASE          0x08014000U
+#define PAGE_SIZE           0x4000U  /* 16 KB */
+
+#define STATE_ERASED        0xFFFFFFFFU
+#define STATE_RECEIVING     0xEEEEEEEEU
+#define STATE_VALID         0x00000000U
+
+typedef struct {
+    uint16_t virt_addr;
+    uint16_t data;
+} EepromVar_t;
+
+extern void flash_erase_sector_by_addr(uint32_t addr);
+extern void flash_write_word(uint32_t addr, uint32_t data);
+
+bool eeprom_write_variable(uint16_t var_id, uint16_t value) {
+    uint32_t active_page = PAGE0_BASE;
+    uint32_t page_state = *(volatile uint32_t *)active_page;
+
+    if (page_state != STATE_VALID) {
+        active_page = PAGE1_BASE;
+    }
+
+    /* Scan for the first blank word (0xFFFFFFFF) in active page */
+    uint32_t write_addr = active_page + 4U;
+    while (write_addr &lt; (active_page + PAGE_SIZE)) {
+        if (*(volatile uint32_t *)write_addr == 0xFFFFFFFFU) {
+            /* Pack 16-bit ID and 16-bit Data into single 32-bit word */
+            uint32_t packed = ((uint32_t)var_id &lt;&lt; 16) | value;
+            flash_write_word(write_addr, packed);
+            return true;
+        }
+        write_addr += 4U;
+    }
+
+    /* Page full: Trigger garbage collection and page swap here */
+    return false;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 18.1: EEPROM Emulation Variable Write and Page Transfer in C
+</div>
+
+
+<h2 id="day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</h2>
+<p>When firmware data logging exceeds internal MCU flash (e.g., audio clips, high-rate flight data, local web assets), embedded systems interface external SPI or Quad-SPI (QSPI) NOR flash chips. Operating over SPI mode 0 or 3, commands follow a rigid sequence: <em>Write Enable (0x06)</em>, <em>Sector Erase (0x20)</em>, and <em>Page Program (0x02)</em>.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define W25Q_CMD_WRITE_ENABLE   0x06U
+#define W25Q_CMD_READ_STATUS1   0x05U
+#define W25Q_CMD_PAGE_PROGRAM   0x02U
+#define W25Q_CMD_SECTOR_ERASE   0x20U
+#define W25Q_CMD_READ_DATA      0x03U
+#define W25Q_STATUS1_BUSY       (1U &lt;&lt; 0)
+
+extern void spi_cs_low(void);
+extern void spi_cs_high(void);
+extern uint8_t spi_transfer_byte(uint8_t byte);
+
+void w25q_wait_busy(void) {
+    uint8_t status;
+    do {
+        spi_cs_low();
+        spi_transfer_byte(W25Q_CMD_READ_STATUS1);
+        status = spi_transfer_byte(0xFF);
+        spi_cs_high();
+    } while (status &amp; W25Q_STATUS1_BUSY);
+}
+
+void w25q_erase_4k_sector(uint32_t sector_addr) {
+    /* 1. Send Write Enable command */
+    spi_cs_low();
+    spi_transfer_byte(W25Q_CMD_WRITE_ENABLE);
+    spi_cs_high();
+
+    /* 2. Issue 4KB Sector Erase with 24-bit address */
+    spi_cs_low();
+    spi_transfer_byte(W25Q_CMD_SECTOR_ERASE);
+    spi_transfer_byte((uint8_t)(sector_addr &gt;&gt; 16));
+    spi_transfer_byte((uint8_t)(sector_addr &gt;&gt; 8));
+    spi_transfer_byte((uint8_t)(sector_addr &amp; 0xFF));
+    spi_cs_high();
+
+    w25q_wait_busy();
+}
+
+void w25q_write_page(uint32_t page_addr, const uint8_t *data, uint16_t len) {
+    if (len &gt; 256) len = 256; /* Page boundary limit */
+
+    spi_cs_low();
+    spi_transfer_byte(W25Q_CMD_WRITE_ENABLE);
+    spi_cs_high();
+
+    spi_cs_low();
+    spi_transfer_byte(W25Q_CMD_PAGE_PROGRAM);
+    spi_transfer_byte((uint8_t)(page_addr &gt;&gt; 16));
+    spi_transfer_byte((uint8_t)(page_addr &gt;&gt; 8));
+    spi_transfer_byte((uint8_t)(page_addr &amp; 0xFF));
+
+    for (uint16_t i = 0; i &lt; len; i++) {
+        spi_transfer_byte(data[i]);
+    }
+    spi_cs_high();
+
+    w25q_wait_busy();
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 18.2: Bare-Metal SPI Driver for W25Q32 External NOR Flash
+</div>
+
+
+<h2 id="day-18-topic-4">18.4 Chan's FatFS Architecture on Embedded Media</h2>
+<p>To read and write files compatible with standard desktop operating systems (Windows, macOS, Linux), embedded systems integrate <strong>FatFS</strong> (developed by ChaN). FatFS separates the FAT12/FAT16/FAT32/exFAT filesystem algorithms from physical hardware via an abstraction layer called <code>diskio.c</code>.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-18_0-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-18_0-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 18.0-3: FatFS Modular Layer Stack and DiskIO Abstraction</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Application Layer</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Calls high-level POSIX-like file operations (f_mount, f_open, f_printf).
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">FatFS Library</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Manages cluster chains, FAT directory tables, LFN (Long File Names), and ca...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">DiskIO Abstraction</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Standard 5-function interface translating sector requests to hardware reads...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Physical Storage</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Interchangeable storage medium: microSD card via 4-bit SDMMC, or external S...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 18.0-3: FatFS Modular Layer Stack and DiskIO Abstraction
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Application Layer:</strong> Calls high-level POSIX-like file operations (f_mount, f_open, f_printf).</li><li><strong>FatFS Library:</strong> Manages cluster chains, FAT directory tables, LFN (Long File Names), and caching.</li><li><strong>DiskIO Abstraction:</strong> Standard 5-function interface translating sector requests to hardware reads/writes.</li><li><strong>Physical Storage:</strong> Interchangeable storage medium: microSD card via 4-bit SDMMC, or external SPI flash chip.</li>
+    </ul>
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &quot;ff.h&quot;
+
+static FATFS g_fatfs;
+static FIL   g_logfile;
+
+FRESULT log_sensor_sample_csv(uint32_t timestamp, float temp, float press) {
+    FRESULT fr;
+    UINT bytes_written;
+    char line_buf[64];
+
+    /* 1. Mount logical drive 0 */
+    fr = f_mount(&amp;g_fatfs, &quot;0:&quot;, 1);
+    if (fr != FR_OK) {
+        return fr;
+    }
+
+    /* 2. Open or create file with Read/Write and Append flags */
+    fr = f_open(&amp;g_logfile, &quot;0:/log.csv&quot;, FA_WRITE | FA_OPEN_ALWAYS);
+    if (fr != FR_OK) {
+        f_mount(NULL, &quot;0:&quot;, 0);
+        return fr;
+    }
+
+    /* 3. Seek to end of file to append new records */
+    f_lseek(&amp;g_logfile, f_size(&amp;g_logfile));
+
+    /* 4. Format CSV line: timestamp, temperature, pressure */
+    snprintf(line_buf, sizeof(line_buf), &quot;%lu,%.2f,%.2f
+&quot;, timestamp, temp, press);
+
+    /* 5. Write buffer to SD card */
+    fr = f_write(&amp;g_logfile, line_buf, (UINT)strlen(line_buf), &amp;bytes_written);
+
+    /* 6. Flush cache buffers and close file */
+    f_sync(&amp;g_logfile);
+    f_close(&amp;g_logfile);
+
+    /* Unmount drive */
+    f_mount(NULL, &quot;0:&quot;, 0);
+    return fr;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 18.3: Mounting FatFS, Creating Directory, and Appending Sensor CSV Log
+</div>
+
+
+<h2 id="day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</h2>
+<p>A FAT32 filesystem organizes storage into <strong>Clusters</strong> (typically 4 KB, consisting of eight 512-byte sectors). The File Allocation Table (FAT) acts as a linked list: entry $N$ contains the index of the next cluster in the file. If power fails while <code>f_write()</code> has updated directory entries but not the FAT table, file cross-linking and corruption occurs. Embedded firmware must issue periodic <code>f_sync()</code> calls to commit metadata.</p>
+
+
+<pre><code class="language-c">
+#include &quot;ff.h&quot;
+
+#define SYNC_INTERVAL_SAMPLES   50U
+
+static FIL g_file;
+static uint32_t g_sample_count = 0;
+
+void power_safe_logger_append(const void *record_bytes, UINT record_size) {
+    UINT bw;
+    f_write(&amp;g_file, record_bytes, record_size, &amp;bw);
+
+    g_sample_count++;
+
+    /* Commit cached FAT tables to physical non-volatile media periodically */
+    if ((g_sample_count % SYNC_INTERVAL_SAMPLES) == 0) {
+        f_sync(&amp;g_file);
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 18.4: Power-Safe High-Throughput FatFS Block Logger with Periodic Sync
+</div>
+
+
+<h2 id="day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</h2>
+<p>Unlike rotating magnetic hard disks, flash sectors will physically degrade if written repeatedly. A circular logging task writing 100 bytes every second directly to sector 0 will destroy the sector in under 3 days ($100\text{K cycles} / 86400\text{s} \approx 1.15\text{ days}$). Wear leveling distributes write cycles evenly across all available sectors.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define TOTAL_LOG_BLOCKS    16U
+#define MAX_ALLOWED_ERASES  100000U
+
+typedef struct {
+    uint32_t physical_block_addr;
+    uint32_t erase_count;
+    bool is_bad_block;
+} BlockWearEntry_t;
+
+static BlockWearEntry_t g_wear_table[TOTAL_LOG_BLOCKS];
+
+uint32_t get_optimal_wear_level_block(void) {
+    uint32_t min_erases = 0xFFFFFFFFU;
+    uint32_t best_index = 0;
+
+    for (uint32_t i = 0; i &lt; TOTAL_LOG_BLOCKS; i++) {
+        if (!g_wear_table[i].is_bad_block &amp;&amp; g_wear_table[i].erase_count &lt; min_erases) {
+            min_erases = g_wear_table[i].erase_count;
+            best_index = i;
+        }
+    }
+
+    /* Audit endurance limit */
+    if (g_wear_table[best_index].erase_count &gt;= (MAX_ALLOWED_ERASES * 8U / 10U)) {
+        /* Warning: Sector has reached 80% of rated endurance */
+    }
+
+    g_wear_table[best_index].erase_count++;
+    return g_wear_table[best_index].physical_block_addr;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 18.5: Wear-Leveling Block Map with Write Count Tracking in C
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Non-Volatile Solid-State Storage Technologies Comparison</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Attribute</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Internal MCU Flash</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">External SPI NOR Flash</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">NAND Flash (eMMC/SD)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">True EEPROM</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Erase Granularity</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 KB - 128 KB Sector</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">4 KB Sector / 64 KB Block</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">128 KB - 2 MB Block</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 Byte</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Write Granularity</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">32-bit Word or 64-bit Double</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">256-byte Page</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 KB - 8 KB Page</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 Byte</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Write Endurance</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">10,000 - 100,000 cycles</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100,000 cycles</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">3,000 - 10,000 (TLC/QLC)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1,000,000 - 4,000,000 cycles</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Read Access Time</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Single-cycle (15-30 ns)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fast SPI (50-133 MHz)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Slow bus transfer (~25 us)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fast byte read (~100 ns)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">XIP (Execute-In-Place)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Yes (Native)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Yes (via QSPI Memory Mapped)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">No (Must load into RAM)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">No</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Primary Use Case</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Application Code & Vectors</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Asset storage, OTA staging</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Mass logging, Linux rootfs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Calibration & board IDs</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">ChaN FatFS Core API Functions Reference</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Function</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Description</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Parameters</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Return Type</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Key Failure Modes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_mount()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Registers / unregisters logical drive work area</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FATFS* fs, const TCHAR* path, BYTE opt</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_NOT_READY (no card detected)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_open()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Opens or creates a file</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FIL* fp, const TCHAR* path, BYTE mode</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_NO_FILE, FR_DENIED</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_read()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Reads data from open file</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FIL* fp, void* buff, UINT btr, UINT* br</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_DISK_ERR (CRC / timeout)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_write()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Writes data buffer to open file</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FIL* fp, const void* buff, UINT btw, UINT* bw</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_DENIED (write-protected)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_sync()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Flushes cached data and directory records</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FIL* fp</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_DISK_ERR</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_lseek()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Moves file read/write pointer</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FIL* fp, FSIZE_t ofs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_INT_ERR</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">f_opendir()</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Opens directory for file scanning</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">DIR* dp, const TCHAR* path</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FRESULT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">FR_NO_PATH</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. Why cannot a single byte in NOR Flash memory be overwritten from 0x00 back to 0xFF without an erase operation?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because programming flash only adds electrons to floating gates (turning 1s into 0s); removing charge (turning 0s to 1s) requires a high-voltage block erase</li><li class="mcq-option" data-correct="false">Because the SPI bus clock is too slow to reverse the byte</li><li class="mcq-option" data-correct="false">Because the compiler flags forbid writing 0xFF</li><li class="mcq-option" data-correct="false">Because NOR Flash only supports read operations</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Flash programming operates unidirectionally: Fowler-Nordheim tunneling or hot-carrier injection traps charge to clear bits from 1 to 0. Quantum discharge requires high reverse voltage applied across the entire sector.">Flash programming operates unidirectionally: Fowler-Nordheim tunneling or hot-carrier injection traps charge to clear bits from 1 to 0. Quantum discharge requires high reverse voltage applied across the entire sector.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. What is the primary function of the f_sync() API call in Chan&#x27;s FatFS library?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To flush internal sector cache buffers and write updated file size and cluster allocation metadata to the physical media</li><li class="mcq-option" data-correct="false">To format the SD card as ext4</li><li class="mcq-option" data-correct="false">To encrypt the file using AES-256</li><li class="mcq-option" data-correct="false">To synchronize the microcontroller clock with an NTP server</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="f_write() buffers data in RAM caches to maximize throughput. If power cuts out before f_sync() or f_close(), unwritten data and directory allocation updates remain in RAM, causing file truncation.">f_write() buffers data in RAM caches to maximize throughput. If power cuts out before f_sync() or f_close(), unwritten data and directory allocation updates remain in RAM, causing file truncation.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What is &#x27;wear leveling&#x27; in solid-state flash memory management?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">An algorithmic technique that distributes erase and write cycles evenly across all physical flash blocks to prevent premature localized sector wear</li><li class="mcq-option" data-correct="false">A physical polishing process applied to silicon wafers during manufacturing</li><li class="mcq-option" data-correct="false">A circuit that regulates supply voltage to the flash chip</li><li class="mcq-option" data-correct="false">A method to increase SPI clock frequencies</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Because flash blocks endure only 10K to 100K erases before oxide degradation causes bit errors, wear leveling maps logical addresses dynamically to ensure all physical blocks wear at equal rates.">Because flash blocks endure only 10K to 100K erases before oxide degradation causes bit errors, wear leveling maps logical addresses dynamically to ensure all physical blocks wear at equal rates.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. What is Execute-In-Place (XIP) in the context of external Quad-SPI (QSPI) NOR Flash?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The CPU core fetches and executes instructions directly from external flash over memory-mapped QSPI without copying the code into SRAM first</li><li class="mcq-option" data-correct="false">The microcontroller executes code only inside the bootloader</li><li class="mcq-option" data-correct="false">Executing Python scripts directly in hardware</li><li class="mcq-option" data-correct="false">Running code without compiling it first</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Using Memory-Mapped Mode on QSPI controllers, external serial flash appears directly inside the 32-bit physical address space (e.g., 0x90000000), allowing instruction execution with transparent cache.">Using Memory-Mapped Mode on QSPI controllers, external serial flash appears directly inside the 32-bit physical address space (e.g., 0x90000000), allowing instruction execution with transparent cache.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. How does Dual-Sector EEPROM Emulation handle variable updates without constantly erasing flash sectors?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">It appends new key-value pairs sequentially into blank words in the active sector; full sector erase only occurs during periodic page transfers</li><li class="mcq-option" data-correct="false">It stores all data in volatile CPU core registers</li><li class="mcq-option" data-correct="false">It writes data into the microcontroller analog comparator</li><li class="mcq-option" data-correct="false">It relies on an external lithium battery to hold RAM states</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="EEPROM emulation writes new records to consecutive blank addresses. Searching for a variable reads backwards to find the newest entry, deferring sector erasure until the page is 100% exhausted.">EEPROM emulation writes new records to consecutive blank addresses. Searching for a variable reads backwards to find the newest entry, deferring sector erasure until the page is 100% exhausted.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. What is the typical page size limit for a single SPI write operation on standard NOR flash chips like the W25Q32?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">256 bytes (writing beyond a 256-byte page wraps around to the beginning of the same page)</li><li class="mcq-option" data-correct="false">16 megabytes</li><li class="mcq-option" data-correct="false">4 kilobytes</li><li class="mcq-option" data-correct="false">1 single bit</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="SPI NOR flash chips incorporate internal 256-byte SRAM page latches. Writing more than 256 bytes in one command causes the internal address pointer to wrap to the page start, overwriting earlier bytes.">SPI NOR flash chips incorporate internal 256-byte SRAM page latches. Writing more than 256 bytes in one command causes the internal address pointer to wrap to the page start, overwriting earlier bytes.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. What does a cluster in the FAT32 filesystem represent?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The fundamental unit of disk allocation composed of a fixed number of contiguous 512-byte sectors</li><li class="mcq-option" data-correct="false">A group of networked microcontrollers</li><li class="mcq-option" data-correct="false">A collection of 32-bit CPU registers</li><li class="mcq-option" data-correct="false">A set of FreeRTOS tasks</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="FAT32 allocates files in clusters (e.g., 4 KB = 8 sectors). The File Allocation Table tracks files as linked chains of cluster numbers.">FAT32 allocates files in clusters (e.g., 4 KB = 8 sectors). The File Allocation Table tracks files as linked chains of cluster numbers.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. Why is true EEPROM preferred over Flash for storing real-time automotive odometer values?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">True EEPROM supports single-byte modification and millions of write cycles without sector erasing overhead</li><li class="mcq-option" data-correct="false">True EEPROM is completely immune to high temperatures</li><li class="mcq-option" data-correct="false">True EEPROM has larger gigabyte capacities</li><li class="mcq-option" data-correct="false">True EEPROM consumes zero current during write cycles</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Odometers write frequently (e.g., every 0.1 km). Flash would quickly burn out its 100K endurance limit, whereas true EEPROM withstands 1M to 4M cycles with single-byte granularity.">Odometers write frequently (e.g., every 0.1 km). Flash would quickly burn out its 100K endurance limit, whereas true EEPROM withstands 1M to 4M cycles with single-byte granularity.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What error occurs if an application attempts to write to a Winbond W25Q flash chip without first issuing command 0x06 (Write Enable)?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The chip silently ignores the programming command because its internal Write Enable Latch (WEL) bit is 0</li><li class="mcq-option" data-correct="false">The microcontroller triggers a BusFault exception</li><li class="mcq-option" data-correct="false">The chip permanently locks its SPI port</li><li class="mcq-option" data-correct="false">The Flash chip explodes</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="NOR flash requires an explicit Write Enable (WREN, 0x06) command before any program or erase command to prevent accidental writes caused by electrical noise on the SPI bus.">NOR flash requires an explicit Write Enable (WREN, 0x06) command before any program or erase command to prevent accidental writes caused by electrical noise on the SPI bus.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. Which FatFS return code indicates that physical communication with the SD card or flash chip failed at the hardware level?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">FR_DISK_ERR</li><li class="mcq-option" data-correct="false">FR_OK</li><li class="mcq-option" data-correct="false">FR_NO_FILE</li><li class="mcq-option" data-correct="false">FR_INVALID_NAME</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="FR_DISK_ERR indicates that the low-level diskio driver returned an error (such as an SPI timeout or CRC check failure) during physical sector read or write operations.">FR_DISK_ERR indicates that the low-level diskio driver returned an error (such as an SPI timeout or CRC check failure) during physical sector read or write operations.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Flash Sector Wear Leveling Auditor</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement an in-memory block allocation table tracking erase counts across 8 sectors. Reject writes to any sector whose erase count exceeds 80,000 cycles; redirect incoming records to the least-worn sector.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Dual-Page EEPROM Emulation Configuration Engine</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Construct a complete eeprom_set(id, val) and eeprom_get(id, *val) library using two 16 KB MCU flash sectors. Include an automatic page swap garbage collector that survives 100 simulated power cuts.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Pre-Allocated Circular File Ring Buffer on FatFS</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a pre-allocated 1 MB binary file on an SD card (&#x27;ring_buffer.bin&#x27;). Implement a circular FIFO pointer mechanism that continuously appends 64-byte records, wrapping around seamlessly without fragmenting the filesystem.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Post-Write Flash CRC32 Guardian</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> After every flash page program operation, read back the newly written bytes and compute their hardware CRC32. Store the CRC in an integrity header; verify all flash blocks during boot before executing application logic.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: MicroSD File System Throughput Benchmark</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a benchmarking application measuring FatFS write throughput (KB/sec) on a microSD card across varying block sizes: 512 bytes, 2 KB, 8 KB, and 32 KB. Print the results over UART in tabular format.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Filesystem Engine</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ChaN</span>
+            </div>
+            <h4>FatFS - Generic FAT Filesystem Module Specification and Architecture</h4>
+            <p>Official documentation for ChaN&#x27;s FatFS, covering cluster mapping, diskio hardware interface, and reentrancy configuration.</p>
+            <a href="http://elm-chan.org/fsw/ff/00index_e.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Silicon Datasheet</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Winbond Electronics</span>
+            </div>
+            <h4>W25Q32JV: 3V 32M-Bit Serial Flash Memory with Dual/Quad SPI and QPI</h4>
+            <p>Industry datasheet detailing standard SPI command sets, page programming timings, and status register bitmasks.</p>
+            <a href="https://www.winbond.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Application Note</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">STMicroelectronics</span>
+            </div>
+            <h4>AN3969: EEPROM emulation in STM32F40x/STM32F41x microcontrollers</h4>
+            <p>Technical guide explaining dual-sector page swap algorithms, atomic state flags, and wear reduction.</p>
+            <a href="https://www.st.com/resource/en/application_note/an3969.pdf" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Flash Technology Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Micron Technology</span>
+            </div>
+            <h4>NOR Flash vs NAND Flash Architecture, Physics, and Reliability Tradeoffs</h4>
+            <p>Semiconductor engineering whitepaper comparing floating-gate endurance, page architecture, and bad block handling.</p>
+            <a href="https://www.micron.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_17.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 17: Low-Power Design &amp; Sleep Modes</span>
+                </a>
+                <a href="day_19.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 19: Safety-Critical Firmware &amp; MISRA-C</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

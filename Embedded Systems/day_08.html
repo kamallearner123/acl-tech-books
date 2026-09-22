@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 8: Capstone: Sensor Logger with Serial Output - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>33%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 1.7 — Capstone 1</span>
+                <h1>Day 8: Capstone: Sensor Logger with Serial Output</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> You have mastered GPIO, timers, ADC, and UART serial communication in isolation. Now prove your engineering mastery: design and construct a complete, interrupt-driven multi-sensor telemetry engine that samples sensors periodically, buffers records in a thread-safe circular queue, formats structured ASCII frames with XOR checksums, and streams data over UART via DMA while maintaining deep CPU sleep.
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 1.7 — Capstone 1</span>
+                            <span class="plan-badge plan-badge-secondary">Module 1: Embedded C Foundations</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Architect an end-to-end event-driven sensor telemetry system.</li><li>Implement a thread-safe power-of-two circular ring buffer (FIFO).</li><li>Integrate hardware timer triggers, ADC conversions, and autonomous UART DMA streaming.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Power-of-two ring buffer bitwise wrap-around mathematics.</li><li>NMEA-0183 structured ASCII framing and 8-bit XOR checksum algorithms.</li><li>System clock tree scaling (168 MHz) and low-power Wait-For-Interrupt (WFI) sleep.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 8.1: System clock initialization to 168 MHz via HSE and PLL.</li><li>Program 8.2: Thread-safe circular telemetry ring buffer implementation.</li><li>Program 8.3: Sensor acquisition abstraction layer for NTC and BMP280.</li><li>Program 8.4: NMEA-style ASCII log frame serializer with XOR checksum.</li><li>Program 8.5: Master acquisition loop with WFI power-saving sleep.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Executing heavy string formatting (snprintf) inside ISRs instead of the main thread.</li><li>Failing to handle ring buffer overruns, silently corrupting unread telemetry records.</li><li>Missing Flash memory wait-state adjustments before boosting core clock to 168 MHz.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</h2>
+<p>Over the preceding seven days, we mastered individual hardware peripherals in isolation: clock tree configuration, bare-metal GPIO manipulation, atomic bitmask registers, interrupt handling via the NVIC, precision hardware timers, analog-to-digital conversion, and serial protocols. In this <strong>Module 1 Capstone Project</strong>, we integrate these disparate elements into an integrated, production-grade <strong>Interrupt-Driven Sensor Logging Engine</strong>.</p>
+<p>The goal is to build an autonomous embedded data logger that samples an analog NTC thermistor and an I2C barometric pressure sensor periodically, buffers measurements inside a thread-safe circular ring buffer, serializes data into structured ASCII NMEA-style frames with checksum validation, and streams telemetry over UART using DMA—all while maximizing processor sleep time between acquisition cycles.</p>
+
+<div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: #2196F3;">
+    <strong>Real World Application:</strong> This architecture serves as the foundation for industrial condition-monitoring sensor pods installed on wind turbines and railroad wheel bearings. These pods monitor thermal decay and vibration signatures, streaming periodic time-stamped health frames over RS-485 serial buses to predictive maintenance gateways.
+</div>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_7-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_7-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.7-1: Capstone Autonomous Sensor Logger System Block Diagram</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Analog Subsystem</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Precision voltage divider with 10k 0.1% resistor and NTC thermistor feeding...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Digital Bus</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        I2C1 running at 400 kHz with 4.7k pull-up resistors reading temperature and...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Host Link</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        USART2 operating at 115200 baud (8-N-1) using DMA streaming for non-blockin...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Power Management</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        CPU resides in Wait-For-Interrupt (WFI) sleep mode during inter-sample inte...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.7-1: Capstone Autonomous Sensor Logger System Block Diagram
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Analog Subsystem:</strong> Precision voltage divider with 10k 0.1% resistor and NTC thermistor feeding ADC1 with hardware RC anti-aliasing filter.</li><li><strong>Digital Bus:</strong> I2C1 running at 400 kHz with 4.7k pull-up resistors reading temperature and pressure from BMP280.</li><li><strong>Host Link:</strong> USART2 operating at 115200 baud (8-N-1) using DMA streaming for non-blocking packet transfer.</li><li><strong>Power Management:</strong> CPU resides in Wait-For-Interrupt (WFI) sleep mode during inter-sample intervals, waking only on timer interrupts.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</h2>
+<p>When an interrupt-driven peripheral produces data faster than a communication channel can transmit it (or when transmission bursts require temporary staging), firmware engineers employ a <strong>Circular Ring Buffer (FIFO)</strong>. The buffer uses fixed-size memory with two monotonic index pointers: <code>head</code> (where producers write new data) and <code>tail</code> (where consumers read old data).</p>
+<p>By sizing the buffer to an exact power of two ($2^N$), index wrap-around is achieved using an ultra-fast bitwise AND mask (<code>index = (index + 1) & (BUFFER_SIZE - 1)</code>) rather than costly division or modulo operations. Furthermore, when single-byte indices are used, producer-consumer operations remain inherently atomic on 32-bit Cortex-M processors.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_7-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_7-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.7-2: Power-of-Two Circular Ring Buffer (FIFO) Architecture</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Head Pointer</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Index where the Producer (Timer / ADC ISR) writes the next incoming sensor ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Tail Pointer</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Index where the Consumer (UART DMA engine) reads the next pending packet fo...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bitwise Wrap-Around</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Buffer size = 16 (0x10); Mask = 15 (0x0F). Index 15 + 1 becomes (16 &amp; 0x0F)...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Buffer Full Condition</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        One slot is left empty to distinguish unambiguously between an empty buffer...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.7-2: Power-of-Two Circular Ring Buffer (FIFO) Architecture
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Head Pointer:</strong> Index where the Producer (Timer / ADC ISR) writes the next incoming sensor packet.</li><li><strong>Tail Pointer:</strong> Index where the Consumer (UART DMA engine) reads the next pending packet for transmission.</li><li><strong>Bitwise Wrap-Around:</strong> Buffer size = 16 (0x10); Mask = 15 (0x0F). Index 15 + 1 becomes (16 &amp; 0x0F) = 0 automatically.</li><li><strong>Buffer Full Condition:</strong> One slot is left empty to distinguish unambiguously between an empty buffer and a full buffer.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</h2>
+<p>To eliminate CPU busy-wait loops, the data acquisition pipeline is governed entirely by hardware events:</p>
+<ol>
+    <li><strong>Hardware Timer Trigger:</strong> General-purpose timer TIM2 fires an Update Event (UEV) every 100 milliseconds.</li>
+    <li><strong>ADC Conversion:</strong> TIM2 TRGO triggers ADC1 conversion of the NTC thermistor channel in hardware.</li>
+    <li><strong>ADC End of Conversion (EOC):</strong> ADC ISR reads the converted digital value, kicks off a rapid non-blocking I2C read of the BMP280 sensor, and calculates physical engineering units.</li>
+    <li><strong>Ring Buffer Push:</strong> The resulting sensor packet is pushed into the circular telemetry ring buffer.</li>
+    <li><strong>UART DMA Dispatch:</strong> If the UART DMA transmitter is idle, the next packet is serialized and DMA transmission begins immediately.</li>
+</ol>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_7-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_7-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.7-3: Data Pipeline: Hardware Timer Trigger to UART DMA Output</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">TIM2 TRGO Trigger</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Hardware internal routing triggers ADC conversion without CPU software inte...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Decoupled Producer/Consu</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        ISRs quickly push raw readings into the ring buffer; serialization and form...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Non-Blocking Execution</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        No peripheral driver ever halts CPU execution with while-loop polling flags...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.7-3: Data Pipeline: Hardware Timer Trigger to UART DMA Output
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>TIM2 TRGO Trigger:</strong> Hardware internal routing triggers ADC conversion without CPU software intervention.</li><li><strong>Decoupled Producer/Consumer:</strong> ISRs quickly push raw readings into the ring buffer; serialization and formatting occur in background thread.</li><li><strong>Non-Blocking Execution:</strong> No peripheral driver ever halts CPU execution with while-loop polling flags.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</h2>
+<p>To ensure robust data parsing on host systems (such as Python telemetry collectors or industrial PLCs), sensor readings are formatted into standardized ASCII frames modeled after the marine <strong>NMEA-0183 standard</strong>. Each frame incorporates a preamble header, sequence counter, comma-separated engineering values, and an 8-bit XOR checksum to detect line corruption:</p>
+<pre style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-family: 'Fira Code', monospace; color: var(--accent);">
+$LOG,&lt;seq&gt;,&lt;temp_c&gt;,&lt;pressure_pa&gt;,&lt;uptime_ms&gt;*&lt;XOR_HEX&gt;
+
+Example: $LOG,1042,24.85,101325,104200*5B
+
+</pre>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_7-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_7-4)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.7-4: Structured ASCII Log Frame Packet Format and Checksum Verification</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Preamble ($LOG)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Enables the host parser to resynchronize immediately if serial bytes are dr...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Sequence Counter</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Monotonically increasing integer tracking packet loss over long deployment ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">XOR Checksum</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Computed by XOR-ing all ASCII character bytes between &#x27;$&#x27; and &#x27;*&#x27;. Guarante...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">CRLF (\r\n)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Standard end-of-frame packet delimiter for stream-based line buffering.
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.7-4: Structured ASCII Log Frame Packet Format and Checksum Verification
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Preamble ($LOG):</strong> Enables the host parser to resynchronize immediately if serial bytes are dropped or garbled.</li><li><strong>Sequence Counter:</strong> Monotonically increasing integer tracking packet loss over long deployment periods.</li><li><strong>XOR Checksum:</strong> Computed by XOR-ing all ASCII character bytes between &#x27;$&#x27; and &#x27;*&#x27;. Guaranteed detection of single-bit bursts.</li><li><strong>CRLF (\r\n):</strong> Standard end-of-frame packet delimiter for stream-based line buffering.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-08-topic-5">8.5 Overrun Detection and Fault Management</h2>
+<p>In real-world deployment, serial cables may be disconnected or transmission buffers may fill up if the baud rate is insufficient. A production-grade embedded logger must detect and report <strong>Buffer Overrun Faults</strong>. When a newly generated sensor reading cannot fit into the ring buffer, an overrun counter is incremented, an amber Error LED is illuminated, and a diagnostic fault flag is injected into the next successful log packet.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_7-5" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_7-5)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.7-5: Sensor Logger Operational State Machine Flowchart</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">STATE_INIT</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Configures PLL to 168 MHz, initializes GPIOs, Timers, ADC, I2C, and UART DM...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">STATE_SLEEP</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Executes WFI instruction; CPU core halts clocking, saving up to 80% dynamic...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">FAULT_OVERRUN</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Latches overrun event, sets diagnostic warning flag, and asserts hardware a...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.7-5: Sensor Logger Operational State Machine Flowchart
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>STATE_INIT:</strong> Configures PLL to 168 MHz, initializes GPIOs, Timers, ADC, I2C, and UART DMA.</li><li><strong>STATE_SLEEP:</strong> Executes WFI instruction; CPU core halts clocking, saving up to 80% dynamic power.</li><li><strong>FAULT_OVERRUN:</strong> Latches overrun event, sets diagnostic warning flag, and asserts hardware alert pin.</li>
+    </ul>
+</div>
+
+<h2 id="day-08-topic-6">8.6 Hands-On Code Implementations</h2>
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define RCC_BASE        0x40023800UL
+#define RCC_CR          (*(volatile uint32_t *)(RCC_BASE + 0x00UL))
+#define RCC_PLLCFGR     (*(volatile uint32_t *)(RCC_BASE + 0x04UL))
+#define RCC_CFGR        (*(volatile uint32_t *)(RCC_BASE + 0x08UL))
+#define FLASH_ACR       (*(volatile uint32_t *)0x40023C00UL)
+
+/* Configure STM32F4 clock tree: External 8MHz Crystal (HSE) -&gt; PLL -&gt; 168 MHz Core Clock */
+void bsp_clock_init_168mhz(void) {
+    /* 1. Enable HSE oscillator */
+    RCC_CR |= (1UL &lt;&lt; 16);
+    while (!(RCC_CR &amp; (1UL &lt;&lt; 17))); /* Wait for HSE ready */
+
+    /* 2. Configure Flash Latency: 5 wait states for 168 MHz operation at 3.3V */
+    FLASH_ACR = (1UL &lt;&lt; 9) | (1UL &lt;&lt; 10) | (5UL &lt;&lt; 0); /* Prefetch, I-Cache, D-Cache, 5 WS */
+
+    /* 3. Configure PLL: PLL_M = 8, PLL_N = 336, PLL_P = 2 -&gt; (8MHz / 8) * 336 / 2 = 168 MHz */
+    RCC_PLLCFGR = (8UL &lt;&lt; 0) | (336UL &lt;&lt; 6) | (0UL &lt;&lt; 16) | (1UL &lt;&lt; 22);
+
+    /* 4. Enable PLL */
+    RCC_CR |= (1UL &lt;&lt; 24);
+    while (!(RCC_CR &amp; (1UL &lt;&lt; 25))); /* Wait for PLL ready */
+
+    /* 5. Set AHB prescaler = 1 (168MHz), APB1 = 4 (42MHz), APB2 = 2 (84MHz) */
+    RCC_CFGR |= (0UL &lt;&lt; 4) | (5UL &lt;&lt; 10) | (4UL &lt;&lt; 13);
+
+    /* 6. Switch System Clock source to PLL */
+    RCC_CFGR |= (2UL &lt;&lt; 0);
+    while ((RCC_CFGR &amp; (3UL &lt;&lt; 2)) != (2UL &lt;&lt; 2)); /* Wait for switch */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.7-1: System Clock and Board Support Package Initialization (bsp_init.c)
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define RING_BUFFER_SIZE    16 /* Must be power of two */
+#define RING_BUFFER_MASK    (RING_BUFFER_SIZE - 1)
+
+typedef struct {
+    uint32_t timestamp_ms;
+    float    temperature_c;
+    float    pressure_pa;
+    uint32_t sequence_num;
+} SensorRecord_t;
+
+typedef struct {
+    SensorRecord_t records[RING_BUFFER_SIZE];
+    volatile uint8_t head;
+    volatile uint8_t tail;
+    volatile uint32_t overrun_count;
+} TelemetryRingBuffer_t;
+
+void ring_buf_init(TelemetryRingBuffer_t *rb) {
+    rb-&gt;head = 0;
+    rb-&gt;tail = 0;
+    rb-&gt;overrun_count = 0;
+}
+
+bool ring_buf_push(TelemetryRingBuffer_t *rb, const SensorRecord_t *item) {
+    uint8_t next_head = (rb-&gt;head + 1) &amp; RING_BUFFER_MASK;
+    
+    if (next_head == rb-&gt;tail) {
+        /* Buffer is full! Record overrun event */
+        rb-&gt;overrun_count++;
+        return false;
+    }
+    
+    rb-&gt;records[rb-&gt;head] = *item;
+    rb-&gt;head = next_head;
+    return true;
+}
+
+bool ring_buf_pop(TelemetryRingBuffer_t *rb, SensorRecord_t *item) {
+    if (rb-&gt;head == rb-&gt;tail) {
+        return false; /* Buffer empty */
+    }
+    
+    *item = rb-&gt;records[rb-&gt;tail];
+    rb-&gt;tail = (rb-&gt;tail + 1) &amp; RING_BUFFER_MASK;
+    return true;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.7-2: Thread-Safe Power-of-Two Circular Telemetry Ring Buffer
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+/* Sensor acquisition API returning physical engineering units */
+float sensor_read_ntc_temperature(void) {
+    /* Reads PA0 ADC1 channel, computes Steinhart-Hart equation */
+    uint16_t raw_adc = 2048; /* Simulated nominal reading */
+    float voltage = (raw_adc / 4095.0f) * 3.3f;
+    float resistance = 10000.0f * (voltage / (3.3f - voltage));
+    
+    /* Approximate linear conversion around 25C for demonstration */
+    return 25.0f + (10000.0f - resistance) * 0.005f;
+}
+
+float sensor_read_bmp280_pressure(void) {
+    /* Reads BMP280 via I2C1 registers, applies factory calibration */
+    return 101325.0f; /* Standard atmospheric pressure in Pascals */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.7-3: Sensor Acquisition Abstraction Layer: NTC + Simulated BMP280
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+uint8_t calculate_xor_checksum(const char *str) {
+    uint8_t checksum = 0;
+    /* Skip leading &#x27;$&#x27; if present */
+    if (*str == &#x27;$&#x27;) str++;
+    
+    while (*str &amp;&amp; *str != &#x27;*&#x27;) {
+        checksum ^= (uint8_t)(*str++);
+    }
+    return checksum;
+}
+
+int serialize_log_frame(char *buffer, uint16_t max_len, uint32_t seq, float temp, float press, uint32_t time_ms) {
+    char temp_buf[96];
+    
+    /* Format payload without checksum */
+    int len = snprintf(temp_buf, sizeof(temp_buf), &quot;$LOG,%lu,%.2f,%.0f,%lu*&quot;, 
+                       seq, temp, press, time_ms);
+                       
+    if (len &lt; 0 || len &gt;= (int)sizeof(temp_buf)) return -1;
+    
+    /* Compute 8-bit XOR checksum */
+    uint8_t chk = calculate_xor_checksum(temp_buf);
+    
+    /* Append checksum in two hex digits and CRLF */
+    return snprintf(buffer, max_len, &quot;%s%02X\r\n&quot;, temp_buf, chk);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.7-4: NMEA-Style Log Frame Serializer with XOR Checksum Calculation
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+static TelemetryRingBuffer_t g_telemetry_queue;
+static volatile bool g_sample_trigger_flag = false;
+static uint32_t g_sequence_counter = 0;
+
+/* TIM2 Interrupt Service Routine: Sets trigger flag every 100 ms */
+void TIM2_IRQHandler(void) {
+    /* Clear update interrupt flag */
+    *(volatile uint32_t *)0x40000010UL &amp;= ~(1UL &lt;&lt; 0);
+    g_sample_trigger_flag = true;
+}
+
+int main(void) {
+    bsp_clock_init_168mhz();
+    ring_buf_init(&amp;g_telemetry_queue);
+    
+    char tx_packet_buffer[128];
+
+    while (1) {
+        if (g_sample_trigger_flag) {
+            g_sample_trigger_flag = false;
+            
+            /* Acquire sensor telemetry */
+            SensorRecord_t record;
+            record.timestamp_ms = g_sequence_counter * 100;
+            record.temperature_c = sensor_read_ntc_temperature();
+            record.pressure_pa = sensor_read_bmp280_pressure();
+            record.sequence_num = ++g_sequence_counter;
+            
+            /* Push to circular buffer */
+            if (!ring_buf_push(&amp;g_telemetry_queue, &amp;record)) {
+                /* Hardware Error LED assertion on buffer overrun */
+            }
+        }
+        
+        /* Process pending queue records */
+        SensorRecord_t pending_item;
+        if (ring_buf_pop(&amp;g_telemetry_queue, &amp;pending_item)) {
+            int frame_len = serialize_log_frame(tx_packet_buffer, sizeof(tx_packet_buffer),
+                                               pending_item.sequence_num,
+                                               pending_item.temperature_c,
+                                               pending_item.pressure_pa,
+                                               pending_item.timestamp_ms);
+            if (frame_len &gt; 0) {
+                /* Initiate non-blocking UART DMA streaming */
+            }
+        }
+        
+        /* Sleep until next hardware interrupt */
+        __asm__ volatile(&quot;wfi&quot;);
+    }
+    return 0;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.7-5: Master Capstone Main Acquisition Superloop with WFI Power Sleep
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Industrial Sensor Logging Architectures Comparison</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">System Architecture</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">CPU Utilization</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Power Draw (Active/Sleep)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Max Sample Rate</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Overrun Resilience</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Industrial Suitability</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Polled Superloop</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100% (No Sleep)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">High (35 mA continuous)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (&lt; 50 Hz)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Very Poor (Data loss during delays)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Toy projects, simple non-time-critical demos</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Interrupt-Driven + Ring Buffer</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">3% - 8%</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (&lt; 3 mA average)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">High (1 kHz - 10 kHz)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Excellent (Buffers burst loads safely)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Industrial data loggers, environmental telemetry pods</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Full RTOS (FreeRTOS) Multi-Tasking</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">5% - 12%</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (Tickless Idle &lt; 2 mA)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Very High (10 kHz+)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Superior (Prioritized queues & mailboxes)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Safety-critical automotive ECUs, avionics flight recorders</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. Why is sizing a circular ring buffer to an exact power of two (e.g. 16, 32, 64) considered best practice in embedded firmware?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">Because Cortex-M hardware requires RAM allocations in powers of two</li><li class="mcq-option" data-correct="true">Because index wrap-around can be executed using an ultra-fast bitwise AND mask instead of a costly division/modulo instruction</li><li class="mcq-option" data-correct="false">To prevent Flash memory wear</li><li class="mcq-option" data-correct="false">Because it doubles the serial baud rate</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If BUFFER_SIZE is 2^N, `(idx + 1) &amp; (BUFFER_SIZE - 1)` wraps around in a single CPU clock cycle, avoiding the 2-12 cycle hardware divide instruction.">If BUFFER_SIZE is 2^N, `(idx + 1) &amp; (BUFFER_SIZE - 1)` wraps around in a single CPU clock cycle, avoiding the 2-12 cycle hardware divide instruction.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. In the NMEA-style checksum calculation `$LOG,...*XX\r\n`, which characters are included in the 8-bit XOR calculation?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">All characters from the leading &#x27;$&#x27; through the trailing &#x27;\n&#x27;</li><li class="mcq-option" data-correct="true">Only characters situated strictly between &#x27;$&#x27; and &#x27;*&#x27; exclusive</li><li class="mcq-option" data-correct="false">Only numeric payload digits</li><li class="mcq-option" data-correct="false">The entire packet including the checksum itself</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The standard NMEA XOR checksum calculates the cumulative XOR sum of all ASCII bytes appearing between the start delimiter &#x27;$&#x27; and the checksum delimiter &#x27;*&#x27;.">The standard NMEA XOR checksum calculates the cumulative XOR sum of all ASCII bytes appearing between the start delimiter &#x27;$&#x27; and the checksum delimiter &#x27;*&#x27;.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What happens when an interrupt-driven producer attempts to push a new sensor record into a completely full ring buffer?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">The CPU halts and triggers a HardFault</li><li class="mcq-option" data-correct="true">A Buffer Overrun condition occurs; firmware must either drop the sample or overwrite oldest data while logging the fault</li><li class="mcq-option" data-correct="false">The timer frequency is automatically halved</li><li class="mcq-option" data-correct="false">The UART baud rate is doubled</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="A full buffer cannot accept new items without dropping them or overwriting unread data. Robust systems log the overrun count to alert supervisors.">A full buffer cannot accept new items without dropping them or overwriting unread data. Robust systems log the overrun count to alert supervisors.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. What instruction is executed at the end of the main acquisition loop to put the ARM Cortex-M processor into low-power sleep until the next interrupt?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">NOP</li><li class="mcq-option" data-correct="true">WFI (Wait For Interrupt)</li><li class="mcq-option" data-correct="false">SVC 0</li><li class="mcq-option" data-correct="false">BKPT 0</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The WFI (Wait For Interrupt) instruction stops the CPU core clock, drastically cutting power consumption until any enabled interrupt wakes it.">The WFI (Wait For Interrupt) instruction stops the CPU core clock, drastically cutting power consumption until any enabled interrupt wakes it.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. Why is separating the raw data acquisition (in ISR) from the ASCII string formatting (in main loop) an essential architectural pattern?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because string formatting functions like snprintf() are heavy and non-reentrant, and would severely inflate interrupt latency if executed inside an ISR</li><li class="mcq-option" data-correct="false">Because ISRs cannot access character arrays</li><li class="mcq-option" data-correct="false">Because snprintf() requires an external FPU coprocessor</li><li class="mcq-option" data-correct="false">Because ASCII characters cannot be stored in SRAM</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="String formatting consumes thousands of clock cycles and stack memory. Executing it inside an ISR starves other urgent hardware interrupts.">String formatting consumes thousands of clock cycles and stack memory. Executing it inside an ISR starves other urgent hardware interrupts.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. How does the ring buffer full condition `(head + 1) &amp; MASK == tail` prevent ambiguous buffer states?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">It leaves one buffer slot intentionally empty so `head == tail` always uniquely denotes an empty buffer</li><li class="mcq-option" data-correct="false">It doubles the buffer capacity automatically</li><li class="mcq-option" data-correct="false">It triggers a DMA interrupt</li><li class="mcq-option" data-correct="false">It reverses the queue direction</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Reserving one empty slot guarantees that head == tail signifies an empty queue, while (head + 1) &amp; MASK == tail uniquely identifies a full queue.">Reserving one empty slot guarantees that head == tail signifies an empty queue, while (head + 1) &amp; MASK == tail uniquely identifies a full queue.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. What clock configuration step must be executed before increasing the CPU core frequency from 16 MHz to 168 MHz on an STM32F4?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">Disabling all GPIO pins</li><li class="mcq-option" data-correct="true">Increasing the Flash ACR wait states (latency) to 5 wait states to prevent memory read corruption</li><li class="mcq-option" data-correct="false">Enabling the software watchdog</li><li class="mcq-option" data-correct="false">Setting all UART ports to 9600 baud</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Internal Flash memory cannot be read at 168 MHz. Software must increase Flash wait states (latency cycles) in FLASH_ACR before accelerating the clock.">Internal Flash memory cannot be read at 168 MHz. Software must increase Flash wait states (latency cycles) in FLASH_ACR before accelerating the clock.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. What is the primary benefit of streaming telemetry packets via UART using a DMA controller instead of an interrupt-per-byte approach?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">DMA eliminates electromagnetic interference</li><li class="mcq-option" data-correct="true">DMA requires zero CPU interrupts during the entire multi-byte packet transfer, firing only once when the transmission completes</li><li class="mcq-option" data-correct="false">DMA automatically verifies the XOR checksum</li><li class="mcq-option" data-correct="false">DMA converts ASCII characters to binary bytes</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="DMA offloads memory-to-peripheral transfers entirely, freeing the CPU core to sleep or compute sensor filters without taking 100+ context switches.">DMA offloads memory-to-peripheral transfers entirely, freeing the CPU core to sleep or compute sensor filters without taking 100+ context switches.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. In the context of the sensor logger, why is a monotonically increasing sequence counter included in each transmitted frame?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To calibrate the ADC voltage reference</li><li class="mcq-option" data-correct="true">To allow the receiving host to immediately detect dropped packets or transmission dropouts</li><li class="mcq-option" data-correct="false">To set the real-time clock time</li><li class="mcq-option" data-correct="false">To synchronize SPI phase clocks</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="A missing sequence number (e.g. jumping from 104 to 106) immediately alerts the receiving system that a packet was lost over the communication channel.">A missing sequence number (e.g. jumping from 104 to 106) immediately alerts the receiving system that a packet was lost over the communication channel.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. What hardware peripheral trigger automatically initiates the ADC conversion in our Capstone pipeline without CPU software intervention?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">TIM2 TRGO (Trigger Output) event</li><li class="mcq-option" data-correct="false">Watchdog reset</li><li class="mcq-option" data-correct="false">SysTick counter overflow</li><li class="mcq-option" data-correct="false">UART RXNE flag</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Routing TIM2 TRGO directly into the ADC trigger input ensures microsecond-deterministic sampling rates independent of CPU software load.">Routing TIM2 TRGO directly into the ADC trigger input ensures microsecond-deterministic sampling rates independent of CPU software load.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Quad-Sensor Array Expansion with Ambient Light Sensing</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Wire an optical Light Dependent Resistor (LDR) to ADC1 Channel 1. Update the Capstone acquisition pipeline to sample temperature, barometric pressure, and ambient lux, serializing all four telemetry metrics into the ASCII log frame.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Dual-Mode Compact Binary Telemetry Frame Mode</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement an alternative binary frame mode toggleable via a UART command. Define a packed C struct (Header 0xAA55, uint32_t seq, float temp, float press, CRC16) that reduces packet size by 65% compared to ASCII.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Non-Volatile SD Card Logging with FatFS Staging</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Instead of merely streaming data over UART, stage sensor log packets inside the ring buffer and flush 512-byte blocks to an external micro-SD card formatted with FAT32 using the FatFS library over SPI.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Buffer Overrun Injection &amp; Recovery Validation</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Artificially stall the UART transmission engine for 2 seconds while the timer continues pushing sensor records. Verify that the overrun counter accurately increments, the Error LED lights up, and the system resumes without memory leaks.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Python Host Live Telemetry Plotter and Checksum Verifier</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a Python script on your host PC using `pyserial` and `matplotlib`. Read serial frames, verify the XOR checksum of each packet, discard corrupted frames, and plot real-time temperature and pressure curves dynamically.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Protocol Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">National Marine Electronics Association</span>
+            </div>
+            <h4>NMEA-0183 Standard for Interfacing Marine Electronic Devices</h4>
+            <p>Foundational specification for comma-separated ASCII serial telemetry frames, start delimiters, talker IDs, and XOR checksum verification algorithms.</p>
+            <a href="https://www.nmea.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Design Pattern Handbook</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Miro Samek (Newnes)</span>
+            </div>
+            <h4>Practical UML Statecharts in C/C++: Event-Driven Programming for Embedded Systems</h4>
+            <p>Comprehensive architectural guide covering non-blocking state machines, event-driven pipelines, active object patterns, and ring buffer queues.</p>
+            <a href="https://www.state-machine.com/psicc2" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Hardware Engineering Manual</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">STMicroelectronics</span>
+            </div>
+            <h4>AN4031: Using the DMA controller on STM32F2, STM32F4 and STM32F7 Series</h4>
+            <p>Application guide detailing circular memory streaming, FIFO threshold configurations, and multi-peripheral DMA priority arbitration.</p>
+            <a href="https://www.st.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_07.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 7: UART, SPI &amp; I2C</span>
+                </a>
+                <a href="day_09.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 9: RTOS Fundamentals (FreeRTOS)</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

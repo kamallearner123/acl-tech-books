@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2: Memory Architecture &amp; Bit Manipulation - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>8%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 1.1</span>
+                <h1>Day 2: Memory Architecture &amp; Bit Manipulation</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> Embedded systems operate with severely constrained static RAM (often 8KB to 96KB) and lack dynamic memory managers. Every byte and every bit directly controls hardware pins and status registers. How do you master memory layouts and bit manipulation to engineer lean, deterministic firmware?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 1.1</span>
+                            <span class="plan-badge plan-badge-secondary">Module 1: Embedded C Foundations</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Demystify Harvard vs Von Neumann architecture and CPU bus routing.</li><li>Master struct memory alignment, padding elimination, and struct packing.</li><li>Implement professional bitmask manipulation macros and Q16.16 fixed-point math.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>I-Code, D-Code, and System Bus concurrency in ARM Cortex-M cores.</li><li>Memory alignment constraints and compiler padding mechanics.</li><li>Stack frame mechanics and stack overflow detection techniques.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 2.1: Production bitmask macro suite for register bit control.</li><li>Program 2.2: Register hardware mapping via bit-fields and anonymous unions.</li><li>Program 2.3: Struct memory alignment audit and compiler packing analysis.</li><li>Program 2.4: Runtime stack canary guard detecting stack boundary violations.</li><li>Program 2.5: High-performance Q16.16 fixed-point math library.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Unaligned 32-bit pointer dereferencing causing UsageFaults.</li><li>Hidden padding bytes silently exhausting SRAM buffers.</li><li>Integer overflow when multiplying fixed-point variables without 64-bit accumulators.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</h2>
+<p>Microcontroller computational performance and deterministic instruction execution depend fundamentally on CPU bus topology. In classical <strong>Von Neumann Architecture</strong>, instructions (code) and variables (data) share a unified physical bus and memory address space. Consequently, the CPU cannot fetch a machine instruction and read/write a data operand in the same clock cycle; this operational bottleneck is historically referred to as the <em>Von Neumann Bottleneck</em>.</p>
+<p>In contrast, modern embedded processor architectures (such as ARM Cortex-M3, M4, and M7 cores) implement <strong>Modified Harvard Architecture</strong>. The core incorporates physically separate bus interfaces: the <strong>I-Code (Instruction) Bus</strong> fetches instructions from non-volatile Flash, while the <strong>D-Code (Data) Bus</strong> accesses literal pools and static constants simultaneously. A third <strong>System (S-Bus)</strong> handles peripheral registers and SRAM accesses. This parallel routing permits single-cycle instruction execution concurrently with SRAM load/store operations.</p>
+
+<div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: #2196F3;">
+    <strong>Real World Example:</strong> In a flight controller's inertial measurement unit (IMU) digital filtering loop, the Cortex-M4 core fetches the next Multiply-Accumulate (MLA) instruction over the I-Code bus while simultaneously reading the next 16-bit gyro axis sample from SRAM over the S-Bus, sustaining a deterministic 1000 Hz control loop without bus contention stalls.
+</div>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_1-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_1-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.1-1: Harvard vs. Von Neumann Architecture Bus Topology</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">I-Code Bus</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Dedicated 32-bit AHB bus fetching opcodes from Flash memory address range 0...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">D-Code Bus</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Dedicated 32-bit AHB bus fetching literal constants and vector table pointe...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">System Bus (S-Bus)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Transfers data to/from internal SRAM1, SRAM2, and peripheral bridge registe...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bus Matrix Arbiter</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Hardware crossbar arbitrating concurrent master requests (CPU vs. DMA) usin...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.1-1: Harvard vs. Von Neumann Architecture Bus Topology
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>I-Code Bus:</strong> Dedicated 32-bit AHB bus fetching opcodes from Flash memory address range 0x00000000 to 0x1FFFFFFF.</li><li><strong>D-Code Bus:</strong> Dedicated 32-bit AHB bus fetching literal constants and vector table pointers from Flash.</li><li><strong>System Bus (S-Bus):</strong> Transfers data to/from internal SRAM1, SRAM2, and peripheral bridge registers.</li><li><strong>Bus Matrix Arbiter:</strong> Hardware crossbar arbitrating concurrent master requests (CPU vs. DMA) using round-robin and priority policies.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</h2>
+<p>ARM 32-bit architectures require data to be aligned in memory to multiples of its native size to ensure optimal bus transfer efficiency. A 32-bit integer (<code>uint32_t</code>) must reside at an address divisible by 4; a 16-bit short (<code>uint16_t</code>) at an address divisible by 2; single bytes (<code>uint8_t</code>) can reside at any address. When struct members are arranged non-optimally, the compiler inserts silent <strong>padding bytes</strong> to guarantee alignment, consuming precious SRAM.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_1-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_1-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.1-2: Structure Memory Alignment and Padding on a 32-Bit Microcontroller</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Natural Alignment</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Variables of size N bytes must reside at memory addresses where Address % N...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Compiler Padding</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Invisible bytes inserted between struct fields by the compiler to honor ABI...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">__attribute__((packed))</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        GCC directive forbidding padding bytes. Reduces RAM usage at the cost of ge...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Reordering Rule</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Declare struct members in descending order of size (64-bit -&gt; 32-bit -&gt; 16-...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.1-2: Structure Memory Alignment and Padding on a 32-Bit Microcontroller
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Natural Alignment:</strong> Variables of size N bytes must reside at memory addresses where Address % N == 0.</li><li><strong>Compiler Padding:</strong> Invisible bytes inserted between struct fields by the compiler to honor ABI alignment rules.</li><li><strong>__attribute__((packed)):</strong> GCC directive forbidding padding bytes. Reduces RAM usage at the cost of generating multiple unaligned byte-load instructions.</li><li><strong>Reordering Rule:</strong> Declare struct members in descending order of size (64-bit -&gt; 32-bit -&gt; 16-bit -&gt; 8-bit) to eliminate padding automatically.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-02-topic-3">2.3 The Anatomy of the Call Stack & Stack Overflow Detection</h2>
+<p>The call stack operates as a Last-In, First-Out (LIFO) data structure growing downwards from high memory to low memory in Cortex-M SRAM. Each C function invocation pushes a <strong>Stack Frame</strong> containing saved caller registers, local function variables, and the return address. When nested function calls or deep recursion exceed allocated SRAM stack boundaries, the stack collides with global <code>.bss</code> variables or the heap—a catastrophic bug known as a <strong>Stack Overflow</strong>.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_1-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_1-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.1-3: Microcontroller Call Stack Growth &amp; Stack Canary Watermarking</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Stack Pointer (MSP/PSP)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Cortex-M register pointing to the current top of active stack frame.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Stack Frame</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Contains R0-R3 parameter registers, R12, LR (Return Address), PC, and xPSR ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Stack Canary</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Known sentinel pattern (e.g. 0xDEADBEEF) placed at the stack boundary to de...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Stack Watermarking</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Technique of pre-filling stack with 0xA5A5A5A5 to calculate maximum runtime...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.1-3: Microcontroller Call Stack Growth &amp; Stack Canary Watermarking
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Stack Pointer (MSP/PSP):</strong> Cortex-M register pointing to the current top of active stack frame.</li><li><strong>Stack Frame:</strong> Contains R0-R3 parameter registers, R12, LR (Return Address), PC, and xPSR pushed during interrupts or calls.</li><li><strong>Stack Canary:</strong> Known sentinel pattern (e.g. 0xDEADBEEF) placed at the stack boundary to detect illegal stack penetration.</li><li><strong>Stack Watermarking:</strong> Technique of pre-filling stack with 0xA5A5A5A5 to calculate maximum runtime stack consumption.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-02-topic-4">2.4 Bit Manipulation Operators & Hardware Register Bitmasks</h2>
+<p>Microcontroller peripheral registers are collections of individual status flags and control bit fields. Embedded software engineers must perform bitwise atomic modifications without disturbing neighboring configuration bits. This requires mastering the six foundational bitwise operators: Bitwise AND (<code>&</code>), OR (<code>|</code>), XOR (<code>^</code>), NOT (<code>~</code>), Left Shift (<code>&lt;&lt;</code>), and Right Shift (<code>&gt;&gt;</code>).</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_1-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_1-4)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.1-4: Register Bit Manipulation: Set, Clear, Toggle, and Read Bitmask Flow</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">SET Bit Operation</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Uses OR with a mask of 1s to drive selected bits HIGH while leaving other b...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">CLEAR Bit Operation</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Uses AND with the bitwise NOT of the mask to force selected bits LOW withou...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">TOGGLE Bit Operation</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Uses XOR with a mask of 1s to invert the target bit state atomically.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">READ / EXTRACT Field</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Shifts target field to LSB position and applies a multi-bit mask to isolate...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.1-4: Register Bit Manipulation: Set, Clear, Toggle, and Read Bitmask Flow
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>SET Bit Operation:</strong> Uses OR with a mask of 1s to drive selected bits HIGH while leaving other bits unchanged.</li><li><strong>CLEAR Bit Operation:</strong> Uses AND with the bitwise NOT of the mask to force selected bits LOW without disturbing adjacent fields.</li><li><strong>TOGGLE Bit Operation:</strong> Uses XOR with a mask of 1s to invert the target bit state atomically.</li><li><strong>READ / EXTRACT Field:</strong> Shifts target field to LSB position and applies a multi-bit mask to isolate field value.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</h2>
+<p>Low-power microcontrollers (such as Cortex-M0+ cores) frequently lack a hardware Floating-Point Unit (FPU). Executing software floating-point emulation requires hundreds of cycles per operation and bloats code size. Professional firmware engineers utilize <strong>Fixed-Point Arithmetic</strong> (such as Q16.16 or Q8.8 notation), scaling decimal values into integer types to execute microsecond sensor calculations using standard integer ALU instructions.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_1-5" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_1-5)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.1-5: Fixed-Point Q16.16 Format Binary Representation</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Radix Point</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        An implied decimal point separating integer bits from fractional bits.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Resolution</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        In Q16.16, the smallest representable fraction is 1 / (2^16) = 1 / 65536 ≈ ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Dynamic Range</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Supports numbers from -32768.0 to +32767.99998 without invoking IEEE-754 fl...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Multiplication Scaling</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Multiplying two Q16.16 numbers produces a 64-bit intermediate result requir...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.1-5: Fixed-Point Q16.16 Format Binary Representation
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Radix Point:</strong> An implied decimal point separating integer bits from fractional bits.</li><li><strong>Resolution:</strong> In Q16.16, the smallest representable fraction is 1 / (2^16) = 1 / 65536 ≈ 0.00001525.</li><li><strong>Dynamic Range:</strong> Supports numbers from -32768.0 to +32767.99998 without invoking IEEE-754 float libraries.</li><li><strong>Multiplication Scaling:</strong> Multiplying two Q16.16 numbers produces a 64-bit intermediate result requiring a right-shift by 16 bits.</li>
+    </ul>
+</div>
+
+<h2 id="day-02-topic-6">2.6 Hands-On Code Implementations</h2>
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Canonical Embedded Bit Manipulation Macros */
+#define BIT(x)                      (1UL &lt;&lt; (x))
+#define BIT_SET(reg, bit)           ((reg) |= BIT(bit))
+#define BIT_CLEAR(reg, bit)         ((reg) &amp;= ~BIT(bit))
+#define BIT_TOGGLE(reg, bit)        ((reg) ^= BIT(bit))
+#define BIT_READ(reg, bit)          (((reg) &gt;&gt; (bit)) &amp; 1UL)
+
+/* Multi-bit Field Masking Macros */
+#define FIELD_MASK(width, pos)      (((1UL &lt;&lt; (width)) - 1UL) &lt;&lt; (pos))
+#define FIELD_WRITE(reg, width, pos, val)     ((reg) = ((reg) &amp; ~FIELD_MASK(width, pos)) | (((val) &amp; ((1UL &lt;&lt; (width)) - 1UL)) &lt;&lt; (pos)))
+#define FIELD_READ(reg, width, pos)     (((reg) &gt;&gt; (pos)) &amp; ((1UL &lt;&lt; (width)) - 1UL))
+
+/* Simulated Hardware Register */
+static volatile uint32_t GPIOA_MODER = 0x00000000;
+
+int main(void) {
+    /* Configure Pin 5 as Alternate Function (mode = 0b10, 2 bits wide at position 10) */
+    FIELD_WRITE(GPIOA_MODER, 2, 10, 0x02);
+
+    /* Verify configured field */
+    uint32_t mode = FIELD_READ(GPIOA_MODER, 2, 10);
+    
+    /* Toggle pin 5 state */
+    volatile uint32_t GPIOA_ODR = 0;
+    BIT_SET(GPIOA_ODR, 5);
+    BIT_TOGGLE(GPIOA_ODR, 5);
+
+    return (mode == 0x02) ? 0 : 1;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.1-1: Production Bitmask Macro Suite for Hardware Peripheral Control
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+/* Modeling STM32 GPIO_MODER register using CMSIS-style bit-fields */
+typedef union {
+    uint32_t raw;
+    struct {
+        uint32_t pin0  : 2;
+        uint32_t pin1  : 2;
+        uint32_t pin2  : 2;
+        uint32_t pin3  : 2;
+        uint32_t pin4  : 2;
+        uint32_t pin5  : 2;
+        uint32_t pin6  : 2;
+        uint32_t pin7  : 2;
+        uint32_t pin8  : 2;
+        uint32_t pin9  : 2;
+        uint32_t pin10 : 2;
+        uint32_t pin11 : 2;
+        uint32_t pin12 : 2;
+        uint32_t pin13 : 2;
+        uint32_t pin14 : 2;
+        uint32_t pin15 : 2;
+    } bits;
+} GPIO_MODER_Type;
+
+/* Pin mode enumerations */
+typedef enum {
+    GPIO_MODE_INPUT     = 0x00,
+    GPIO_MODE_OUTPUT    = 0x01,
+    GPIO_MODE_ALT_FUNC  = 0x02,
+    GPIO_MODE_ANALOG    = 0x03
+} GPIO_PinMode_t;
+
+void configure_led_pin(volatile GPIO_MODER_Type *moder) {
+    /* Modify pin 5 mode directly without manual bitmask shifting */
+    moder-&gt;bits.pin5 = GPIO_MODE_OUTPUT;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.1-2: Hardware Register Modeling via Struct Bit-Fields and Unions
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+
+/* Struct A: Inefficient layout with 5 bytes of padding */
+typedef struct {
+    uint8_t  flag1;      /* 1 byte + 3 bytes padding */
+    uint32_t timestamp;  /* 4 bytes */
+    uint16_t sensor_val; /* 2 bytes + 2 bytes padding */
+} Telemetry_Padded_t;
+
+/* Struct B: Reordered optimally - zero padding */
+typedef struct {
+    uint32_t timestamp;  /* 4 bytes */
+    uint16_t sensor_val; /* 2 bytes */
+    uint8_t  flag1;      /* 1 byte  */
+    uint8_t  reserved;   /* 1 byte  */
+} Telemetry_Optimal_t;
+
+/* Struct C: Packed attribute - forces exact 7 bytes (used for network/CAN protocols) */
+typedef struct __attribute__((packed)) {
+    uint8_t  flag1;      /* 1 byte */
+    uint32_t timestamp;  /* 4 bytes */
+    uint16_t sensor_val; /* 2 bytes */
+} Telemetry_Packed_t;
+
+void audit_memory_sizes(void) {
+    /* Padded struct: sizeof = 12 bytes */
+    /* Optimal struct: sizeof = 8 bytes (33% RAM savings!) */
+    /* Packed struct:  sizeof = 7 bytes */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.1-3: Struct Alignment, Padding Audit, and Packing Effects
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define CANARY_MAGIC 0xDEADBEEFUL
+#define CANARY_ZONE_SIZE 8
+
+/* Linker symbols defining memory limits */
+extern uint32_t _sbss;
+static volatile uint32_t stack_canary[CANARY_ZONE_SIZE];
+
+void stack_canary_init(void) {
+    for (int i = 0; i &lt; CANARY_ZONE_SIZE; i++) {
+        stack_canary[i] = CANARY_MAGIC;
+    }
+}
+
+bool stack_canary_verify(void) {
+    for (int i = 0; i &lt; CANARY_ZONE_SIZE; i++) {
+        if (stack_canary[i] != CANARY_MAGIC) {
+            /* STACK OVERFLOW DETECTED! Corrupted sentinel word */
+            return false;
+        }
+    }
+    return true;
+}
+
+void trigger_stack_fault(void) {
+    /* Safe recovery: halt execution, disable actuators, alert supervisor */
+    while (1) {
+        __asm__ volatile(&quot;bkpt 0&quot;);
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.1-4: Runtime Stack Overflow Canary Guard Implementation
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+/* Q16.16 Fixed Point Type: 16 integer bits, 16 fractional bits */
+typedef int32_t q16_t;
+
+#define Q16_SHIFT           16
+#define INT_TO_Q16(x)       ((q16_t)((x) &lt;&lt; Q16_SHIFT))
+#define FLOAT_TO_Q16(x)     ((q16_t)((x) * 65536.0f + ((x) &gt;= 0 ? 0.5f : -0.5f)))
+#define Q16_TO_INT(x)       ((int32_t)((x) &gt;&gt; Q16_SHIFT))
+#define Q16_TO_FLOAT(x)     (((float)(x)) / 65536.0f)
+
+/* Q16.16 Addition &amp; Subtraction (standard integer add) */
+static inline q16_t q16_add(q16_t a, q16_t b) {
+    return a + b;
+}
+
+/* Q16.16 Multiplication with 64-bit intermediate accumulator */
+static inline q16_t q16_mul(q16_t a, q16_t b) {
+    int64_t result = (int64_t)a * (int64_t)b;
+    return (q16_t)(result &gt;&gt; Q16_SHIFT);
+}
+
+/* Q16.16 Division */
+static inline q16_t q16_div(q16_t a, q16_t b) {
+    int64_t dividend = (int64_t)a &lt;&lt; Q16_SHIFT;
+    return (q16_t)(dividend / b);
+}
+
+/* Example: Computing temperature calibration: y = m * x + c */
+q16_t calibrate_temperature(q16_t raw_adc, q16_t slope, q16_t offset) {
+    return q16_add(q16_mul(raw_adc, slope), offset);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.1-5: High-Performance Fixed-Point Q16.16 Mathematical Library
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Bitwise Logic Operations in Embedded Firmware</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Operation</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">C Syntax</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Machine Logic</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Primary Firmware Use Case</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bitwise AND</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">reg & mask</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 only if both bits 1</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Clearing bits, isolating status flags, checking pin state</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bitwise OR</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">reg | mask</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 if either bit 1</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Setting control bits, asserting enable flags</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bitwise XOR</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">reg ^ mask</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 if bits differ</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Toggling status LEDs, computing CRC checksums, parity checks</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bitwise NOT</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">~mask</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Inverts all bits</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Creating inverted clear masks (~(1 << bit))</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Left Shift</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">val << n</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Shifts bits left by n</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Constructing bitmasks, fast multiplication by powers of 2</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Right Shift</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">val >> n</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Shifts bits right by n</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Extracting multi-bit register fields, fixed-point math</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. Why can an ARM Cortex-M4 processor fetch an instruction and read a data variable in the exact same clock cycle?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">It uses an on-chip branch prediction coprocessor</li><li class="mcq-option" data-correct="true">It uses Modified Harvard Architecture with separate I-Code and S-Bus interconnects</li><li class="mcq-option" data-correct="false">It runs at twice the system crystal oscillator frequency</li><li class="mcq-option" data-correct="false">It translates all C code into microcode in SRAM</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Modified Harvard Architecture provides independent physical bus lines (I-Code for instruction flash and System/D-Code bus for SRAM and peripherals), eliminating bus contention.">Modified Harvard Architecture provides independent physical bus lines (I-Code for instruction flash and System/D-Code bus for SRAM and peripherals), eliminating bus contention.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. What is the size of `struct { uint8_t a; uint32_t b; uint16_t c; }` on a 32-bit ARM compiler without packing?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">7 bytes</li><li class="mcq-option" data-correct="false">8 bytes</li><li class="mcq-option" data-correct="true">12 bytes</li><li class="mcq-option" data-correct="false">16 bytes</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Member &#x27;a&#x27; takes 1 byte + 3 bytes padding (to align &#x27;b&#x27; at offset 4). &#x27;b&#x27; takes 4 bytes. &#x27;c&#x27; takes 2 bytes + 2 trailing padding bytes to make the struct total a multiple of 4 (12 bytes).">Member &#x27;a&#x27; takes 1 byte + 3 bytes padding (to align &#x27;b&#x27; at offset 4). &#x27;b&#x27; takes 4 bytes. &#x27;c&#x27; takes 2 bytes + 2 trailing padding bytes to make the struct total a multiple of 4 (12 bytes).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. Which C statement atomically and correctly clears bit 13 of a 32-bit peripheral register without affecting other bits?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">REG |= (1UL &lt;&lt; 13);</li><li class="mcq-option" data-correct="true">REG &amp;= ~(1UL &lt;&lt; 13);</li><li class="mcq-option" data-correct="false">REG ^= (1UL &lt;&lt; 13);</li><li class="mcq-option" data-correct="false">REG = (1UL &lt;&lt; 13);</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="REG &amp;= ~(1UL &lt;&lt; 13) uses bitwise NOT to invert the mask (giving 0 at bit 13 and 1s elsewhere) and bitwise AND to force bit 13 to 0 while preserving other bits.">REG &amp;= ~(1UL &lt;&lt; 13) uses bitwise NOT to invert the mask (giving 0 at bit 13 and 1s elsewhere) and bitwise AND to force bit 13 to 0 while preserving other bits.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. What is the primary risk of using `__attribute__((packed))` on data structures accessed frequently by an MCU core?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">It prevents the linker from mapping variables to Flash</li><li class="mcq-option" data-correct="true">It can force unaligned memory accesses, causing multiple bus cycles or UsageFaults</li><li class="mcq-option" data-correct="false">It causes the compiler to disable all loop unrolling</li><li class="mcq-option" data-correct="false">It automatically converts integers to big-endian</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Packed structs eliminate padding but may place 32-bit integers on unaligned addresses. On cores without unaligned access support, this triggers a UsageFault; on others, it degrades performance.">Packed structs eliminate padding but may place 32-bit integers on unaligned addresses. On cores without unaligned access support, this triggers a UsageFault; on others, it degrades performance.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. What is a &#x27;Stack Canary&#x27; in embedded firmware engineering?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">A hardware interrupt that monitors crystal clock jitter</li><li class="mcq-option" data-correct="true">A sentinel pattern written to memory at the stack boundary to detect stack overflows</li><li class="mcq-option" data-correct="false">A linker flag that forces the heap into external SDRAM</li><li class="mcq-option" data-correct="false">A test fixture that injects CAN bus frames</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="A stack canary is a known sentinel value (such as 0xDEADBEEF) placed at the end of the stack region. If a stack overflow occurs, the canary is overwritten, alerting the system.">A stack canary is a known sentinel value (such as 0xDEADBEEF) placed at the end of the stack region. If a stack overflow occurs, the canary is overwritten, alerting the system.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. In Q16.16 fixed-point arithmetic, how is the decimal number 1.0 represented in binary hex?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">0x00000001</li><li class="mcq-option" data-correct="true">0x00010000</li><li class="mcq-option" data-correct="false">0x00008000</li><li class="mcq-option" data-correct="false">0x0000FFFF</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="In Q16.16 format, the lower 16 bits represent the fractional component. 1.0 is represented as 1 &lt;&lt; 16 = 0x00010000.">In Q16.16 format, the lower 16 bits represent the fractional component. 1.0 is represented as 1 &lt;&lt; 16 = 0x00010000.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. Why is declaring struct members in descending order of size (64-bit -&gt; 32-bit -&gt; 16-bit -&gt; 8-bit) considered best practice?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">It makes the C code run faster in the compiler</li><li class="mcq-option" data-correct="true">It naturally minimizes or completely eliminates compiler-inserted padding bytes</li><li class="mcq-option" data-correct="false">It allows struct members to be accessed over SPI</li><li class="mcq-option" data-correct="false">It prevents the CPU from needing volatile variables</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Sorting fields in descending size ensures that each member naturally falls onto an address boundary that satisfies its native alignment requirement, eliminating internal padding.">Sorting fields in descending size ensures that each member naturally falls onto an address boundary that satisfies its native alignment requirement, eliminating internal padding.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. Which operator is used to extract a specific 4-bit field starting at bit position 8 from a 32-bit status register?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">(REG &lt;&lt; 8) &amp; 0x0F</li><li class="mcq-option" data-correct="true">(REG &gt;&gt; 8) &amp; 0x0F</li><li class="mcq-option" data-correct="false">(REG &amp; 0x0F) &gt;&gt; 8</li><li class="mcq-option" data-correct="false">REG ^ (0x0F &lt;&lt; 8)</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Right-shifting the register by 8 moves the target field to the least significant bits [3:0], and masking with 0x0F (binary 0b1111) isolates the 4-bit value.">Right-shifting the register by 8 moves the target field to the least significant bits [3:0], and masking with 0x0F (binary 0b1111) isolates the 4-bit value.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What is the effect of executing `xPortGetFreeHeapSize()` vs stack inspection in embedded RTOS systems?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Heap tracks dynamic malloc allocations; stack tracks active function execution frames</li><li class="mcq-option" data-correct="false">Heap is stored in Flash; stack is stored in SRAM</li><li class="mcq-option" data-correct="false">Stack cannot overflow; heap always overflows</li><li class="mcq-option" data-correct="false">Heap is managed by hardware; stack is managed by the C compiler</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The heap manages dynamically allocated memory blocks requested via malloc/pvPortMalloc, while the stack stores call frames and local variables.">The heap manages dynamically allocated memory blocks requested via malloc/pvPortMalloc, while the stack stores call frames and local variables.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. What intermediate type must be used when multiplying two 32-bit Q16.16 fixed-point numbers to prevent arithmetic overflow?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">int16_t</li><li class="mcq-option" data-correct="false">int32_t</li><li class="mcq-option" data-correct="true">int64_t</li><li class="mcq-option" data-correct="false">float</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Multiplying two 32-bit integers yields up to a 64-bit product. A 64-bit accumulator (int64_t) is mandatory before shifting down by 16 bits to preserve precision without clipping.">Multiplying two 32-bit integers yields up to a 64-bit product. A 64-bit accumulator (int64_t) is mandatory before shifting down by 16 bits to preserve precision without clipping.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: RCC Clock Register Bitmask Decoder</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Given the 32-bit hex value 0x00000005 read from the STM32F4 RCC_AHB1ENR register, write a C decoding function that checks and prints which GPIO peripheral clocks (GPIOA, GPIOB, GPIOC, etc.) are currently enabled.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Universal Bit Manipulation Header Library</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a standalone `bit_utils.h` header file defining macro functions for BIT_SET, BIT_CLEAR, BIT_TOGGLE, BIT_READ, BIT_WRITE, and FIELD_MODIFY. Write unit tests to verify correctness across boundary conditions.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Struct Alignment and RAM Consumption Audit</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Define 3 different telemetry struct configurations with mixed variable types. Predict their sizes with and without padding on paper, then write a test harness using `sizeof()` and `offsetof()` to verify your predictions.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Active Stack Watermarking and High-Water Profiler</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a stack painting function that fills unused stack SRAM with pattern 0xA5A5A5A5 at boot. Write a profiling function that scans memory to determine the peak stack depth consumed during a heavy algorithmic test.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Q16.16 Sine Wave Approximation Generator</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a fast Q16.16 sine calculation function using a 32-element precomputed lookup table and linear interpolation. Benchmark execution cycles against standard math library `sinf()`.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">ARM Architecture Reference</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+            </div>
+            <h4>Cortex-M4 Technical Reference Manual</h4>
+            <p>Official hardware architecture specifications detailing the 3-stage pipeline, AHB-Lite bus interface, and memory alignment rules.</p>
+            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">C Language Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ISO/IEC</span>
+            </div>
+            <h4>ISO/IEC 9899:2018 (C18 Standard Specification)</h4>
+            <p>Defines C integer promotion rules, bitwise operator semantics, struct alignment constraints, and undefined behavior boundaries.</p>
+            <a href="https://www.iso.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Embedded Math Reference</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Randy Yates (Digital Signal Processing Group)</span>
+            </div>
+            <h4>Fixed-Point Arithmetic: An Introduction</h4>
+            <p>Mathematical derivation of Q-format notation, rounding modes, dynamic range scaling, and precision preservation for embedded processors.</p>
+            <a href="http://www.digitalsignallabs.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_01.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 1: Intro to Embedded Systems &amp; C</span>
+                </a>
+                <a href="day_03.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 3: GPIO &amp; Bare-Metal Control</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

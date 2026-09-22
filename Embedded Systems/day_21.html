@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 21: Testing Embedded Systems (Unity, CMock, HIL) - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>88%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 3.4</span>
+                <h1>Day 21: Testing Embedded Systems (Unity, CMock, HIL)</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> Embedded systems are notoriously hard to test due to expensive hardware, physical wiring setups, and flaky nondeterminism. How do professional teams test firmware on host workstations and automated HIL test benches?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 3.4</span>
+                            <span class="plan-badge plan-badge-secondary">Module 3: Advanced Embedded Architecture</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Understand the Embedded Testing Pyramid: Host Unit Testing, Virtual Emulation, and HIL.</li><li>Implement automated unit tests and hardware register mocks using Unity and FFF.</li><li>Measure and enforce structural code coverage using GCC gcov and lcov reports.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Test-Driven Development (TDD) Red-Green-Refactor cycles in embedded C.</li><li>Statement, branch, and condition coverage metrics and their real-world failure blind spots.</li><li>Hardware-in-the-Loop electrical interfaces and automated regression test harnesses.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 21.1: Unity test suite mocking hardware flash via FFF in C.</li><li>Program 21.2: TDD test suite for I2C sensor acquisition and error handling.</li><li>Program 21.3: Host build Makefile with automated Unity tests and gcov coverage.</li><li>Program 21.4: Automated Python HIL test harness exercising real DUT firmware.</li><li>Program 21.5: Automated mutation testing script auditing unit test effectiveness.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Tightly coupling business logic directly to microcontroller hardware registers, preventing host testing.</li><li>Relying solely on on-target testing, causing test cycles to drag down development velocity.</li><li>Assuming 100% statement coverage implies bug-free firmware without checking edge-case inputs.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</h2>
+<p>Developing embedded software exclusively on physical target hardware is a major bottleneck: physical boards are expensive, Flashing chips takes seconds per iteration, hardware components fail unpredictably, and setting up physical failure edge-cases (like an overheating lithium battery or a broken CAN bus) is dangerous or impossible. Leading embedded engineering organizations adopt the <strong>Embedded Test Pyramid</strong>:
+<ul>
+    <li><strong>Host-Based Unit Testing (Base of Pyramid, 80%):</strong> Pure C application and driver logic compiled natively for the host workstation (x86-64 Linux/macOS) using gcc/clang, executing thousands of automated unit tests in under 2 seconds.</li>
+    <li><strong>Integration & Subsystem Testing (15%):</strong> Firmware components linked with software emulators (QEMU or native stubs) validating RTOS inter-task communication.</li>
+    <li><strong>Hardware-in-the-Loop (HIL) Testing (Apex, 5%):</strong> Production firmware deployed onto real physical Device Under Test (DUT) hardware, connected to automated test benches simulating sensor voltages, load currents, and bus traffic.</li>
+</ul>
+</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-21_0-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-21_0-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 21.0-1: Host-Based Native C Unit Testing vs Hardware-in-the-Loop (HIL)</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Host Native Execution</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        C source files compile directly with host GCC; hardware registers are mocke...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Deterministic Execution</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Eliminates serial baud rate delays, probe dropouts, and flashing flash-wear...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Hardware-in-the-Loop (HI</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Validates real electrical impedances, crystal oscillator startup jitter, an...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Continuous Integration (</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Host unit tests run automatically inside GitHub Actions or GitLab CI runner...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 21.0-1: Host-Based Native C Unit Testing vs Hardware-in-the-Loop (HIL)
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Host Native Execution:</strong> C source files compile directly with host GCC; hardware registers are mocked by C structs and fake functions.</li><li><strong>Deterministic Execution:</strong> Eliminates serial baud rate delays, probe dropouts, and flashing flash-wear during rapid unit test cycles.</li><li><strong>Hardware-in-the-Loop (HIL):</strong> Validates real electrical impedances, crystal oscillator startup jitter, and silicon interrupt latency.</li><li><strong>Continuous Integration (CI):</strong> Host unit tests run automatically inside GitHub Actions or GitLab CI runners upon every git commit.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</h2>
+<p>The standard, industry-accepted unit test framework for embedded C is <strong>Unity</strong> (created by ThrowTheSwitch / Ceedling). Designed specifically for resource-constrained architectures, Unity requires zero dynamic memory allocation, compiles seamlessly with both native host and cross-compilers, and provides clear, descriptive assertion macros.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-21_0-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-21_0-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 21.0-2: Embedded Test-Driven Development (TDD) Cycle</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Red Phase (Failing Test)</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Forces specification of API contracts and error return codes before writing...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Green Phase (Minimal Cod</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Focuses strictly on passing tests without premature over-engineering.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Refactor Phase</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Permits fearless restructuring of code because automated tests catch any un...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 21.0-2: Embedded Test-Driven Development (TDD) Cycle
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Red Phase (Failing Test):</strong> Forces specification of API contracts and error return codes before writing production code.</li><li><strong>Green Phase (Minimal Code):</strong> Focuses strictly on passing tests without premature over-engineering.</li><li><strong>Refactor Phase:</strong> Permits fearless restructuring of code because automated tests catch any unintended regression.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</h2>
+<p>To unit test hardware drivers without silicon, we use <strong>Stubs and Mocks</strong>. The <strong>Fake Function Framework (fff)</strong> is a lightweight, single-header C mocking framework that creates mock functions for microcontroller peripheral calls (such as <code>i2c_write()</code> or <code>flash_erase()</code>), recording call histories, arguments, and return values.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &quot;unity.h&quot;
+#include &quot;fff.h&quot;
+
+DEFINE_FFF_GLOBALS;
+
+/* Define mock fakes for low-level Flash hardware drivers */
+FAKE_VOID_FUNC(mock_flash_erase_sector, uint8_t);
+FAKE_VOID_FUNC(mock_flash_write_word, uint32_t, uint32_t);
+FAKE_VALUE_FUNC(uint32_t, mock_flash_read_word, uint32_t);
+
+/* Production configuration manager under test */
+typedef struct {
+    uint16_t node_id;
+    uint32_t baud_rate;
+} Config_t;
+
+bool config_save(const Config_t *cfg) {
+    if (cfg == NULL || cfg-&gt;baud_rate == 0) {
+        return false;
+    }
+    mock_flash_erase_sector(7);
+    mock_flash_write_word(0x08060000U, (uint32_t)cfg-&gt;node_id);
+    mock_flash_write_word(0x08060004U, cfg-&gt;baud_rate);
+    return true;
+}
+
+/* Unity Setup and Teardown */
+void setUp(void) {
+    RESET_FAKE(mock_flash_erase_sector);
+    RESET_FAKE(mock_flash_write_word);
+    RESET_FAKE(mock_flash_read_word);
+}
+
+void tearDown(void) {}
+
+/* Unit Test Cases */
+void test_config_save_should_reject_null_pointer(void) {
+    bool result = config_save(NULL);
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(0, mock_flash_erase_sector_fake.call_count);
+}
+
+void test_config_save_should_erase_sector_and_write_words(void) {
+    Config_t cfg = {.node_id = 42, .baud_rate = 115200};
+
+    bool result = config_save(&amp;cfg);
+
+    TEST_ASSERT_TRUE(result);
+    /* Verify flash sector 7 was erased once */
+    TEST_ASSERT_EQUAL_INT(1, mock_flash_erase_sector_fake.call_count);
+    TEST_ASSERT_EQUAL_UINT8(7, mock_flash_erase_sector_fake.arg0_val);
+
+    /* Verify two 32-bit words were written to correct addresses */
+    TEST_ASSERT_EQUAL_INT(2, mock_flash_write_word_fake.call_count);
+    TEST_ASSERT_EQUAL_HEX32(0x08060000U, mock_flash_write_word_fake.arg0_history[0]);
+    TEST_ASSERT_EQUAL_HEX32(42, mock_flash_write_word_fake.arg1_history[0]);
+    TEST_ASSERT_EQUAL_HEX32(0x08060004U, mock_flash_write_word_fake.arg0_history[1]);
+    TEST_ASSERT_EQUAL_HEX32(115200, mock_flash_write_word_fake.arg1_history[1]);
+}
+
+int main(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_config_save_should_reject_null_pointer);
+    RUN_TEST(test_config_save_should_erase_sector_and_write_words);
+    return UNITY_END();
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 21.1: Unity Test Suite Mocking Hardware Flash via FFF in C
+</div>
+
+
+<h2 id="day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</h2>
+<p>In TDD, we write the unit test <em>before</em> implementing the driver logic. For a BMP280 temperature sensor, we define the expected conversion formulas and mock the underlying I2C register transaction. If the hardware returns an error code, the driver must handle it gracefully.</p>
+
+
+<pre><code class="language-c">
+#include &quot;unity.h&quot;
+#include &quot;fff.h&quot;
+
+DEFINE_FFF_GLOBALS;
+
+FAKE_VALUE_FUNC(int, mock_i2c_read_bytes, uint8_t, uint8_t, uint8_t *, uint16_t);
+
+/* Function Under Test prototype */
+int bmp280_read_temperature(int32_t *p_temp_centidegrees);
+
+/* Custom fake implementation to simulate realistic sensor register data */
+int fake_i2c_read_success(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len) {
+    if (len &gt;= 3) {
+        /* Return raw sensor bytes for 25.0 C */
+        data[0] = 0x80;
+        data[1] = 0x00;
+        data[2] = 0x00;
+    }
+    return 0; /* 0 = Success */
+}
+
+void test_sensor_should_return_error_if_i2c_bus_nacks(void) {
+    mock_i2c_read_bytes_fake.return_val = -1; /* Bus error */
+    int32_t temp = 0;
+
+    int status = bmp280_read_temperature(&amp;temp);
+
+    TEST_ASSERT_EQUAL_INT(-1, status);
+}
+
+void test_sensor_should_calculate_correct_temperature(void) {
+    mock_i2c_read_bytes_fake.custom_fake = fake_i2c_read_success;
+    int32_t temp = 0;
+
+    int status = bmp280_read_temperature(&amp;temp);
+
+    TEST_ASSERT_EQUAL_INT(0, status);
+    TEST_ASSERT_EQUAL_INT(2500, temp); /* 25.00 deg C */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 21.2: TDD Test Suite for I2C Sensor Acquisition and Error Handling
+</div>
+
+
+<h2 id="day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</h2>
+<p>To verify test thoroughness, compilers provide <strong>Code Coverage Profiling</strong> using <code>gcov</code>. By passing <code>-fprofile-arcs -ftest-coverage</code> during compilation, GCC instruments the executable to record every branch and statement executed, producing visual HTML coverage reports via <code>lcov</code>.</p>
+
+
+<pre><code class="language-makefile">
+# Host Testing Makefile: run natively on Linux/macOS
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g -O0 --coverage -Iinclude -Iunity
+LDFLAGS = --coverage
+
+SRC_UNDER_TEST = src/config_mgr.c src/sensor_driver.c
+TEST_SRCS = tests/test_runner.c tests/test_config.c unity/unity.c
+
+all: run_tests coverage_report
+
+run_tests: $(SRC_UNDER_TEST) $(TEST_SRCS)
+	@mkdir -p build
+	$(CC) $(CFLAGS) -o build/test_runner $^ $(LDFLAGS)
+	@echo &quot;=== Executing Host Unit Tests ===&quot;
+	./build/test_runner
+
+coverage_report: run_tests
+	@echo &quot;=== Generating Code Coverage Report ===&quot;
+	lcov --capture --directory . --output-file build/coverage.info
+	lcov --remove build/coverage.info &#x27;/usr/*&#x27; &#x27;*/unity/*&#x27; --output-file build/coverage_filtered.info
+	genhtml build/coverage_filtered.info --output-directory build/coverage_html
+	@echo &quot;Coverage HTML report generated at: build/coverage_html/index.html&quot;
+
+clean:
+	rm -rf build *.gcda *.gcno
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 21.3: Host Build Makefile with Automated Unity Tests and gcov Coverage
+</div>
+
+
+<h2 id="day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</h2>
+<p>At the apex of the testing pyramid, physical firmware is validated using an automated <strong>Hardware-in-the-Loop (HIL)</strong> harness. A host workstation running Python scripts commands external hardware (power supplies, waveform generators, CAN-USB adapters) to stimulate the real microcontroller and verify expected GPIO, UART, and CAN responses.</p>
+
+
+<pre><code class="language-python">
+import time
+import serial
+import pytest
+
+class HilFixture:
+    def __init__(self, port=&quot;/dev/ttyUSB0&quot;, baud=115200):
+        self.ser = serial.Serial(port, baud, timeout=2.0)
+
+    def reset_dut(self):
+        # Pulse DTR pin to reset STM32 via hardware reset circuit
+        self.ser.dtr = True
+        time.sleep(0.1)
+        self.ser.dtr = False
+        time.sleep(0.5)
+
+    def send_command(self, cmd_str):
+        self.ser.write((cmd_str + &quot;
+&quot;).encode(&quot;utf-8&quot;))
+        return self.ser.readline().decode(&quot;utf-8&quot;).strip()
+
+@pytest.fixture(scope=&quot;module&quot;)
+def dut():
+    fixture = HilFixture()
+    fixture.reset_dut()
+    yield fixture
+    fixture.ser.close()
+
+def test_hil_dut_boot_banner(dut):
+    &quot;&quot;&quot;Verify device emits expected boot string within 1 second of reset&quot;&quot;&quot;
+    line = dut.ser.readline().decode(&quot;utf-8&quot;).strip()
+    assert &quot;Sensor Hub Ready&quot; in line
+
+def test_hil_cli_ping_pong(dut):
+    &quot;&quot;&quot;Verify serial command shell responds correctly&quot;&quot;&quot;
+    response = dut.send_command(&quot;ping&quot;)
+    assert response == &quot;PONG&quot;
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 21.4: Automated Python HIL Test Harness Exercising Real DUT Firmware
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Embedded Testing Methodologies Comparison</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Testing Paradigm</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Execution Environment</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Execution Speed</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Setup Cost</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Hardware Fidelity</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Typical Role in Development</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Host-Based Unit Testing</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">x86-64 Developer PC (GCC/Clang)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Instant (< 10 ms per test)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Zero (Free tools)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Abstract (Mocks/Stubs)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Rapid TDD, business logic, state machines</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Virtual Emulation (QEMU)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Simulated ARM Cortex-M Core</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fast (~100 ms per run)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (Open source)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Medium (Virtual registers)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Peripheral integration, RTOS scheduling</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">On-Target Unit Testing</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Real MCU via JTAG/SWD</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Moderate (1-5 seconds)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low ($20 dev board)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">High (Real silicon)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Silicon register drivers, flash timing, NVIC</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Hardware-in-the-Loop (HIL)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Real DUT + Automated Test Bench</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Slow (seconds to minutes)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">High ($5K - $50K rack)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100% (Physical reality)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">System qualification, EMC compliance, end-of-line</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Standard Unity Test Assertion Macros Reference</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Assertion Macro</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Parameters</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Condition Evaluated</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Typical Embedded Usage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_TRUE(condition)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">bool condition</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Passes if condition evaluates to true</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Status return code validation</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_EQUAL_INT(expected, actual)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">int expected, int actual</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Passes if integers are numerically equal</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">State machine mode verification</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_EQUAL_HEX32(expected, actual)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">uint32_t exp, uint32_t act</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Displays hexadecimal diff on failure</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Register bitmask and memory address checks</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_EQUAL_FLOAT(expected, actual)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">float expected, float actual</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Passes if within standard delta epsilon</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Sensor temperature and ADC voltage checks</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_NULL(pointer)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">const void *pointer</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Passes if pointer address is 0x00000000</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Testing error handling on NULL buffers</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TEST_ASSERT_BITS(mask, expected, actual)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">uint32_t mask, exp, act</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Compares only bits where mask == 1</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Hardware peripheral control register verification</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the primary advantage of host-based unit testing (running embedded C on x86 PC) over on-target testing?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Tests execute thousands of times faster without flash-wear or hardware dependency, enabling instant feedback during development</li><li class="mcq-option" data-correct="false">Host testing tests physical pin soldering quality</li><li class="mcq-option" data-correct="false">Host testing eliminates the need for compiling</li><li class="mcq-option" data-correct="false">Host testing measures actual battery current draw</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Compiling and executing natively on the development workstation runs hundreds of tests in milliseconds, isolating pure algorithmic bugs long before hardware is available.">Compiling and executing natively on the development workstation runs hundreds of tests in milliseconds, isolating pure algorithmic bugs long before hardware is available.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. What is a &#x27;Mock&#x27; in the context of embedded software testing?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">A simulated function that replaces a hardware driver, recording how many times it was called and with which arguments, while returning controlled values</li><li class="mcq-option" data-correct="false">A software bug that laughs at the developer</li><li class="mcq-option" data-correct="false">A physical breakout board with LEDs</li><li class="mcq-option" data-correct="false">A compiler optimization flag that strips comments</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Mocks (like those created by CMock or FFF) fake out real hardware interfaces (like SPI, I2C, or Flash), allowing developers to test higher-level logic against both nominal and faulted hardware responses.">Mocks (like those created by CMock or FFF) fake out real hardware interfaces (like SPI, I2C, or Flash), allowing developers to test higher-level logic against both nominal and faulted hardware responses.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What are the three distinct phases of Test-Driven Development (TDD)?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Red (write failing test) -&gt; Green (write minimal code to pass) -&gt; Refactor (clean up and optimize)</li><li class="mcq-option" data-correct="false">Compile -&gt; Flash -&gt; Debug</li><li class="mcq-option" data-correct="false">Plan -&gt; Procrastinate -&gt; Panic</li><li class="mcq-option" data-correct="false">Code -&gt; Ship -&gt; Patch</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="TDD follows the famous Red-Green-Refactor rhythm: first write a test that fails (proving the test is valid), then implement the smallest amount of code to make it green, then refactor safely.">TDD follows the famous Red-Green-Refactor rhythm: first write a test that fails (proving the test is valid), then implement the smallest amount of code to make it green, then refactor safely.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. Which tool is commonly used to generate visual HTML code coverage reports from gcov instrumented test binaries?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">lcov (genhtml)</li><li class="mcq-option" data-correct="false">Wireshark</li><li class="mcq-option" data-correct="false">Valgrind</li><li class="mcq-option" data-correct="false">Photoshop</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="lcov aggregates execution counters produced by gcov and invokes genhtml to create color-coded HTML reports detailing line, branch, and function coverage percentages.">lcov aggregates execution counters produced by gcov and invokes genhtml to create color-coded HTML reports detailing line, branch, and function coverage percentages.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. What is a Hardware-in-the-Loop (HIL) test system?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">A test bench where the real physical microcontroller hardware is connected to automated test equipment that simulates physical sensors and loads</li><li class="mcq-option" data-correct="false">A program with an infinite while(1) loop</li><li class="mcq-option" data-correct="false">An automated JTAG cable manufacturing machine</li><li class="mcq-option" data-correct="false">A ring buffer stored in internal SRAM</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="HIL testing mounts the production ECU on a test rack with automated DACs, relays, and communication adapters simulating the vehicle or industrial machine around it.">HIL testing mounts the production ECU on a test rack with automated DACs, relays, and communication adapters simulating the vehicle or industrial machine around it.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. Why is 100% statement coverage insufficient to guarantee software correctness?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because executing every line does not test all combinations of conditions, boundary edge cases, or multi-branch decisions</li><li class="mcq-option" data-correct="false">Because statement coverage only works on assembly language</li><li class="mcq-option" data-correct="false">Because statement coverage causes the microcontroller to reset</li><li class="mcq-option" data-correct="false">Because statement coverage cannot detect syntax errors</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="A line like &#x27;if (x &gt; 0 &amp;&amp; y &gt; 0)&#x27; can have 100% statement coverage simply by testing x=1, y=1, leaving the behavior when x=0 or y=0 completely unverified. Branch and MC/DC coverage are required.">A line like &#x27;if (x &gt; 0 &amp;&amp; y &gt; 0)&#x27; can have 100% statement coverage simply by testing x=1, y=1, leaving the behavior when x=0 or y=0 completely unverified. Branch and MC/DC coverage are required.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. What does the Unity assertion TEST_ASSERT_EQUAL_HEX32(expected, actual) do when a test fails?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">It prints the test file name, line number, and the exact hexadecimal difference between expected and actual values before halting the test</li><li class="mcq-option" data-correct="false">It automatically fixes the code error</li><li class="mcq-option" data-correct="false">It converts the test to Python</li><li class="mcq-option" data-correct="false">It flashes an error code on an LED</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Unity assertion macros report human-readable failure diagnostics including file names, line numbers, and hexadecimal representations of mismatches, speeding up debugging.">Unity assertion macros report human-readable failure diagnostics including file names, line numbers, and hexadecimal representations of mismatches, speeding up debugging.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. How does the Fake Function Framework (fff) help in testing error paths that rarely occur in physical hardware?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">It allows the test developer to configure the mock to return specific error codes (like bus timeouts or CRC faults) on demand to verify recovery logic</li><li class="mcq-option" data-correct="false">It automatically generates physical electrical noise on the PCB</li><li class="mcq-option" data-correct="false">It overrides the microcontroller crystal oscillator</li><li class="mcq-option" data-correct="false">It re-wires the circuit board traces via software</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Simulating a hardware flash write error or an I2C NACK on physical hardware is difficult. With fff, setting &#x27;mock_i2c_read_fake.return_val = -1;&#x27; instantly tests error handling.">Simulating a hardware flash write error or an I2C NACK on physical hardware is difficult. With fff, setting &#x27;mock_i2c_read_fake.return_val = -1;&#x27; instantly tests error handling.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. In a continuous integration (CI) pipeline, why should host unit tests run before on-target or HIL tests?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Host unit tests run in seconds and catch 90% of regressions immediately, preventing costly and time-consuming HIL test runs on broken builds</li><li class="mcq-option" data-correct="false">Because host tests consume less network bandwidth</li><li class="mcq-option" data-correct="false">Because CI servers are not allowed to connect to physical USB devices</li><li class="mcq-option" data-correct="false">Because host tests can only be run once per day</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Fast feedback is the core principle of CI: failing fast on host unit tests within 5 seconds saves engineering time and preserves expensive HIL test rack availability.">Fast feedback is the core principle of CI: failing fast on host unit tests within 5 seconds saves engineering time and preserves expensive HIL test rack availability.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. What is &#x27;Mutation Testing&#x27; in embedded software verification?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">A technique that deliberately injects artificial faults (e.g. changing &gt; to &lt;, or + to -) into source code to verify that the test suite detects and catches them</li><li class="mcq-option" data-correct="false">Testing biological sensors with bacterial cultures</li><li class="mcq-option" data-correct="false">Testing how microcontrollers survive cosmic radiation</li><li class="mcq-option" data-correct="false">Randomly overclocking the CPU to test silicon tolerances</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Mutation testing tests the quality of your tests: if a mutated code change survives your entire test suite without triggering a test failure, your test coverage has blind spots.">Mutation testing tests the quality of your tests: if a mutated code change survives your entire test suite without triggering a test failure, your test coverage has blind spots.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: 100% Branch Coverage UART Command Parser Suite</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take the serial command parser from Day 7. Set up a host-based Unity test suite using GCC and gcov. Write unit tests covering valid commands, invalid tokens, buffer overflow attacks, and malformed inputs to achieve 100% branch and statement coverage.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Automated Raspberry Pi Hardware-in-the-Loop Tester</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure a Raspberry Pi as an automated HIL test fixture. Wire its GPIO and UART to an STM32 DUT. Write a Python pytest suite that pulses the DUT reset line, injects mock button presses, and verifies that the DUT UART outputs expected telemetry.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: GitHub Actions Automated Embedded CI Workflow</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a .github/workflows/embedded_ci.yml file. Configure the pipeline to: (1) compile target firmware with arm-none-eabi-gcc, (2) compile and run Unity host tests on Ubuntu, and (3) publish an lcov HTML code coverage report as an artifact.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Automated Python Mutation Testing Engine</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a Python script that parses C source files and introduces 10 deliberate mutations (swapping comparison operators, altering constants, bypassing safety checks). Execute the Unity test suite against each mutant and verify that all 10 are caught.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Fuzz Testing Embedded Communication Protocols</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Develop a host-based fuzzing test harness for your packetized telemetry parser. Generate 50,000 randomized, mutated byte streams; feed them to the parser and assert that it never crashes, enters an infinite loop, or causes a buffer overrun.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Testing Framework</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ThrowTheSwitch</span>
+            </div>
+            <h4>Unity: Simple, Portable Unit Testing for Embedded C</h4>
+            <p>Official documentation for the Unity test framework, covering assertion syntax, test runners, and embedded platform configuration.</p>
+            <a href="http://www.throwtheswitch.org/unity" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Mocking Framework</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ThrowTheSwitch</span>
+            </div>
+            <h4>CMock: Fully Automated Mock Generation for Embedded C</h4>
+            <p>Reference manual on generating mock function interfaces from C header files for isolated unit testing.</p>
+            <a href="http://www.throwtheswitch.org/cmock" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Methodology Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">James W. Grenning</span>
+            </div>
+            <h4>Test-Driven Development for Embedded C (Pragmatic Bookshelf)</h4>
+            <p>The definitive book on applying TDD, dual-targeting host/target builds, and refactoring techniques to embedded systems.</p>
+            <a href="https://pragprog.com/titles/jgade/test-driven-development-for-embedded-c" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Mocking Library</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Fake Function Framework</span>
+            </div>
+            <h4>fff: A Micro-Framework for Creating Fake C Functions</h4>
+            <p>Lightweight, single-header library for generating stubs and tracking function call arguments without complex code generators.</p>
+            <a href="https://github.com/meekrosoft/fff" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_20.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 20: Hardware Debugging (JTAG/SWD)</span>
+                </a>
+                <a href="day_22.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 22: Embedded Linux &amp; Device Drivers</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

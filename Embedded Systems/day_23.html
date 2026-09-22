@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 23: Milestone Project: Self-Recovering IoT Node - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>96%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 3.6</span>
+                <h1>Day 23: Milestone Project: Self-Recovering IoT Node</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> Build an ultra-reliable, battery-powered IoT node that acquires sensors, publishes via MQTT over Wi-Fi, enters deep sleep, and autonomously detects and recovers from network outages, sensor faults, and broker disconnects.
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 3.6</span>
+                            <span class="plan-badge plan-badge-secondary">Module 3: Advanced Embedded Architecture</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Implement a fault-tolerant finite state machine with automatic network reconnection backoff.</li><li>Build sensor anomaly filters with last-known-good fallback and non-volatile flash logging.</li><li>Deploy cryptographically verified over-the-air (OTA) updates triggered via MQTT commands.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Thundering herd network congestion and truncated exponential backoff algorithms.</li><li>MQTT half-open socket detection via ping request and response watchdog loops.</li><li>Duty-cycled power budgeting: active burst energy vs deep sleep leakage floor.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 23.1: Wi-Fi state machine with exponential backoff and offline fallback in C.</li><li>Program 23.2: MQTT keep-alive heartbeat and socket timeout guardian in C.</li><li>Program 23.3: Multi-sensor anomaly filter with last-known-good fallback.</li><li>Program 23.4: MQTT OTA trigger and streaming SHA256 hash verification in C.</li><li>Program 23.5: Persistent non-volatile black-box event logger in C.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Retrying failed Wi-Fi connections in a rapid infinite loop, draining the battery in hours.</li><li>Trusting TCP sockets without application-layer keep-alive pings during network dropouts.</li><li>Updating firmware OTA in-place without cryptographic signature validation and rollback safeguards.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</h2>
+<p>Remote Internet-of-Things (IoT) nodes deployed on agricultural hillsides, oil pipelines, or offshore wind turbines operate without human operators nearby. Sending a technician with a laptop to press a reset button can cost thousands of dollars per service trip. Therefore, a production IoT node must be designed around <strong>Autonomous Resilience and Graceful Degradation</strong>.</p>
+<p>If the local Wi-Fi router loses Internet connectivity, the node must not freeze or deplete its battery retrying fruitlessly; it must transition into an <strong>Offline Logging Mode</strong>, saving sensor data into non-volatile Flash memory. If an analog sensor fails or produces physically impossible readings, the node must quarantine the sensor, employ last-known-good values, and broadcast an alert. If an over-the-air (OTA) firmware update fails signature verification, the node must abort immediately without corrupting the running partition.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-23_0-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-23_0-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 23.0-1: Resilient State Machine of the Self-Recovering IoT Node</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Hardware Initialization</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Initializes power domains, reads boot reason register, and checks battery s...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Sensor Validation Check</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Audits range, slew rate, and stuck-at faults before passing data to the net...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Network Resilience Loop</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Implements truncated exponential backoff (1s, 2s, 4s, 8s); drops to local f...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Deep Sleep Power Gate</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Powers down Wi-Fi radio, gates peripheral clocks, and configures RTC timer ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 23.0-1: Resilient State Machine of the Self-Recovering IoT Node
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Hardware Initialization:</strong> Initializes power domains, reads boot reason register, and checks battery state of charge (SoC).</li><li><strong>Sensor Validation Check:</strong> Audits range, slew rate, and stuck-at faults before passing data to the network stack.</li><li><strong>Network Resilience Loop:</strong> Implements truncated exponential backoff (1s, 2s, 4s, 8s); drops to local flash storage if network remains offline.</li><li><strong>Deep Sleep Power Gate:</strong> Powers down Wi-Fi radio, gates peripheral clocks, and configures RTC timer for 30-second sleep.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</h2>
+<p>Network stacks that retry continuously without backoff drain batteries and congest network channels (the <em>Thundering Herd problem</em>). The node's connection manager tracks connection attempts, doubling the retry delay on successive failures, and eventually transitions into an offline caching state after three failed attempts.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define MAX_WIFI_RETRIES        3U
+#define BASE_BACKOFF_MS         1000U
+#define MAX_BACKOFF_MS          30000U
+
+typedef enum {
+    WIFI_STATE_DISCONNECTED = 0,
+    WIFI_STATE_CONNECTING,
+    WIFI_STATE_CONNECTED,
+    WIFI_STATE_OFFLINE_MODE
+} WifiState_t;
+
+typedef struct {
+    WifiState_t current_state;
+    uint32_t    retry_count;
+    uint32_t    current_backoff_ms;
+    bool        has_ip_address;
+} WifiManager_t;
+
+extern bool hardware_wifi_start_connect(void);
+extern void delay_ms(uint32_t ms);
+extern void log_system_event(uint16_t event_code);
+
+void wifi_connection_task(WifiManager_t *mgr) {
+    switch (mgr-&gt;current_state) {
+        case WIFI_STATE_DISCONNECTED:
+            mgr-&gt;current_state = WIFI_STATE_CONNECTING;
+            mgr-&gt;retry_count = 0;
+            mgr-&gt;current_backoff_ms = BASE_BACKOFF_MS;
+            break;
+
+        case WIFI_STATE_CONNECTING:
+            if (hardware_wifi_start_connect()) {
+                mgr-&gt;current_state = WIFI_STATE_CONNECTED;
+                mgr-&gt;retry_count = 0;
+                log_system_event(0x1001); /* Wi-Fi Connected Successfully */
+            } else {
+                mgr-&gt;retry_count++;
+                if (mgr-&gt;retry_count &gt;= MAX_WIFI_RETRIES) {
+                    /* Network unavailable: enter power-saving offline mode */
+                    mgr-&gt;current_state = WIFI_STATE_OFFLINE_MODE;
+                    log_system_event(0x1002); /* Entering Offline Cache Mode */
+                } else {
+                    /* Wait with exponential backoff before retrying */
+                    delay_ms(mgr-&gt;current_backoff_ms);
+                    mgr-&gt;current_backoff_ms *= 2;
+                    if (mgr-&gt;current_backoff_ms &gt; MAX_BACKOFF_MS) {
+                        mgr-&gt;current_backoff_ms = MAX_BACKOFF_MS;
+                    }
+                }
+            }
+            break;
+
+        case WIFI_STATE_CONNECTED:
+            /* Nominal operations handled by MQTT client */
+            break;
+
+        case WIFI_STATE_OFFLINE_MODE:
+            /* Log data to Flash; re-attempt connection only every 5 minutes */
+            break;
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 23.1: Wi-Fi State Machine with Exponential Backoff and Offline Fallback in C
+</div>
+
+
+<h2 id="day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</h2>
+<p>An established TCP connection does not guarantee an active data channel: intermediate NAT routers, firewalls, or cell towers can silently drop connections without sending TCP FIN packets. The node runs an <strong>MQTT Watchdog</strong> that monitors ping response acknowledgments (PINGRESP). If the broker fails to answer within the 60-second keep-alive window, the socket is forcibly purged and re-established.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define MQTT_KEEPALIVE_SEC      60U
+#define MQTT_ACK_TIMEOUT_SEC    10U
+
+typedef struct {
+    uint32_t last_packet_sent_time;
+    uint32_t last_ack_received_time;
+    bool     awaiting_ping_resp;
+    bool     is_connected;
+} MqttWatchdog_t;
+
+extern uint32_t get_system_uptime_seconds(void);
+extern void mqtt_send_pingreq(void);
+extern void network_socket_force_close(void);
+extern void log_system_event(uint16_t event_code);
+
+void mqtt_watchdog_poll(MqttWatchdog_t *wd) {
+    uint32_t now = get_system_uptime_seconds();
+
+    if (!wd-&gt;is_connected) {
+        return;
+    }
+
+    /* 1. Check if it is time to send periodic PINGREQ */
+    if (!wd-&gt;awaiting_ping_resp &amp;&amp; ((now - wd-&gt;last_packet_sent_time) &gt;= MQTT_KEEPALIVE_SEC)) {
+        mqtt_send_pingreq();
+        wd-&gt;last_packet_sent_time = now;
+        wd-&gt;awaiting_ping_resp = true;
+    }
+
+    /* 2. Check if broker ACK timed out */
+    if (wd-&gt;awaiting_ping_resp &amp;&amp; ((now - wd-&gt;last_packet_sent_time) &gt; MQTT_ACK_TIMEOUT_SEC)) {
+        /* Broker silent! Half-open TCP socket detected */
+        log_system_event(0x2001); /* MQTT Ping Timeout: Forcing Socket Reset */
+        network_socket_force_close();
+        wd-&gt;is_connected = false;
+        wd-&gt;awaiting_ping_resp = false;
+    }
+}
+
+void mqtt_on_pingresp_received(MqttWatchdog_t *wd) {
+    wd-&gt;last_ack_received_time = get_system_uptime_seconds();
+    wd-&gt;awaiting_ping_resp = false;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 23.2: MQTT Keep-Alive Heartbeat and Socket Timeout Guardian in C
+</div>
+
+
+<h2 id="day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</h2>
+<p>When physical transducers degrade (e.g., condensation causing a bridge short on an ADC thermistor pin), sending garbage telemetry corrupts cloud dashboards and analytical models. The node filters every measurement through an anomaly detector: if an individual channel reports a hardware fault, the node tags the frame with a specific error flag, substitutes the <strong>Last-Known-Good (LKG)</strong> value, and logs an alert.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef struct {
+    int16_t  temperature_degc;
+    uint32_t pressure_pa;
+    uint16_t battery_mv;
+    uint8_t  fault_bitmask; /* Bit 0: Temp, Bit 1: Press, Bit 2: Batt */
+} TelemetryPacket_t;
+
+typedef struct {
+    TelemetryPacket_t last_known_good;
+    uint32_t          temp_error_count;
+    uint32_t          press_error_count;
+} SensorSupervisor_t;
+
+void process_sensor_readings(SensorSupervisor_t *sup, int16_t raw_t, uint32_t raw_p, uint16_t raw_v, TelemetryPacket_t *out) {
+    out-&gt;fault_bitmask = 0;
+
+    /* Validate Temperature (-30 C to +85 C) */
+    if (raw_t &gt;= -30 &amp;&amp; raw_t &lt;= 85) {
+        out-&gt;temperature_degc = raw_t;
+        sup-&gt;last_known_good.temperature_degc = raw_t;
+    } else {
+        out-&gt;fault_bitmask |= (1U &lt;&lt; 0);
+        out-&gt;temperature_degc = sup-&gt;last_known_good.temperature_degc; /* Fallback */
+        sup-&gt;temp_error_count++;
+    }
+
+    /* Validate Pressure (500 hPa to 1150 hPa) */
+    if (raw_p &gt;= 50000 &amp;&amp; raw_p &lt;= 115000) {
+        out-&gt;pressure_pa = raw_p;
+        sup-&gt;last_known_good.pressure_pa = raw_p;
+    } else {
+        out-&gt;fault_bitmask |= (1U &lt;&lt; 1);
+        out-&gt;pressure_pa = sup-&gt;last_known_good.pressure_pa; /* Fallback */
+        sup-&gt;press_error_count++;
+    }
+
+    /* Validate Battery Voltage (2000 mV to 3600 mV) */
+    if (raw_v &gt;= 2000 &amp;&amp; raw_v &lt;= 3600) {
+        out-&gt;battery_mv = raw_v;
+    } else {
+        out-&gt;fault_bitmask |= (1U &lt;&lt; 2);
+        out-&gt;battery_mv = 0; /* Critical battery fault */
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 23.3: Multi-Sensor Anomaly Filter with Last-Known-Good Fallback
+</div>
+
+
+<h2 id="day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</h2>
+<p>Remote firmware updating is executed via dedicated MQTT command topics (e.g., <code>devices/node_42/ota/cmd</code>). The JSON payload contains the firmware binary download URL and a 256-bit SHA256 cryptographic hash. The node downloads the image into the secondary Flash partition, calculates the SHA256 hash streamingly, and verifies the digest against the command before marking the partition bootable.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-23_0-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-23_0-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 23.0-2: Secure MQTT OTA Download and Partition Verification Pipeline</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">MQTT Command Topic</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Delivers authenticated control message containing firmware version, size, a...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Streaming HTTP Client</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Downloads binary in 1024-byte chunks directly to flash without buffering en...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Cryptographic Verificati</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Guarantees firmware integrity and prevents malicious image injection.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Golden Image Fallback</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        If the new image fails boot validation within 3 cycles, hardware rolls back...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 23.0-2: Secure MQTT OTA Download and Partition Verification Pipeline
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>MQTT Command Topic:</strong> Delivers authenticated control message containing firmware version, size, and SHA256 digest.</li><li><strong>Streaming HTTP Client:</strong> Downloads binary in 1024-byte chunks directly to flash without buffering entire image in RAM.</li><li><strong>Cryptographic Verification:</strong> Guarantees firmware integrity and prevents malicious image injection.</li><li><strong>Golden Image Fallback:</strong> If the new image fails boot validation within 3 cycles, hardware rolls back to original slot.</li>
+    </ul>
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;string.h&gt;
+
+#define SHA256_DIGEST_LEN   32U
+
+typedef struct {
+    char     download_url[128];
+    uint32_t image_size_bytes;
+    uint8_t  expected_sha256[SHA256_DIGEST_LEN];
+} OtaCommand_t;
+
+extern bool http_download_and_flash(const char *url, uint32_t size, uint8_t *computed_hash);
+extern void nvm_mark_partition_candidate(void);
+extern void system_software_reset(void);
+extern void log_system_event(uint16_t event_code);
+
+bool execute_secure_ota(const OtaCommand_t *cmd) {
+    uint8_t computed_sha256[SHA256_DIGEST_LEN];
+
+    log_system_event(0x3001); /* Starting OTA Download */
+
+    /* 1. Download image stream into secondary flash partition */
+    if (!http_download_and_flash(cmd-&gt;download_url, cmd-&gt;image_size_bytes, computed_sha256)) {
+        log_system_event(0x3002); /* OTA Download Failed */
+        return false;
+    }
+
+    /* 2. Verify computed SHA256 against authorized signature */
+    if (memcmp(computed_sha256, cmd-&gt;expected_sha256, SHA256_DIGEST_LEN) != 0) {
+        log_system_event(0x3003); /* SHA256 Verification Mismatch! Rejecting Image */
+        return false;
+    }
+
+    /* 3. Mark candidate slot active and trigger reset */
+    log_system_event(0x3004); /* OTA Verified: Activating Candidate Partition */
+    nvm_mark_partition_candidate();
+    system_software_reset();
+
+    return true; /* Unreached */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 23.4: MQTT OTA Trigger and Streaming SHA256 Hash Verification in C
+</div>
+
+
+<h2 id="day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</h2>
+<p>To diagnose intermittent bugs that occur weeks after deployment, the node maintains a persistent <strong>Fault Black-Box Log</strong> in internal flash memory. Every abnormal reset (watchdog trigger, brown-out, hardfault), Wi-Fi dropped packet, or sensor out-of-bounds is committed with a millisecond timestamp, allowing engineers to reconstruct the exact failure chronology upon reconnection.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define FAULT_LOG_MAGIC     0xDEADBEEFU
+#define MAX_FAULT_ENTRIES   64U
+
+typedef struct {
+    uint32_t timestamp_sec;
+    uint16_t event_code;
+    int16_t  param1;
+    uint16_t param2;
+    uint16_t checksum;
+} __attribute__((packed)) FaultLogEntry_t;
+
+typedef struct {
+    uint32_t magic;
+    uint32_t write_index;
+    FaultLogEntry_t entries[MAX_FAULT_ENTRIES];
+} FaultLogStorage_t;
+
+extern void flash_write_record(uint32_t addr, const void *data, uint32_t len);
+
+void log_system_event_detailed(uint16_t code, int16_t p1, uint16_t p2) {
+    FaultLogEntry_t entry;
+    entry.timestamp_sec = 1720000000U; /* Real timestamp from RTC */
+    entry.event_code = code;
+    entry.param1 = p1;
+    entry.param2 = p2;
+    entry.checksum = (uint16_t)(entry.timestamp_sec ^ entry.event_code ^ (uint16_t)p1 ^ p2);
+
+    /* Write to circular ring buffer in Flash */
+    /* flash_write_record(...) */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 23.5: Persistent Non-Volatile Black-Box Event Logger in C
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Self-Recovering Node Failure Modes and Automated Mitigation Matrix</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Subsystem</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Detected Failure Mode</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Detection Mechanism</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Automated Software Mitigation Strategy</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Escalation Threshold</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Wi-Fi Radio</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Access Point unreachable / drop</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TCP Connect timeout (5s)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Truncated exponential backoff; switch to local flash log</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">3 consecutive failures -> Sleep 5 min</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">MQTT Client</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Broker silent / dropped socket</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Keep-alive ping timeout (10s)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Force socket close; re-resolve DNS; re-establish TLS session</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">5 failures -> Force Wi-Fi reset</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Analog Sensor</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Short circuit / disconnected pin</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Range audit & stuck-at check</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Quarantine channel; substitute last-known-good value; flag error bit</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">20 bad samples -> Report sensor degraded</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">OTA Firmware</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Corrupted or malicious binary</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Streaming SHA256 checksum check</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Abort write; erase candidate flash slot; continue running active slot</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 failure -> Ban download URL for 1 hr</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">System Core</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Firmware crash or deadlock</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Hardware Windowed Watchdog</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Preserve fault context to backup SRAM; hardware reset to known state</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">3 resets in 10 min -> Safe-Mode boot</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Power Budget Profile of 30-Second IoT Transmission Cycle</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Operational Phase</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Hardware State</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Active Current</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Duration</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Total Charge (mAs)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Energy Contribution (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">RTC Deep Sleep</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Oscillators gated, SRAM retained</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">18 uA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">27.80 seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.50 mAs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.8%</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Sensor Acquisition</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">MCU 80MHz, I2C active, ADC DMA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">6.5 mA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.05 seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.32 mAs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.5%</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Wi-Fi Association</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">802.11b/g RF active, DHCP request</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">75.0 mA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.80 seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">60.00 mAs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">92.0%</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TLS & MQTT Publish</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">TCP/IP TLS crypto, MQTT pub</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">55.0 mA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0.30 seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">16.50 mAs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">6.5%</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Cycle Totals</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Full 30-Second Reporting Cycle</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2.58 mA (avg)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">30.00 seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">77.32 mAs</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100.0% (Estimated: 85 days on 2200mAh)</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the &#x27;Thundering Herd&#x27; problem in network-connected embedded devices, and how does exponential backoff resolve it?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">When a network outage recovers, thousands of nodes reconnect simultaneously, crashing the router; exponential backoff staggers reconnection attempts randomly over time</li><li class="mcq-option" data-correct="false">When cattle run over an external solar panel array</li><li class="mcq-option" data-correct="false">When too many tasks run on a single CPU core simultaneously</li><li class="mcq-option" data-correct="false">When the compiler runs out of stack memory during building</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If an access point restarts and thousands of IoT nodes retry immediately at the exact same millisecond, the resulting collision storms crash the AP. Exponential backoff with jitter spreads load evenly.">If an access point restarts and thousands of IoT nodes retry immediately at the exact same millisecond, the resulting collision storms crash the AP. Exponential backoff with jitter spreads load evenly.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. Why is a TCP keep-alive or application-level MQTT PINGREQ mandatory for detecting dropped cellular or Wi-Fi connections?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because intermediate NAT gateways and firewalls silently drop routing tables without notifying endpoints, creating a &#x27;half-open&#x27; socket where sends silently fail</li><li class="mcq-option" data-correct="false">To keep the microcontroller battery fully charged</li><li class="mcq-option" data-correct="false">Because MQTT servers require constant data to generate revenue</li><li class="mcq-option" data-correct="false">To ensure the microcontroller internal clock runs at exactly 80 MHz</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If a connection drops abruptly (cell tower handover or cable pull), no FIN/RST packet is sent. The socket appears open forever unless periodic ping requests actively detect the lack of responses.">If a connection drops abruptly (cell tower handover or cable pull), no FIN/RST packet is sent. The socket appears open forever unless periodic ping requests actively detect the lack of responses.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What is the primary benefit of substituting a &#x27;Last-Known-Good&#x27; (LKG) value when an environmental sensor reports a transient out-of-range reading?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">It prevents corrupted spike readings from triggering false alarms in cloud automation while alerting engineers to the degraded sensor condition via a status flag</li><li class="mcq-option" data-correct="false">It fixes the physical broken wire on the circuit board</li><li class="mcq-option" data-correct="false">It increases the mathematical precision of the sensor to 64 bits</li><li class="mcq-option" data-correct="false">It halves the current consumed by the ADC peripheral</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="In continuous automation (like climate or industrial control), a single NaN or 9999 degree reading causes actuator chaos. Using LKG maintains system continuity while logging the fault.">In continuous automation (like climate or industrial control), a single NaN or 9999 degree reading causes actuator chaos. Using LKG maintains system continuity while logging the fault.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. Why should OTA firmware images be verified using a cryptographic hash like SHA256 rather than a simple 16-bit additive checksum?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Additive checksums are prone to collision cancellations and provide zero defense against deliberate malicious firmware tampering; SHA256 is mathematically collision-resistant</li><li class="mcq-option" data-correct="false">SHA256 compresses the firmware to 50% of its original size</li><li class="mcq-option" data-correct="false">16-bit checksums cannot be computed by 32-bit microcontrollers</li><li class="mcq-option" data-correct="false">SHA256 eliminates the need for flash memory programming</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Simple checksums can match even if multiple byte errors cancel each other out. Cryptographic hashes (SHA256) ensure that changing even a single bit in a 500 KB binary completely changes the hash.">Simple checksums can match even if multiple byte errors cancel each other out. Cryptographic hashes (SHA256) ensure that changing even a single bit in a 500 KB binary completely changes the hash.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. What should happen to collected sensor telemetry if the IoT node cannot establish a Wi-Fi or cellular network connection?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The node saves timestamped telemetry into a local non-volatile flash ring buffer and enters low-power sleep, flushing cached logs upon reconnection</li><li class="mcq-option" data-correct="false">The node remains powered at 100% CPU waiting indefinitely for the network</li><li class="mcq-option" data-correct="false">The node erases its bootloader and turns off</li><li class="mcq-option" data-correct="false">The node resets the entire microcontroller every 10 milliseconds</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="A resilient node caches telemetry locally in non-volatile storage (NVS / FatFS). When network connectivity is eventually restored, it transmits historical logs, ensuring zero data loss.">A resilient node caches telemetry locally in non-volatile storage (NVS / FatFS). When network connectivity is eventually restored, it transmits historical logs, ensuring zero data loss.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. Which power phase consumes the vast majority of energy in a periodic 30-second battery-powered IoT reporting cycle?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The Wi-Fi Radio Association and TLS handshake phase (drawing ~75 mA for ~1 second)</li><li class="mcq-option" data-correct="false">The 28 seconds spent in deep sleep drawing 18 uA</li><li class="mcq-option" data-correct="false">The I2C sensor read phase drawing 6 mA for 10 ms</li><li class="mcq-option" data-correct="false">Executing the C startup code</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="RF transceivers require immense power to drive radio antennas: 75 mA for 1 second consumes 75 mAs, while 18 uA for 28 seconds consumes only 0.5 mAs. Radio activity represents &gt;90% of total energy.">RF transceivers require immense power to drive radio antennas: 75 mA for 1 second consumes 75 mAs, while 18 uA for 28 seconds consumes only 0.5 mAs. Radio activity represents &gt;90% of total energy.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. What is the purpose of storing a &#x27;magic number&#x27; (e.g. 0xDEADBEEF) at the head of a non-volatile fault log sector?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To verify that the flash sector has been properly formatted and initialized with valid log data rather than containing raw erased flash (0xFFFFFFFF)</li><li class="mcq-option" data-correct="false">To serve as an encryption password for the Wi-Fi network</li><li class="mcq-option" data-correct="false">To tell the CPU to run in 64-bit mode</li><li class="mcq-option" data-correct="false">To calibrate the internal temperature sensor</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="After a factory erase, flash memory contains all 0xFF. Checking for a designated magic number allows firmware to automatically detect virgin memory and format log headers cleanly.">After a factory erase, flash memory contains all 0xFF. Checking for a designated magic number allows firmware to automatically detect virgin memory and format log headers cleanly.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. How does an IoT node recover if a newly flashed OTA firmware candidate image immediately enters a hard reboot loop?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The bootloader detects that the new image failed to increment its confirmed boot flag, and automatically rolls back execution to the golden image in Slot A</li><li class="mcq-option" data-correct="false">The user must physically connect an oscilloscope to the power rail</li><li class="mcq-option" data-correct="false">The Wi-Fi router automatically fixes the firmware bug over the air</li><li class="mcq-option" data-correct="false">The processor permanently disables its clock oscillator</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The bootloader tracks candidate boot attempts. If the candidate crashes or triggers a watchdog reset before marking itself &#x27;healthy&#x27;, the bootloader automatically reverts to the original slot.">The bootloader tracks candidate boot attempts. If the candidate crashes or triggers a watchdog reset before marking itself &#x27;healthy&#x27;, the bootloader automatically reverts to the original slot.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What is the risk of keeping the microcontroller in active run mode while waiting for an HTTP download chunk to arrive over Wi-Fi?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">The CPU burns tens of milliamps doing nothing; using non-blocking events or sleep during network latency saves significant battery energy</li><li class="mcq-option" data-correct="false">The download chunk will be corrupted by the CPU clock</li><li class="mcq-option" data-correct="false">The compiler optimizer will delete the download buffer</li><li class="mcq-option" data-correct="false">The Wi-Fi chip will overheat and desolder from the PCB</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Network round-trip latency can take hundreds of milliseconds. Spinning in a busy loop during network waits rapidly exhausts battery reserves. Event-driven sleeps minimize consumption.">Network round-trip latency can take hundreds of milliseconds. Spinning in a busy loop during network waits rapidly exhausts battery reserves. Event-driven sleeps minimize consumption.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. What is the primary role of an independent hardware Real-Time Clock (RTC) in deep-sleep IoT systems?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To maintain accurate wall-clock time and generate ultra-low-power periodic wakeup interrupts while the main CPU and high-speed PLLs are completely unpowered</li><li class="mcq-option" data-correct="false">To accelerate AES encryption operations</li><li class="mcq-option" data-correct="false">To store large multi-megabyte firmware images</li><li class="mcq-option" data-correct="false">To control the brightness of external status LEDs</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="High-speed crystal oscillators and PLLs consume milliamps. The RTC runs on a 32.768 kHz quartz crystal consuming under 200 nA, maintaining time and waking the system precisely.">High-speed crystal oscillators and PLLs consume milliamps. The RTC runs on a 32.768 kHz quartz crystal consuming under 200 nA, maintaining time and waking the system precisely.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Network Partition Resilience and Recovery Test</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Deploy your IoT firmware. Disconnect the Wi-Fi access point cable for 10 minutes. Verify the node enters offline mode, caches 20 sensor readings in Flash, and upon network restoration, publishes all cached records with original timestamps.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Sensor Hardware Fault Injection Validation</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Simulate an electrical hardware failure by disconnecting the ADC thermistor input pin during active execution. Verify the supervisor flags fault bit 0, falls back to the last-known-good temperature, and publishes an MQTT alert packet.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Nordic PPK2 Low-Power Measurement and Tuning</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Connect your IoT node to a power profiler. Measure active current, radio association peaks, and deep sleep floor. Optimize GPIO states and peripheral clock gating to achieve a sleep current below 25 uA on a 3.3V rail.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Automated MQTT OTA Signature Rejection Test</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Publish an OTA update command over MQTT containing a valid URL but an intentionally modified/corrupted SHA256 checksum. Verify the node downloads the image, detects the hash mismatch, discards the candidate, and logs a security fault.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Multi-Node Fleet Simulation Harness in Python</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a Python script that spawns 10 concurrent MQTT client threads simulating 10 distinct IoT nodes. Simulate random broker disconnects, packet loss, and verify that all 10 nodes autonomously reconnect without manual intervention.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">IoT Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">OASIS Standard</span>
+            </div>
+            <h4>MQTT Version 5.0 Specification: Keep-Alive, Will Message, and Reason Codes</h4>
+            <p>Official specification for MQTT packet structures, keep-alive ping rules, and session resumption mechanics.</p>
+            <a href="https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Architecture Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Espressif Systems</span>
+            </div>
+            <h4>ESP-IDF Programming Guide: Over The Air Updates (OTA) and Non-Volatile Storage (NVS)</h4>
+            <p>Comprehensive technical documentation detailing multi-partition OTA state machines, rollbacks, and flash key-value caching.</p>
+            <a href="https://docs.espressif.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Engineering Paper</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ACM Transactions on Embedded Computing Systems</span>
+            </div>
+            <h4>Design Principles for Ultra-Reliable Long-Term Battery-Operated Wireless Sensor Nodes</h4>
+            <p>Academic paper detailing hardware failure modes, battery chemistry limits, and software fault isolation architectures.</p>
+            <a href="https://dl.acm.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Security Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">NIST Special Publication</span>
+            </div>
+            <h4>NIST SP 800-193: Platform Firmware Resiliency Guidelines</h4>
+            <p>Defines core security requirements for firmware protection, detection of unauthorized modification, and autonomous recovery.</p>
+            <a href="https://csrc.nist.gov/publications/detail/sp/800-193/final" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_22.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 22: Embedded Linux &amp; Device Drivers</span>
+                </a>
+                <a href="day_24.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 24: Grand Capstone: ECU Diagnostic Tool</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

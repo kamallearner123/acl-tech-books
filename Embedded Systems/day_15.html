@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 15: Bootloaders &amp; Firmware Update (OTA) - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>62%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 2.6</span>
+                <h1>Day 15: Bootloaders &amp; Firmware Update (OTA)</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> After deployment, your firmware will have bugs. How do you update it safely in the field without a hardware debugger and guarantee that a bad update or mid-transfer power loss never bricks the device?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 2.6</span>
+                            <span class="plan-badge plan-badge-secondary">Module 2: Peripherals &amp; FreeRTOS</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Master internal Flash partitioning between Bootloader, Application Slots, and NVM Metadata.</li><li>Implement low-level Vector Table Offset Register (SCB-&gt;VTOR) relocation and MSP jumping.</li><li>Construct a resilient A/B dual-partition state machine with automatic golden-image rollback.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>NOR Flash physics: Erase-before-write constraints and high-voltage sector bulk erasing.</li><li>ARM Cortex-M vector table layout and Thumb execution state requirements.</li><li>Hardware CRC32 polynomial computation vs software checksumming.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 15.1: Bare-metal jump to application routine setting MSP and branch vector.</li><li>Program 15.2: Bare-metal STM32 Flash memory controller driver (unlock, erase, write).</li><li>Program 15.3: Hardware CRC32 engine firmware integrity checker.</li><li>Program 15.4: Packetized UART DFU receiver with sector auto-erase and write.</li><li>Program 15.5: A/B dual partition metadata handler with safe rollback counter.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Failing to disable active peripheral interrupts before jumping, causing HardFault in the application.</li><li>Neglecting to clear bit 0 of the target Reset Handler address in assembly branch instructions.</li><li>Single-slot flash updates failing mid-write due to power loss, permanently bricking hardware.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</h2>
+<p>In production embedded engineering, deploying firmware to devices operating in remote field installations—such as automotive engine controllers, smart utility meters, or orbital satellites—demands the ability to update firmware without physical access via JTAG or SWD debuggers. This is achieved through a dedicated secondary program stored permanently in internal non-volatile memory: the <strong>In-System Programming (ISP) Bootloader</strong>.</p>
+<p>The internal Flash memory is divided into distinct physical memory regions: a small, immutable <em>Bootloader Partition</em> located at the physical reset address (e.g., <code>0x08000000</code>), an active <em>Application Slot A</em>, an update staging <em>Application Slot B</em>, and a persistent <em>Metadata / NVM Configuration Sector</em>.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-15_0-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-15_0-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 15.0-1: Flash Memory Partitioning for Safe In-Field and OTA Firmware Updates</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bootloader Slot (0x08000</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Protected, non-volatile initial execution target executed upon every power-...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Metadata Partition (0x08</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Contains boot state machines, firmware version numbers, execution counters,...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Dual-Bank Slots A &amp; B</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Permits atomic background download into inactive bank while the current ban...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Golden Image Rollback</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Allows immediate recovery to a known operational image if the newly flashed...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 15.0-1: Flash Memory Partitioning for Safe In-Field and OTA Firmware Updates
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Bootloader Slot (0x08000000):</strong> Protected, non-volatile initial execution target executed upon every power-on reset (POR).</li><li><strong>Metadata Partition (0x08004000):</strong> Contains boot state machines, firmware version numbers, execution counters, and 32-bit CRC signatures.</li><li><strong>Dual-Bank Slots A &amp; B:</strong> Permits atomic background download into inactive bank while the current bank continues real-time execution.</li><li><strong>Golden Image Rollback:</strong> Allows immediate recovery to a known operational image if the newly flashed application crashes or fails watchdog health checks.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</h2>
+<p>Upon power-on reset, the microcontroller core executes the bootloader. The bootloader performs hardware sanity checks, samples a physical DFU recovery pin or UART command byte, and reads the metadata partition to determine which application slot is active and valid.</p>
+<p>To transfer control to the user application, the bootloader must perform two low-level hardware procedures:
+<ol>
+    <li>Relocate the CPU Vector Table Offset Register (<code>SCB->VTOR</code>) to the base address of the application slot (e.g., <code>0x08008000</code>).</li>
+    <li>Load the Main Stack Pointer (<code>MSP</code>) from the first 32-bit word of the application's vector table, and jump to the function address specified in the second 32-bit word (the Application Reset Handler).</li>
+</ol>
+</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-15_0-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-15_0-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 15.0-2: Bootloader Execution Flow and Application Branching State Machine</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Hardware Pin Sampling</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Samples a designated external switch or UART header within 50 ms of boot to...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">CRC32 Integrity Validati</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Computes polynomial checksum across application flash boundaries before per...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">SCB-&gt;VTOR Relocation</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Repoints CPU exception entry points to application interrupt handlers so pe...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">DFU Recovery Loop</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Waits indefinitely for incoming firmware packets if application flash is co...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 15.0-2: Bootloader Execution Flow and Application Branching State Machine
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Hardware Pin Sampling:</strong> Samples a designated external switch or UART header within 50 ms of boot to permit emergency recovery.</li><li><strong>CRC32 Integrity Validation:</strong> Computes polynomial checksum across application flash boundaries before permitting vector jump.</li><li><strong>SCB-&gt;VTOR Relocation:</strong> Repoints CPU exception entry points to application interrupt handlers so peripherals fire correctly.</li><li><strong>DFU Recovery Loop:</strong> Waits indefinitely for incoming firmware packets if application flash is corrupted or blank.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</h2>
+<p>Executing a jump to an embedded application requires direct assembly instructions or inline C function pointers. Because the ARM Cortex-M architecture places the initial stack pointer at address <code>AppBase + 0x00</code> and the Reset Handler vector at <code>AppBase + 0x04</code>, the bootloader reads these memory words directly.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define APP_START_ADDRESS   0x08008000U
+#define SCB_VTOR            (*(volatile uint32_t *)0xE000ED08U)
+
+typedef void (*pFunction)(void);
+
+void jump_to_application(uint32_t app_address) {
+    /* 1. Verify application stack pointer is located in valid internal SRAM */
+    uint32_t app_stack = *(volatile uint32_t *)app_address;
+    if ((app_stack &amp; 0x2FFE0000U) != 0x20000000U) {
+        /* Invalid stack pointer; abort jump to avoid HardFault */
+        return;
+    }
+
+    /* 2. Disable all interrupts and clear pending flags */
+    __asm volatile (&quot;cpsid i&quot; : : : &quot;memory&quot;);
+    for (int i = 0; i &lt; 8; i++) {
+        *(volatile uint32_t *)(0xE000E180U + (i * 4)) = 0xFFFFFFFFU; /* NVIC ICER */
+        *(volatile uint32_t *)(0xE000E280U + (i * 4)) = 0xFFFFFFFFU; /* NVIC ICPR */
+    }
+
+    /* 3. Relocate Vector Table Offset Register (VTOR) */
+    SCB_VTOR = app_address;
+
+    /* 4. Extract application Reset Handler address (offset +4) */
+    uint32_t reset_handler_addr = *(volatile uint32_t *)(app_address + 4U);
+    pFunction app_entry = (pFunction)reset_handler_addr;
+
+    /* 5. Set Main Stack Pointer (MSP) and branch to application */
+    __asm volatile (&quot;msr msp, %0&quot; : : &quot;r&quot; (app_stack) : );
+    __asm volatile (&quot;cpsie i&quot; : : : &quot;memory&quot;);
+
+    app_entry();
+
+    /* Never reached */
+    while (1);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 15.1: Bare-Metal Jump to Application Routine on ARM Cortex-M
+</div>
+
+
+<h2 id="day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</h2>
+<p>Embedded NOR Flash memory exhibits physical constraints fundamentally distinct from RAM: bits can only be cleared from <code>1</code> to <code>0</code> during a write operation. Transitioning bits back from <code>0</code> to <code>1</code> requires an <strong>erase operation</strong>, which can only be performed on entire multi-kilobyte flash sectors. Furthermore, the microcontroller Flash controller requires a strict cryptographic key unlock sequence to prevent spurious writes during power dips.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define FLASH_BASE_ADDR     0x40023C00U
+#define FLASH_KEYR          (*(volatile uint32_t *)(FLASH_BASE_ADDR + 0x04U))
+#define FLASH_SR            (*(volatile uint32_t *)(FLASH_BASE_ADDR + 0x0CU))
+#define FLASH_CR            (*(volatile uint32_t *)(FLASH_BASE_ADDR + 0x10U))
+
+#define FLASH_KEY1          0x45670123U
+#define FLASH_KEY2          0xCDEF89ABU
+#define FLASH_SR_BSY        (1U &lt;&lt; 16)
+#define FLASH_CR_LOCK       (1U &lt;&lt; 31)
+#define FLASH_CR_PG         (1U &lt;&lt; 0)
+#define FLASH_CR_SER        (1U &lt;&lt; 1)
+#define FLASH_CR_STRT       (1U &lt;&lt; 16)
+
+void flash_unlock(void) {
+    if (FLASH_CR &amp; FLASH_CR_LOCK) {
+        FLASH_KEYR = FLASH_KEY1;
+        FLASH_KEYR = FLASH_KEY2;
+    }
+}
+
+void flash_lock(void) {
+    FLASH_CR |= FLASH_CR_LOCK;
+}
+
+void flash_wait_busy(void) {
+    while (FLASH_SR &amp; FLASH_SR_BSY);
+}
+
+void flash_erase_sector(uint8_t sector_num) {
+    flash_wait_busy();
+    flash_unlock();
+
+    /* Configure Sector Erase and select sector (bits 3:6) */
+    FLASH_CR &amp;= ~(0x1FU &lt;&lt; 3);
+    FLASH_CR |= FLASH_CR_SER | ((uint32_t)sector_num &lt;&lt; 3);
+    FLASH_CR |= FLASH_CR_STRT;
+
+    flash_wait_busy();
+    FLASH_CR &amp;= ~FLASH_CR_SER;
+    flash_lock();
+}
+
+void flash_write_word(uint32_t address, uint32_t data) {
+    flash_wait_busy();
+    flash_unlock();
+
+    /* Enable programming mode */
+    FLASH_CR |= FLASH_CR_PG;
+
+    /* Write 32-bit word */
+    *(volatile uint32_t *)address = data;
+
+    flash_wait_busy();
+    FLASH_CR &amp;= ~FLASH_CR_PG;
+    flash_lock();
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 15.2: Bare-Metal STM32 Flash Controller Driver (Unlock, Erase, Write)
+</div>
+
+
+<h2 id="day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</h2>
+<p>Before launching a newly written application, firmware integrity must be verified mathematically to ensure transmission corruption or premature power loss during flashing does not execute invalid opcodes. Microcontrollers integrate a dedicated <strong>Hardware CRC Peripheral</strong> implementing the standard Ethernet / ISO 3309 CRC-32 polynomial (<code>0x04C11DB7</code>) to verify hundreds of kilobytes of Flash in under 5 milliseconds.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define CRC_BASE            0x40023000U
+#define CRC_DR              (*(volatile uint32_t *)(CRC_BASE + 0x00U))
+#define CRC_CR              (*(volatile uint32_t *)(CRC_BASE + 0x08U))
+#define RCC_AHB1ENR         (*(volatile uint32_t *)(0x40023830U))
+
+void crc_peripheral_init(void) {
+    /* Enable CRC peripheral clock in RCC */
+    RCC_AHB1ENR |= (1U &lt;&lt; 12);
+    /* Reset CRC computation unit */
+    CRC_CR |= 1U;
+}
+
+uint32_t compute_firmware_crc(const uint32_t *p_data, uint32_t num_words) {
+    CRC_CR |= 1U; /* Reset computation */
+    for (uint32_t i = 0; i &lt; num_words; i++) {
+        CRC_DR = p_data[i];
+    }
+    return CRC_DR;
+}
+
+bool verify_application_integrity(uint32_t app_base_addr, uint32_t app_size_bytes, uint32_t expected_crc) {
+    crc_peripheral_init();
+    uint32_t num_words = app_size_bytes / 4U;
+    uint32_t computed = compute_firmware_crc((const uint32_t *)app_base_addr, num_words);
+    return (computed == expected_crc);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 15.3: Hardware CRC32 Engine Firmware Integrity Checker
+</div>
+
+
+<h2 id="day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</h2>
+<p>When the bootloader detects an active update session, it runs a packetized transport protocol over UART, CAN, or USB. The protocol receives binary chunks, verifies frame checksums, writes words into Flash memory, and sends acknowledgments (ACK/NACK) back to the host programmer.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define DFU_PACKET_SIZE     128U
+#define DFU_SOF             0x02U  /* Start of Frame */
+#define DFU_ACK             0x06U  /* Acknowledge */
+#define DFU_NACK            0x15U  /* Negative Acknowledge */
+
+typedef struct {
+    uint8_t  sof;
+    uint16_t packet_id;
+    uint8_t  payload[DFU_PACKET_SIZE];
+    uint16_t checksum;
+} __attribute__((packed)) DfuPacket_t;
+
+extern void uart_send_byte(uint8_t b);
+extern uint8_t uart_receive_byte(void);
+extern void flash_erase_sector(uint8_t sec);
+extern void flash_write_word(uint32_t addr, uint32_t data);
+
+bool dfu_process_next_packet(uint32_t target_flash_addr) {
+    DfuPacket_t packet;
+    uint8_t *raw_ptr = (uint8_t *)&amp;packet;
+
+    /* Receive entire frame over UART */
+    for (uint32_t i = 0; i &lt; sizeof(DfuPacket_t); i++) {
+        raw_ptr[i] = uart_receive_byte();
+    }
+
+    if (packet.sof != DFU_SOF) {
+        uart_send_byte(DFU_NACK);
+        return false;
+    }
+
+    /* Compute 16-bit additive checksum */
+    uint16_t sum = 0;
+    for (uint32_t i = 0; i &lt; DFU_PACKET_SIZE; i++) {
+        sum += packet.payload[i];
+    }
+
+    if (sum != packet.checksum) {
+        uart_send_byte(DFU_NACK);
+        return false;
+    }
+
+    /* Program verified 128 bytes (32 words) into Flash */
+    uint32_t *p_data = (uint32_t *)packet.payload;
+    for (uint32_t w = 0; w &lt; (DFU_PACKET_SIZE / 4U); w++) {
+        flash_write_word(target_flash_addr + (w * 4U), p_data[w]);
+    }
+
+    uart_send_byte(DFU_ACK);
+    return true;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 15.4: Packetized UART DFU Receiver with Sector Auto-Erase and Write
+</div>
+
+
+<h2 id="day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</h2>
+<p>To prevent bricking during over-the-air (OTA) updates, industrial systems implement an <strong>A/B Partitioning Scheme</strong>. While Slot A executes the active firmware, the network stack writes incoming packets into Slot B. Once verified, a persistent boot flag designates Slot B as pending trial. If Slot B fails to confirm successful startup within 3 reboots, the bootloader automatically rolls back to Slot A.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define NVM_METADATA_ADDR   0x08004000U
+#define MAX_BOOT_ATTEMPTS   3U
+
+typedef enum {
+    SLOT_A = 0,
+    SLOT_B = 1
+} ActiveSlot_t;
+
+typedef struct {
+    uint32_t magic_header;       /* 0x55AA55AA */
+    ActiveSlot_t active_slot;
+    uint32_t boot_attempts;
+    uint32_t slot_a_crc;
+    uint32_t slot_b_crc;
+    uint32_t slot_a_size;
+    uint32_t slot_b_size;
+} BootMetadata_t;
+
+ActiveSlot_t bootloader_select_slot(BootMetadata_t *meta) {
+    if (meta-&gt;magic_header != 0x55AA55AAU) {
+        /* Default fallback */
+        return SLOT_A;
+    }
+
+    if (meta-&gt;boot_attempts &gt;= MAX_BOOT_ATTEMPTS) {
+        /* Candidate failed to confirm operational status; rollback */
+        meta-&gt;active_slot = (meta-&gt;active_slot == SLOT_A) ? SLOT_B : SLOT_A;
+        meta-&gt;boot_attempts = 0;
+        /* Note: Write updated metadata to NVM sector here */
+    } else {
+        meta-&gt;boot_attempts++;
+    }
+
+    return meta-&gt;active_slot;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 15.5: A/B Dual Partition Metadata Handler with Safe Rollback Counter
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Device Firmware Upgrade (DFU) Transport Protocols Comparison</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Transport</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Physical Layer</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Typical Throughput</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Transfer Range</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Hardware Overhead</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Industrial Application</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">UART / RS-485</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Asynchronous serial copper</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">115.2 kbps - 1 Mbps</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 1200 meters (RS-485)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Minimal (1 UART port)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Factory automation, diagnostic ports, smart energy meters</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">CAN Bus (ISO 14229 UDS)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Differential CAN_H / CAN_L</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">500 kbps - 2 Mbps (CAN-FD)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 40 meters</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (on-chip CAN controller)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Automotive ECU flashing, industrial machinery</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">USB DFU Class</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Differential D+ / D-</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">12 Mbps (Full-Speed)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 5 meters</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Moderate (USB core required)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bench flashing, commercial USB consumer electronics</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bluetooth Low Energy (BLE)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2.4 GHz RF ISM band</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100 - 800 kbps</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">10 - 30 meters</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Moderate (BLE coprocessor)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Wearables, medical implants, smart lock updates</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Wi-Fi / Cellular OTA</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">IP Socket / HTTPS</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 - 10 Mbps</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Global cloud reach</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">High (TCP/IP stack + TLS crypto)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Autonomous vehicle telemetry, smart home gateways</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Intel HEX Record Types Reference</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Record Type</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Name</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Description</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Data Length</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Typical Usage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x00</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Data Record</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Contains raw binary opcodes or data bytes to be programmed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 - 32 bytes (typically 16)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Standard machine code payload</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x01</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">End of File (EOF)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Marks the termination of the HEX binary file</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 bytes</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Always the final record in the file</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x02</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Extended Segment Address</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Specifies upper 4 bits for 20-bit real-mode addressing</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Legacy 16-bit x86 architectures</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x04</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Extended Linear Address</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Specifies upper 16 bits of 32-bit absolute address</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Mandatory for ARM Cortex 32-bit linear address space</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x05</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Start Linear Address</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Specifies 32-bit execution entry point address</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">4 bytes</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Directs programmer to Reset Handler vector</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the primary function of the Vector Table Offset Register (SCB-&gt;VTOR) during a jump to application?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To increase CPU core clock frequency</li><li class="mcq-option" data-correct="true">To repoint the base address of the exception vector table so interrupts invoke application handlers rather than bootloader handlers</li><li class="mcq-option" data-correct="false">To disable flash memory sector write protection</li><li class="mcq-option" data-correct="false">To reset the SysTick timer counter</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="SCB-&gt;VTOR contains the base physical address of the vector table. When an interrupt fires, the CPU looks up handlers relative to VTOR. Failing to update VTOR causes interrupts to jump into obsolete bootloader addresses.">SCB-&gt;VTOR contains the base physical address of the vector table. When an interrupt fires, the CPU looks up handlers relative to VTOR. Failing to update VTOR causes interrupts to jump into obsolete bootloader addresses.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. Why must NOR Flash sectors be erased prior to writing new data words?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because NOR Flash writes can only clear bits from 1 to 0; transitioning from 0 to 1 requires an erase cycle</li><li class="mcq-option" data-correct="false">Because NOR Flash behaves exactly like dynamic RAM</li><li class="mcq-option" data-correct="false">To reduce power consumption during programming</li><li class="mcq-option" data-correct="false">Because the compiler optimizer removes un-erased instructions</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Floating-gate NOR flash cells are charged to represent 0 and discharged to represent 1. Write operations only inject charge (1-&gt;0); removing charge (0-&gt;1) requires high-voltage sector bulk erasing.">Floating-gate NOR flash cells are charged to represent 0 and discharged to represent 1. Write operations only inject charge (1-&gt;0); removing charge (0-&gt;1) requires high-voltage sector bulk erasing.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What are the first two 32-bit words stored at the base address of any ARM Cortex-M application binary?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Initial Main Stack Pointer (MSP) value and Reset Handler function address</li><li class="mcq-option" data-correct="false">CRC32 checksum and firmware version string</li><li class="mcq-option" data-correct="false">UART baud rate register and clock divider settings</li><li class="mcq-option" data-correct="false">Heap pointer base and FreeRTOS task count</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The ARM Cortex-M hardware vector table specification mandates that word 0 (offset 0x00) is loaded into the MSP register and word 1 (offset 0x04) is loaded into the Program Counter (PC).">The ARM Cortex-M hardware vector table specification mandates that word 0 (offset 0x00) is loaded into the MSP register and word 1 (offset 0x04) is loaded into the Program Counter (PC).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. In an A/B dual-partition update scheme, what is the purpose of the &#x27;boot_attempts&#x27; counter in the metadata sector?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To limit how many times the user can plug in USB devices</li><li class="mcq-option" data-correct="true">To detect an application crash loop and automatically roll back to the previously operational image</li><li class="mcq-option" data-correct="false">To calculate the CPU clock cycle count</li><li class="mcq-option" data-correct="false">To verify the serial number of the microcontroller</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If a newly flashed candidate image crashes or triggers a watchdog reset before marking itself as &#x27;healthy&#x27;, the boot_attempts counter increments. Exceeding the threshold triggers an automatic rollback to the known-good partition.">If a newly flashed candidate image crashes or triggers a watchdog reset before marking itself as &#x27;healthy&#x27;, the boot_attempts counter increments. Exceeding the threshold triggers an automatic rollback to the known-good partition.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. Which Intel HEX record type defines the upper 16 bits of a 32-bit linear memory address on ARM Cortex-M microcontrollers?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">Record Type 0x00 (Data)</li><li class="mcq-option" data-correct="false">Record Type 0x01 (EOF)</li><li class="mcq-option" data-correct="true">Record Type 0x04 (Extended Linear Address Record)</li><li class="mcq-option" data-correct="false">Record Type 0x02 (Extended Segment Record)</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Intel HEX record type 04 supplies the upper 16 address bits (base address), enabling addressing across the entire 4 GB 32-bit address space.">Intel HEX record type 04 supplies the upper 16 address bits (base address), enabling addressing across the entire 4 GB 32-bit address space.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. Why should interrupts be globally disabled before jumping from a bootloader to an application?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To prevent an in-flight peripheral interrupt from executing an ISR in the wrong memory context during vector table transition</li><li class="mcq-option" data-correct="false">To prevent flash memory from discharging</li><li class="mcq-option" data-correct="false">Because Cortex-M cores do not support interrupts in applications</li><li class="mcq-option" data-correct="false">To preserve battery power during the jump</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If an interrupt fires during the transition between the bootloader stack pointer configuration and the application VTOR update, the core will branch using indeterminate vector table pointers, causing an immediate HardFault.">If an interrupt fires during the transition between the bootloader stack pointer configuration and the application VTOR update, the core will branch using indeterminate vector table pointers, causing an immediate HardFault.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. What is the primary vulnerability of updating firmware in-place in a single flash slot without an A/B dual bank or golden image?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">SRAM becomes too fast for CPU execution</li><li class="mcq-option" data-correct="true">A sudden power outage or connection drop mid-write leaves the device permanently unbootable (bricked)</li><li class="mcq-option" data-correct="false">The serial baud rate doubles automatically</li><li class="mcq-option" data-correct="false">The compiler optimization flag drops from -O2 to -O0</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Single-slot in-place updating erases the running application before writing the new image. If power fails mid-erase, no valid application exists on flash, requiring physical SWD/JTAG intervention.">Single-slot in-place updating erases the running application before writing the new image. If power fails mid-erase, no valid application exists on flash, requiring physical SWD/JTAG intervention.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. How does the hardware CRC32 engine compare in throughput to a software bitwise CRC calculation?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Hardware CRC executes in 1 clock cycle per 32-bit word, outperforming software loops by 10x to 50x</li><li class="mcq-option" data-correct="false">Hardware CRC is slower because it requires network access</li><li class="mcq-option" data-correct="false">Hardware CRC consumes more Flash memory than software lookup tables</li><li class="mcq-option" data-correct="false">They operate at identical speeds</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The integrated hardware CRC engine computes polynomial division in combinational hardware at 1 word per clock cycle, verifying multi-hundred-kilobyte images in milliseconds.">The integrated hardware CRC engine computes polynomial division in combinational hardware at 1 word per clock cycle, verifying multi-hundred-kilobyte images in milliseconds.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What does the Thumb instruction bit (bit 0) in an ARM function address indicate?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Whether the core operates in 16/32-bit Thumb state (must be 1 for Cortex-M processors)</li><li class="mcq-option" data-correct="false">Whether the memory is cached</li><li class="mcq-option" data-correct="false">Whether the function was compiled with -O3</li><li class="mcq-option" data-correct="false">Whether floating point hardware is present</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Cortex-M microcontrollers exclusively execute the Thumb instruction set. Bit 0 of function pointer addresses must be set to 1; branching to an even address clears EPSR.T and triggers a UsageFault.">Cortex-M microcontrollers exclusively execute the Thumb instruction set. Bit 0 of function pointer addresses must be set to 1; branching to an even address clears EPSR.T and triggers a UsageFault.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. In automotive diagnostics, which protocol standard governs firmware reprogramming over the CAN bus?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">ISO 14229 Unified Diagnostic Services (UDS)</li><li class="mcq-option" data-correct="false">Bluetooth SIG GAP Spec</li><li class="mcq-option" data-correct="false">IEEE 802.11 Wi-Fi</li><li class="mcq-option" data-correct="false">I2C Fast Mode Plus</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="ISO 14229 (UDS) specifies the diagnostic services (such as 0x34 RequestDownload, 0x36 TransferData, and 0x37 RequestTransferExit) used by automotive OEMs to flash ECUs over CAN.">ISO 14229 (UDS) specifies the diagnostic services (such as 0x34 RequestDownload, 0x36 TransferData, and 0x37 RequestTransferExit) used by automotive OEMs to flash ECUs over CAN.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Non-Volatile Boot Flag Sector Manager</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a persistent boot flag driver in the dedicated metadata flash sector. Implement functions to read, erase, and write the active partition index and boot attempt counter, surviving 10 consecutive simulated power-loss events.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Dual-Bank Automatic Rollback Engine</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Develop an A/B partition switcher that increments an attempt counter upon booting Candidate Slot B. If the candidate fails to call app_mark_healthy() within 3 boots, the bootloader automatically sets active partition back to Slot A.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Host-Side Python DFU Packetizer</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a host Python script that parses a compiled .bin firmware binary, packetizes it into 128-byte Xmodem frames with 16-bit additive checksums, and transmits frames over serial COM/tty port while processing target ACK/NACK responses.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Cryptographic Firmware Signature Verification</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Append a 32-byte HMAC-SHA256 signature to the firmware binary header. In the bootloader, compute the HMAC over the application image using a pre-shared secret key stored in protected flash; reject the jump if the signature fails.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: USB Device Firmware Upgrade (DFU) Class Integration</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a USB DFU 1.1 class driver on an STM32 development board. Connect the board to a Linux host PC and execute a complete firmware update cycle using the standard open-source dfu-util utility.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Architecture Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Limited</span>
+            </div>
+            <h4>ARM Cortex-M Programming Guide to Memory Management and System Control Block</h4>
+            <p>Official technical specifications for SCB-&gt;VTOR vector table relocation, stack alignment requirements, and software reset procedures.</p>
+            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Automotive Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">International Organization for Standardization</span>
+            </div>
+            <h4>ISO 14229: Road Vehicles — Unified Diagnostic Services (UDS)</h4>
+            <p>Global industry standard specifying flash programming session states, seed-key security access, and data transfer services over CAN/LIN networks.</p>
+            <a href="https://www.iso.org/standard/72228.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">USB Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">USB Implementers Forum</span>
+            </div>
+            <h4>Universal Serial Bus Device Class Specification for Device Firmware Upgrade (DFU) v1.1</h4>
+            <p>Standardized USB device class descriptor framework and control request state machine for reprogramming USB peripherals.</p>
+            <a href="https://www.usb.org/document-library/device-firmware-upgrade-11" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Industry Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Embedded Systems Academy</span>
+            </div>
+            <h4>Designing Safe and Secure In-Field Bootloaders for Cortex-M Microcontrollers</h4>
+            <p>Engineering reference manual covering dual-bank flash partitioning, power-fail resilience, and golden image recovery patterns.</p>
+            <a href="https://www.esacademy.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_14.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 14: USB, Ethernet &amp; Wireless</span>
+                </a>
+                <a href="day_16.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 16: Capstone: RTOS Sensor Hub</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

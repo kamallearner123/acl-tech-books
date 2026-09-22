@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 24: Grand Capstone: Automotive ECU Diagnostic Assistant - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>100%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 3.7</span>
+                <h1>Day 24: Grand Capstone: Automotive ECU Diagnostic Assistant</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> Build a production-quality Automotive Diagnostic Tool that interfaces with vehicle CAN buses, reads OBD-II PIDs, decodes and clears DTCs, streams live telemetry over BLE, logs black-box CSVs to SD cards, and renders a live USB dashboard.
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 3.7</span>
+                            <span class="plan-badge plan-badge-secondary">Module 3: Advanced Embedded Architecture</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Interface with vehicle powertrain networks via high-speed CAN transceivers and SAE J1979 OBD-II.</li><li>Implement ISO 14229 Unified Diagnostic Services (UDS) and ISO 15765-2 (ISO-TP) multi-frame streaming.</li><li>Stream live telemetry over BLE GATT and render real-time ANSI terminal dashboards over USB CDC.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>OBD-II functional broadcast addressing (0x7DF) vs physical ECU addressing (0x7E0/0x7E8).</li><li>ISO-TP Single Frame, First Frame, Flow Control, and Consecutive Frame state machines.</li><li>Diagnostic Trouble Code (DTC) prefix encoding (Powertrain, Chassis, Body, Network) and status masks.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 24.1: OBD-II CAN PID request and multi-sensor response parser in C.</li><li>Program 24.2: UDS ReadDataByIdentifier (0x22) VIN multi-frame reassembler.</li><li>Program 24.3: Diagnostic Trouble Code (DTC) decoder and clear routine in C.</li><li>Program 24.4: Concurrent BLE GATT notification and SD card FAT32 logging task.</li><li>Program 24.5: USB CDC ANSI real-time dashboard rendering engine in C.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Ignoring ISO-TP Flow Control frames, causing transmitter buffer overflows during multi-frame transfers.</li><li>Transmitting non-standard CAN request rates, saturating vehicle buses and inducing safety limp modes.</li><li>Failing to handle negative response codes (0x7F) when querying unsupported PIDs or secure services.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</h2>
+<p>Modern passenger and commercial vehicles are complex distributed networks containing between 50 and 120 interconnected Electronic Control Units (ECUs)—managing powertrain, transmission, anti-lock braking (ABS), advanced driver assistance (ADAS), and battery management (BMS). When an instrument cluster illuminates the 'Check Engine' MIL indicator, technicians query the vehicle using standardized diagnostic protocols operating over the internal <strong>Controller Area Network (CAN)</strong> bus.</p>
+<p>In this Grand Capstone, we synthesize every hardware and software discipline mastered throughout this 24-day curriculum—bare-metal register programming, CAN transceivers, FreeRTOS multi-threading, interrupt handlers, FAT32 filesystems, BLE wireless GATT servers, and USB communication—into a commercial-grade <strong>Automotive ECU Diagnostic Assistant</strong>.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 338" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-24_0-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="338" rx="10" fill="url(#bgGrad-24_0-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 24.0-1: Automotive ECU Diagnostic Assistant Complete Hardware Architecture</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(25, 65)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">Vehicle CAN Bus Interface</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Physical ISO 11898-2 differential CAN link operating at standard 500 kbps automotive baud ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(420, 65)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">Central STM32 Gateway</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Coordinates OBD-II/UDS request schedules, parses multi-frame ISO-TP packets, and filters d...
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(25, 151)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">BLE Wireless GATT Server</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Streams real-time vehicle RPM, vehicle speed, and active Diagnostic Trouble Codes (DTCs) t...
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(420, 151)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">MicroSD FAT32 Black-Box</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        High-throughput circular CSV trip recorder capturing hundreds of PID samples per second fo...
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(25, 237)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">USB CDC Diagnostic Shell</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Virtual serial terminal providing an interactive command line interface for live ECU tunin...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 24.0-1: Automotive ECU Diagnostic Assistant Complete Hardware Architecture
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Vehicle CAN Bus Interface:</strong> Physical ISO 11898-2 differential CAN link operating at standard 500 kbps automotive baud rate.</li><li><strong>Central STM32 Gateway:</strong> Coordinates OBD-II/UDS request schedules, parses multi-frame ISO-TP packets, and filters diagnostic frames.</li><li><strong>BLE Wireless GATT Server:</strong> Streams real-time vehicle RPM, vehicle speed, and active Diagnostic Trouble Codes (DTCs) to mobile devices.</li><li><strong>MicroSD FAT32 Black-Box:</strong> High-throughput circular CSV trip recorder capturing hundreds of PID samples per second for offline analytics.</li><li><strong>USB CDC Diagnostic Shell:</strong> Virtual serial terminal providing an interactive command line interface for live ECU tuning and DTC clearing.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</h2>
+<p>The standard <strong>On-Board Diagnostics II (OBD-II / SAE J1979)</strong> protocol specifies how diagnostic tools query live sensor data from engine and transmission ECUs. Requests are broadcast on the standard functional CAN ID <code>0x7DF</code>. Responding ECUs (such as the Engine Control Module at <code>0x7E8</code>) reply with the requested Mode (Service) + 0x40 and the requested Parameter ID (PID).</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-24_0-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-24_0-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 24.0-2: OBD-II CAN Request and Response Frame Structure (PID 0x0C Engine RPM)</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Length Byte (0x02 / 0x04</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        First byte declares the number of valid ISO 15765-2 single-frame diagnostic...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Service Mode (0x01 / 0x4</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Mode 01 = Show Current Data; response sets bit 6 (0x01 + 0x40 = 0x41).
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Parameter ID (PID 0x0C)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Standard PID 0x0C represents Engine Speed (RPM).
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Numeric Formula</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Formula $\frac{(A \times 256) + B}{4}$ decodes 16-bit raw integer into phys...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 24.0-2: OBD-II CAN Request and Response Frame Structure (PID 0x0C Engine RPM)
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Length Byte (0x02 / 0x04):</strong> First byte declares the number of valid ISO 15765-2 single-frame diagnostic payload bytes.</li><li><strong>Service Mode (0x01 / 0x41):</strong> Mode 01 = Show Current Data; response sets bit 6 (0x01 + 0x40 = 0x41).</li><li><strong>Parameter ID (PID 0x0C):</strong> Standard PID 0x0C represents Engine Speed (RPM).</li><li><strong>Numeric Formula:</strong> Formula $\frac{(A \times 256) + B}{4}$ decodes 16-bit raw integer into physical engine revolutions per minute.</li>
+    </ul>
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define OBD_FUNCTIONAL_REQ_ID   0x7DFU
+#define OBD_ENGINE_RESP_ID      0x7E8U
+
+#define OBD_MODE_CURRENT_DATA   0x01U
+#define OBD_PID_COOLANT_TEMP    0x05U
+#define OBD_PID_ENGINE_RPM      0x0CU
+#define OBD_PID_VEHICLE_SPEED   0x0DU
+#define OBD_PID_THROTTLE_POS    0x11U
+
+typedef struct {
+    uint16_t engine_rpm;        /* Revolutions per minute */
+    uint8_t  vehicle_speed_kph; /* km/h */
+    int8_t   coolant_temp_degc; /* -40 to +215 deg C */
+    uint8_t  throttle_pct;      /* 0 to 100 % */
+} ObdLiveMetrics_t;
+
+typedef struct {
+    uint32_t id;
+    uint8_t  dlc;
+    uint8_t  data[8];
+} CanMessage_t;
+
+extern void can_transmit_frame(const CanMessage_t *frame);
+
+void obd_query_pid(uint8_t pid) {
+    CanMessage_t req;
+    req.id = OBD_FUNCTIONAL_REQ_ID;
+    req.dlc = 8;
+    req.data[0] = 0x02; /* 2 bytes follow */
+    req.data[1] = OBD_MODE_CURRENT_DATA;
+    req.data[2] = pid;
+    for (int i = 3; i &lt; 8; i++) req.data[i] = 0x55; /* Padding */
+
+    can_transmit_frame(&amp;req);
+}
+
+bool obd_parse_response(const CanMessage_t *resp, ObdLiveMetrics_t *metrics) {
+    if (resp-&gt;id != OBD_ENGINE_RESP_ID) return false;
+    if (resp-&gt;data[1] != (OBD_MODE_CURRENT_DATA + 0x40U)) return false;
+
+    uint8_t pid = resp-&gt;data[2];
+
+    switch (pid) {
+        case OBD_PID_ENGINE_RPM: {
+            uint16_t a = resp-&gt;data[3];
+            uint16_t b = resp-&gt;data[4];
+            metrics-&gt;engine_rpm = (uint16_t)(((a * 256U) + b) / 4U);
+            return true;
+        }
+
+        case OBD_PID_VEHICLE_SPEED: {
+            metrics-&gt;vehicle_speed_kph = resp-&gt;data[3]; /* A = km/h */
+            return true;
+        }
+
+        case OBD_PID_COOLANT_TEMP: {
+            metrics-&gt;coolant_temp_degc = (int8_t)((int16_t)resp-&gt;data[3] - 40); /* A - 40 */
+            return true;
+        }
+
+        case OBD_PID_THROTTLE_POS: {
+            metrics-&gt;throttle_pct = (uint8_t)(((uint16_t)resp-&gt;data[3] * 100U) / 255U); /* A * 100 / 255 */
+            return true;
+        }
+
+        default:
+            return false;
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 24.1: OBD-II CAN PID Request and Multi-Sensor Response Parser in C
+</div>
+
+
+<h2 id="day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</h2>
+<p>Beyond standard emissions OBD-II, modern automotive systems implement <strong>ISO 14229 (UDS)</strong> for dealership-level diagnostics. Services include:
+<ul>
+    <li><strong>Service 0x22 (ReadDataByIdentifier):</strong> Queries manufacturer-specific Data Identifiers (DIDs), such as reading the 17-character Vehicle Identification Number (VIN) under DID <code>0xF190</code>.</li>
+    <li><strong>Service 0x19 (ReadDTCInformation):</strong> Retrieves active, pending, and confirmed Diagnostic Trouble Codes.</li>
+    <li><strong>Service 0x14 (ClearDiagnosticInformation):</strong> Erases stored fault codes and resets freeze frame black-box data.</li>
+</ul>
+Because payloads frequently exceed the 8-byte limit of standard CAN frames, messages are segmented using <strong>ISO 15765-2 (ISO-TP)</strong> transport protocol frames: Single Frame (SF), First Frame (FF), Flow Control (FC), and Consecutive Frames (CF).</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-24_0-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-24_0-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 24.0-3: ISO 15765-2 (ISO-TP) Multi-Frame Transmission Sequence</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Single Frame (SF - 0x0N)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Used for requests and responses that fit within 7 payload bytes.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">First Frame (FF - 0x1NNN</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Sent by ECU when response length exceeds 7 bytes; specifies 12-bit total me...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Flow Control (FC - 0x30)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Sent by tester to throttle transmission, specifying Block Size (BS) and Sep...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Consecutive Frame (CF - </text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Carries remaining payload chunks with a 4-bit rolling sequence index (0 to ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 24.0-3: ISO 15765-2 (ISO-TP) Multi-Frame Transmission Sequence
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Single Frame (SF - 0x0N):</strong> Used for requests and responses that fit within 7 payload bytes.</li><li><strong>First Frame (FF - 0x1NNN):</strong> Sent by ECU when response length exceeds 7 bytes; specifies 12-bit total message byte count.</li><li><strong>Flow Control (FC - 0x30):</strong> Sent by tester to throttle transmission, specifying Block Size (BS) and Separation Time (STmin).</li><li><strong>Consecutive Frame (CF - 0x2N):</strong> Carries remaining payload chunks with a 4-bit rolling sequence index (0 to 15).</li>
+    </ul>
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;string.h&gt;
+
+#define UDS_REQ_ID              0x7E0U
+#define UDS_RESP_ID             0x7E8U
+#define UDS_SERVICE_READ_DID    0x22U
+#define DID_VIN                 0xF190U
+
+typedef struct {
+    uint8_t  vin_str[18]; /* 17 ASCII chars + null */
+    uint8_t  bytes_received;
+    uint8_t  expected_length;
+    bool     vin_complete;
+} UdsVinReceiver_t;
+
+extern void can_transmit_frame(const CanMessage_t *frame);
+
+void uds_request_vin(void) {
+    CanMessage_t req;
+    req.id = UDS_REQ_ID;
+    req.dlc = 8;
+    req.data[0] = 0x03; /* 3 bytes follow */
+    req.data[1] = UDS_SERVICE_READ_DID;
+    req.data[2] = (uint8_t)(DID_VIN &gt;&gt; 8);
+    req.data[3] = (uint8_t)(DID_VIN &amp; 0xFF);
+    for (int i = 4; i &lt; 8; i++) req.data[i] = 0xAA;
+
+    can_transmit_frame(&amp;req);
+}
+
+void uds_send_flow_control(void) {
+    CanMessage_t fc;
+    fc.id = UDS_REQ_ID;
+    fc.dlc = 8;
+    fc.data[0] = 0x30; /* Flow Control: Continue to send (CTS) */
+    fc.data[1] = 0x00; /* Block size = 0 (send all without pause) */
+    fc.data[2] = 0x0A; /* STmin = 10 ms separation time */
+    for (int i = 3; i &lt; 8; i++) fc.data[i] = 0xAA;
+
+    can_transmit_frame(&amp;fc);
+}
+
+void uds_process_isotp_frame(const CanMessage_t *frame, UdsVinReceiver_t *rec) {
+    uint8_t pci = frame-&gt;data[0] &gt;&gt; 4; /* Protocol Control Information */
+
+    if (pci == 0x1) { /* First Frame (FF) */
+        uint16_t total_len = ((uint16_t)(frame-&gt;data[0] &amp; 0x0F) &lt;&lt; 8) | frame-&gt;data[1];
+        rec-&gt;expected_length = (uint8_t)total_len;
+        rec-&gt;bytes_received = 0;
+
+        /* Verify response is positive response to 0x22 0xF190 */
+        if (frame-&gt;data[2] == 0x62 &amp;&amp; frame-&gt;data[3] == 0xF1 &amp;&amp; frame-&gt;data[4] == 0x90) {
+            /* Copy first 3 VIN ASCII bytes from FF */
+            memcpy(&amp;rec-&gt;vin_str[0], &amp;frame-&gt;data[5], 3);
+            rec-&gt;bytes_received = 3;
+            uds_send_flow_control();
+        }
+    } else if (pci == 0x2) { /* Consecutive Frame (CF) */
+        uint8_t chunk = (rec-&gt;expected_length - rec-&gt;bytes_received - 3);
+        if (chunk &gt; 7) chunk = 7;
+
+        memcpy(&amp;rec-&gt;vin_str[rec-&gt;bytes_received], &amp;frame-&gt;data[1], chunk);
+        rec-&gt;bytes_received += chunk;
+
+        if (rec-&gt;bytes_received &gt;= 17) {
+            rec-&gt;vin_str[17] = &#x27; &#x27;;
+            rec-&gt;vin_complete = true;
+        }
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 24.2: UDS ReadDataByIdentifier (0x22) VIN Multi-Frame Reassembler
+</div>
+
+
+<h2 id="day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</h2>
+<p>A <strong>Diagnostic Trouble Code (DTC)</strong> is a 3-byte standardized identifier indicating an active or historic vehicle malfunction. The first byte encodes the physical system prefix:
+<ul>
+    <li><code>0x00 - 0x3F</code>: <strong>P (Powertrain)</strong> — Engine, transmission, emissions. (e.g. <code>P0300</code> Random Misfire).</li>
+    <li><code>0x40 - 0x7F</code>: <strong>C (Chassis)</strong> — ABS brakes, electronic stability control, suspension.</li>
+    <li><code>0x80 - 0xBF</code>: <strong>B (Body)</strong> — Airbags, climate control, lighting, door locks.</li>
+    <li><code>0xC0 - 0xFF</code>: <strong>U (Network)</strong> — CAN bus timeouts, loss of communication between ECUs.</li>
+</ul>
+Using UDS Service <code>0x19 02</code> (ReadDTCByStatusMask), the tool fetches all stored DTCs; calling Service <code>0x14 FF FF FF</code> clears all fault memory across all vehicle modules.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+
+#define UDS_REQ_ID              0x7E0U
+#define UDS_SERVICE_CLEAR_DTC   0x14U
+#define UDS_SERVICE_READ_DTC    0x19U
+
+typedef struct {
+    char     dtc_formatted[6]; /* e.g. &quot;P0301 &quot; */
+    uint8_t  status_mask;
+} DecodedDtc_t;
+
+extern void can_transmit_frame(const CanMessage_t *frame);
+
+void uds_decode_single_dtc(const uint8_t *raw_3bytes, DecodedDtc_t *out) {
+    uint8_t b1 = raw_3bytes[0];
+    uint8_t b2 = raw_3bytes[1];
+    out-&gt;status_mask = raw_3bytes[2];
+
+    char prefix;
+    uint8_t prefix_type = (b1 &gt;&gt; 6) &amp; 0x03;
+    switch (prefix_type) {
+        case 0: prefix = &#x27;P&#x27;; break; /* Powertrain */
+        case 1: prefix = &#x27;C&#x27;; break; /* Chassis */
+        case 2: prefix = &#x27;B&#x27;; break; /* Body */
+        case 3: prefix = &#x27;U&#x27;; break; /* Network */
+    }
+
+    uint8_t digit2 = (b1 &gt;&gt; 4) &amp; 0x03;
+    uint8_t digit3 = b1 &amp; 0x0F;
+    uint8_t digit4 = (b2 &gt;&gt; 4) &amp; 0x0F;
+    uint8_t digit5 = b2 &amp; 0x0F;
+
+    snprintf(out-&gt;dtc_formatted, sizeof(out-&gt;dtc_formatted), &quot;%c%X%X%X%X&quot;,
+             prefix, digit2, digit3, digit4, digit5);
+}
+
+void uds_clear_all_dtcs(void) {
+    CanMessage_t req;
+    req.id = UDS_REQ_ID;
+    req.dlc = 8;
+    req.data[0] = 0x04; /* 4 bytes follow */
+    req.data[1] = UDS_SERVICE_CLEAR_DTC;
+    req.data[2] = 0xFF; /* Clear all DTC groups */
+    req.data[3] = 0xFF;
+    req.data[4] = 0xFF;
+    req.data[5] = 0x55;
+    req.data[6] = 0x55;
+    req.data[7] = 0x55;
+
+    can_transmit_frame(&amp;req);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 24.3: Diagnostic Trouble Code (DTC) Decoder and Clear Routine in C
+</div>
+
+
+<h2 id="day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</h2>
+<p>To deliver an exceptional user experience, the tool streams live PID data wirelessly to mobile devices while simultaneously logging every transaction to an SD card. The BLE task advertises a custom <strong>Automotive GATT Service</strong> with notify characteristics for RPM, Speed, and Coolant Temp, while a background FAT32 task flushes comma-separated records to disk.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &quot;FreeRTOS.h&quot;
+#include &quot;task.h&quot;
+#include &quot;queue.h&quot;
+#include &quot;ff.h&quot;
+
+typedef struct {
+    uint32_t timestamp_ms;
+    uint16_t rpm;
+    uint8_t  speed_kph;
+    int8_t   coolant_degc;
+    uint8_t  throttle_pct;
+} TelemetryRecord_t;
+
+extern QueueHandle_t g_telemetry_queue;
+extern void ble_notify_characteristic(uint16_t char_handle, const void *data, uint16_t len);
+
+void vBlackBoxLoggerTask(void *pvParams) {
+    FATFS fs;
+    FIL log_file;
+    TelemetryRecord_t record;
+    char csv_line[64];
+    UINT bw;
+
+    f_mount(&amp;fs, &quot;0:&quot;, 1);
+    f_open(&amp;log_file, &quot;0:/drive_log.csv&quot;, FA_WRITE | FA_OPEN_ALWAYS);
+    f_lseek(&amp;log_file, f_size(&amp;log_file));
+
+    /* Write CSV header */
+    const char *header = &quot;Timestamp,RPM,Speed_KPH,Coolant_C,Throttle_Pct
+&quot;;
+    f_write(&amp;log_file, header, strlen(header), &amp;bw);
+
+    for (;;) {
+        if (xQueueReceive(g_telemetry_queue, &amp;record, portMAX_DELAY) == pdPASS) {
+            /* 1. Push notification to connected smartphone via BLE GATT */
+            uint8_t ble_payload[4];
+            ble_payload[0] = (uint8_t)(record.rpm &amp; 0xFF);
+            ble_payload[1] = (uint8_t)(record.rpm &gt;&gt; 8);
+            ble_payload[2] = record.speed_kph;
+            ble_payload[3] = (uint8_t)record.coolant_degc;
+            ble_notify_characteristic(0x002A, ble_payload, 4);
+
+            /* 2. Format and append record to MicroSD FAT32 CSV file */
+            snprintf(csv_line, sizeof(csv_line), &quot;%lu,%u,%u,%d,%u
+&quot;,
+                     record.timestamp_ms, record.rpm, record.speed_kph,
+                     record.coolant_degc, record.throttle_pct);
+            f_write(&amp;log_file, csv_line, strlen(csv_line), &amp;bw);
+            f_sync(&amp;log_file);
+        }
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 24.4: Concurrent BLE GATT Notification and SD Card FAT32 Logging Task
+</div>
+
+
+<h2 id="day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</h2>
+<p>When connected to a technician's laptop via USB, the tool enumerates as a <strong>USB Communications Device Class (CDC)</strong> virtual serial port. It renders an ANSI-colored, real-time dashboard updating at 10 Hz, displaying engine tachometer bars, speed, active trouble codes, and bus health statistics.</p>
+
+
+<pre><code class="language-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+extern void usb_cdc_transmit(const char *str, uint16_t len);
+
+void render_usb_terminal_dashboard(const ObdLiveMetrics_t *m, const char *vin, uint32_t can_rx_count) {
+    char screen_buffer[1024];
+
+    /* ANSI escape sequences: Clear screen ([2J) and move cursor to home ([H) */
+    int len = snprintf(screen_buffer, sizeof(screen_buffer),
+        &quot;[2J[H&quot;
+        &quot;[1;36m============================================================[0m
+&quot;
+        &quot;[1;37m        AUTOMOTIVE ECU DIAGNOSTIC ASSISTANT v1.0            [0m
+&quot;
+        &quot;[1;36m============================================================[0m
+&quot;
+        &quot; Vehicle Identification Number (VIN): [1;32m%s[0m
+&quot;
+        &quot; CAN Bus Frames Processed:            [1;33m%lu[0m
+&quot;
+        &quot;------------------------------------------------------------
+&quot;
+        &quot; Engine Speed (RPM):  [1;32m%5u RPM[0m  [%-20s]
+&quot;
+        &quot; Vehicle Speed:       [1;32m%5u km/h[0m
+&quot;
+        &quot; Coolant Temperature: [1;32m%5d C[0m
+&quot;
+        &quot; Throttle Position:   [1;32m%5u %%[0m
+&quot;
+        &quot;------------------------------------------------------------
+&quot;
+        &quot; Active Fault Codes:  [1;31mNone (System Healthy)[0m
+&quot;
+        &quot;[1;36m============================================================[0m
+&quot;
+        &quot; Commands: [c] Clear DTCs  [r] Refresh VIN  [l] Toggle Logging
+&quot;,
+        vin, can_rx_count, m-&gt;engine_rpm,
+        (m-&gt;engine_rpm &gt; 4000) ? &quot;||||||||||||||||&quot; : (m-&gt;engine_rpm &gt; 2000) ? &quot;||||||||&quot; : &quot;||||&quot;,
+        m-&gt;vehicle_speed_kph, m-&gt;coolant_temp_degc, m-&gt;throttle_pct
+    );
+
+    usb_cdc_transmit(screen_buffer, (uint16_t)len);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 24.5: USB CDC ANSI Real-Time Dashboard Rendering Engine in C
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Standard Emissions OBD-II (SAE J1979) vs Dealership UDS (ISO 14229)</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Architectural Dimension</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">OBD-II (SAE J1979)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Unified Diagnostic Services (ISO 14229 UDS)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Automotive System Significance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Primary Purpose</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Mandated emissions compliance and basic DTC reporting</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Comprehensive ECU manufacturing, flashing, calibration, and tuning</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">OBD-II is universally mandated; UDS provides OEM proprietary access</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Functional CAN Request ID</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x7DF (Broadcast to all powertrain ECUs)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x7DF or direct physical ECU request ID (e.g. 0x7E0 for ECM)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">UDS can target individual specific controllers on the bus</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Service Identifier Format</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1-byte Mode: 0x01 (Data), 0x03 (DTCs), 0x04 (Clear)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1-byte Service ID: 0x22 (Read DID), 0x19 (Read DTC), 0x27 (Security)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">UDS expands service primitives and diagnostic scopes significantly</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Data Addressing</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1-byte Parameter ID (PID) supporting 256 items</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2-byte Data Identifier (DID) supporting 65,536 items</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">DIDs store complex structures (VIN, software revision, sensor curves)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Multi-Frame Support</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Rarely required (most responses fit in 8 bytes)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Native ISO 15765-2 (ISO-TP) multi-frame streaming up to 4095 bytes</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Enables high-speed firmware binary transfers and large log dumps</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Security Access</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">None (Publicly accessible without authorization)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Service 0x27 SecurityAccess (Seed/Key cryptographic challenge)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Protects critical actuators, odometer values, and flash programming</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">Top 20 Essential Standard OBD-II Parameter IDs (Mode 01)</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">PID (Hex)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Parameter Description</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Data Bytes</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Decoding Formula</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Engineering Units</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Typical Operational Range</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x04</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Calculated Engine Load</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A / 2.55</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">% (Percent)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 100 %</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x05</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Engine Coolant Temperature</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A - 40</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Degrees Celsius (C)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">-40 to +215 C</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x06</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Short Term Fuel Trim (Bank 1)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">(A - 128) * 100 / 128</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">% (Percent)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">-100 to +99.2 %</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x0B</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Intake Manifold Absolute Pressure</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">kPa (Kilopascals)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 255 kPa</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x0C</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Engine Speed (RPM)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes (A, B)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">((A * 256) + B) / 4</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">RPM (Revolutions/min)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 16,383.75 RPM</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x0D</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Vehicle Speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">km/h (Kilometers/hour)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 255 km/h</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x0E</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Timing Advance (Cylinder #1)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">(A / 2) - 64</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Degrees before TDC</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">-64 to +63.5 deg</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x0F</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Intake Air Temperature (IAT)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A - 40</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Degrees Celsius (C)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">-40 to +215 C</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x10</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Mass Air Flow (MAF) Sensor Rate</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes (A, B)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">((A * 256) + B) / 100</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">g/s (Grams/second)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 655.35 g/s</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x11</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Absolute Throttle Position</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A * 100 / 255</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">% (Percent)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 100 %</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x1F</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Run Time Since Engine Start</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes (A, B)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">(A * 256) + B</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Seconds</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 65,535 s</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x21</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Distance Traveled with MIL Active</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes (A, B)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">(A * 256) + B</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Kilometers (km)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 65,535 km</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x2F</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fuel Tank Level Input</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A * 100 / 255</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">% (Percent)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 100 %</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x33</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Absolute Barometric Pressure</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">1 byte (A)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">A</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">kPa</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 255 kPa</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0x42</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Control Module Supply Voltage</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 bytes (A, B)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">((A * 256) + B) / 1000</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Volts (V)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">0 - 65.535 V</td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the standard functional CAN identifier used by diagnostic scan tools to broadcast OBD-II queries to all ECUs?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">0x7DF</li><li class="mcq-option" data-correct="false">0x000</li><li class="mcq-option" data-correct="false">0x1FFFFFFF</li><li class="mcq-option" data-correct="false">0x301</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="SAE J1979 specifies 0x7DF as the 11-bit standard functional broadcast request identifier. All emissions-related ECUs listen to this ID and reply with their physical ID (0x7E8 for Engine, 0x7E9 for Transmission).">SAE J1979 specifies 0x7DF as the 11-bit standard functional broadcast request identifier. All emissions-related ECUs listen to this ID and reply with their physical ID (0x7E8 for Engine, 0x7E9 for Transmission).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. How is Engine RPM decoded from the 2 data bytes (Byte A and Byte B) returned in OBD-II PID 0x0C?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Formula: ((A * 256) + B) / 4</li><li class="mcq-option" data-correct="false">Formula: A + B</li><li class="mcq-option" data-correct="false">Formula: (A * 100) + B</li><li class="mcq-option" data-correct="false">Formula: (A * 256) - B</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The 16-bit word represents RPM in quarter-revolution increments. Dividing the 16-bit integer by 4 yields the true engine speed in revolutions per minute.">The 16-bit word represents RPM in quarter-revolution increments. Dividing the 16-bit integer by 4 yields the true engine speed in revolutions per minute.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. What does a Diagnostic Trouble Code beginning with the letter &#x27;P&#x27; indicate (e.g., P0300)?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Powertrain fault (Engine, Transmission, Emissions, or Fuel System)</li><li class="mcq-option" data-correct="false">Power window motor failure</li><li class="mcq-option" data-correct="false">Parking brake sensor error</li><li class="mcq-option" data-correct="false">Passenger seat airbag error</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Standard DTC prefixes are: P = Powertrain, C = Chassis, B = Body, and U = Network (communication buses).">Standard DTC prefixes are: P = Powertrain, C = Chassis, B = Body, and U = Network (communication buses).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. What is the primary role of the ISO 15765-2 (ISO-TP) transport protocol layer in automotive diagnostics?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To segment and reassemble multi-byte diagnostic messages (up to 4095 bytes) across standard 8-byte CAN frames using Flow Control frames</li><li class="mcq-option" data-correct="false">To encrypt CAN bus data using AES-128</li><li class="mcq-option" data-correct="false">To increase the physical CAN bus voltage from 5V to 12V</li><li class="mcq-option" data-correct="false">To convert CAN bus messages into Ethernet packets directly on physical wires</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Standard CAN 2.0 frames hold only 8 bytes. ISO-TP provides flow control and sequence numbering so diagnostic messages (like reading the 17-byte VIN) can be streamed reliably.">Standard CAN 2.0 frames hold only 8 bytes. ISO-TP provides flow control and sequence numbering so diagnostic messages (like reading the 17-byte VIN) can be streamed reliably.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. Which UDS Service identifier is invoked to command all vehicle ECUs to clear their stored fault codes and reset freeze frames?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Service 0x14 (ClearDiagnosticInformation)</li><li class="mcq-option" data-correct="false">Service 0x22 (ReadDataByIdentifier)</li><li class="mcq-option" data-correct="false">Service 0x27 (SecurityAccess)</li><li class="mcq-option" data-correct="false">Service 0x11 (ECUReset)</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="UDS Service 0x14 followed by the 3-byte group mask 0xFFFFFF commands all connected ECUs to purge active and historic DTCs from non-volatile memory.">UDS Service 0x14 followed by the 3-byte group mask 0xFFFFFF commands all connected ECUs to purge active and historic DTCs from non-volatile memory.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. What does an ECU response starting with byte 0x7F indicate in UDS diagnostics?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">A Negative Response (NRC) indicating that the requested service was rejected or unsupported</li><li class="mcq-option" data-correct="false">A Positive Response with 79 bytes of data</li><li class="mcq-option" data-correct="false">That the CAN bus is currently operating in low-power sleep mode</li><li class="mcq-option" data-correct="false">A broadcast warning that the vehicle battery is low</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="0x7F is the standard UDS Negative Response Service ID. The following bytes declare the rejected service ID and the specific Negative Response Code (NRC, e.g. 0x31 Request Out of Range).">0x7F is the standard UDS Negative Response Service ID. The following bytes declare the rejected service ID and the specific Negative Response Code (NRC, e.g. 0x31 Request Out of Range).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. Why is the vehicle OBD-II diagnostic port physically accessible within 2 feet of the steering wheel on all passenger cars?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Because government environmental regulations (EPA / CARB) mandate standardized, accessible ports for roadside emissions testing</li><li class="mcq-option" data-correct="false">To make it easier for drivers to charge smartphones</li><li class="mcq-option" data-correct="false">Because the CAN bus wires cannot physically exceed 2 feet in total length</li><li class="mcq-option" data-correct="false">To connect external audio speakers to the radio</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Clean Air Act legislation mandates that the 16-pin OBD-II port be unlatched and accessible without tools beneath the steering column for mandatory state emissions inspections.">Clean Air Act legislation mandates that the 16-pin OBD-II port be unlatched and accessible without tools beneath the steering column for mandatory state emissions inspections.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. What is &#x27;Freeze Frame&#x27; data in automotive diagnostics?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">A snapshot of critical engine sensor values (RPM, speed, coolant temp, engine load) recorded in non-volatile memory at the exact instant a DTC was logged</li><li class="mcq-option" data-correct="false">A thermal camera image of the radiator</li><li class="mcq-option" data-correct="false">The pause state of the in-cabin infotainment video player</li><li class="mcq-option" data-correct="false">A mechanism that locks the vehicle brakes during icy weather</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="When an engine fault trips (e.g. misfire), the ECU captures a &#x27;freeze frame&#x27; snapshot of all operating parameters, allowing technicians to see the exact driving conditions when the fault occurred.">When an engine fault trips (e.g. misfire), the ECU captures a &#x27;freeze frame&#x27; snapshot of all operating parameters, allowing technicians to see the exact driving conditions when the fault occurred.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What is the function of UDS Service 0x27 (SecurityAccess)?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">To authenticate diagnostic scan tools using a cryptographic seed-key exchange before permitting restricted actions like ECU flash reprogramming</li><li class="mcq-option" data-correct="false">To unlock the physical doors of the vehicle using a key fob</li><li class="mcq-option" data-correct="false">To check if the driver is wearing a seatbelt</li><li class="mcq-option" data-correct="false">To configure the internal cabin anti-theft alarm siren</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="SecurityAccess protects sensitive ECU functions: the tester requests a random seed, computes an authorized key response using a secret algorithm, and sends it back to unlock protected memory.">SecurityAccess protects sensitive ECU functions: the tester requests a random seed, computes an authorized key response using a secret algorithm, and sends it back to unlock protected memory.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. How does USB Communications Device Class (CDC) enable an embedded system to communicate with host PCs without installing proprietary drivers?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">USB CDC is natively supported by Windows, macOS, and Linux as a standard Virtual COM Port (ttyACM / COM), accessible via standard serial terminals</li><li class="mcq-option" data-correct="false">USB CDC operates using Bluetooth radio waves</li><li class="mcq-option" data-correct="false">USB CDC converts USB into analog audio signals</li><li class="mcq-option" data-correct="false">USB CDC eliminates the need for USB hardware controllers</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="USB CDC is an industry-standard USB device class. Operating systems provide built-in kernel drivers, letting PC software communicate via standard serial file handles.">USB CDC is an industry-standard USB device class. Operating systems provide built-in kernel drivers, letting PC software communicate via standard serial file handles.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Automated Supported PID Discovery Scanner</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement an automated PID sweep engine: query Mode 01 PID 0x00, 0x20, 0x40, and 0x60. Parse the returned 32-bit bitmaps to construct an internal list of all sensor PIDs supported by the vehicle; display the decoded list over USB CDC.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Complete Mode 02 Freeze Frame Extractor</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Develop an OBD Mode 02 inspection routine: if an active DTC is detected, query Freeze Frame 0 to extract the engine RPM, coolant temperature, vehicle speed, and calculated load captured at the moment of failure; print a diagnostic report.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Cross-Platform Mobile App for Live Telemetry</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build a React Native, Flutter, or web Bluetooth (WebBluetooth API) application that pairs with the tool&#x27;s HM-10 BLE module. Display animated circular gauges for RPM and Speed, and include a &#x27;Clear DTCs&#x27; button.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Synchronous CAN Bus Black-Box Replay Harness</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Capture a 60-second real driving cycle to the SD card (&#x27;drive_log.csv&#x27;). Write a firmware replay engine that reads the CSV and re-transmits the original CAN frames onto the bus with exact timestamp delays, simulating a real vehicle.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: UDS Seed-Key Security Access Handshake</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement UDS Service 0x27 (SecurityAccess) on a secondary simulated ECU. The tester requests a seed (0x27 01), computes Key = (Seed ^ 0xA5A55A5A) + 0x1234, and sends Key (0x27 02); protect DTC clearing behind security unlock level 1.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Automotive Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Society of Automotive Engineers</span>
+            </div>
+            <h4>SAE J1979: E/E Diagnostic Test Modes (OBD-II)</h4>
+            <p>The definitive technical specification for OBD-II modes, Parameter Identifiers (PIDs), and standardized diagnostic services.</p>
+            <a href="https://www.sae.org/standards/content/j1979_201702/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">International Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">International Organization for Standardization</span>
+            </div>
+            <h4>ISO 14229-1: Road vehicles — Unified Diagnostic Services (UDS) — Specification and Requirements</h4>
+            <p>Global benchmark governing diagnostic services, negative response codes (NRCs), and session state machines.</p>
+            <a href="https://www.iso.org/standard/72228.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Transport Protocol</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">International Organization for Standardization</span>
+            </div>
+            <h4>ISO 15765-2: Road vehicles — Diagnostics on CAN (DoCAN) — Network layer services (ISO-TP)</h4>
+            <p>Technical standard specifying segmentation, flow control, and reassembly of large diagnostic packets over CAN.</p>
+            <a href="https://www.iso.org/standard/60455.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Industry Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Vector Informatik GmbH</span>
+            </div>
+            <h4>Diagnostics in the Automotive Environment: From OBD-II to UDS and ODX</h4>
+            <p>Comprehensive engineering whitepaper on automotive diagnostic networks, bus logging, and diagnostic validation.</p>
+            <a href="https://www.vector.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_23.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 23: Milestone: Self-Recovering IoT Node</span>
+                </a>
+                <a href="#" class="nav-button next" style="opacity: 0.5; pointer-events: none;">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">End of Course</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

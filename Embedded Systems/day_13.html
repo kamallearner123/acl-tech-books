@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 13: CAN Bus &amp; Automotive Protocols - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>54%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 2.4</span>
+                <h1>Day 13: CAN Bus &amp; Automotive Protocols</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> In automotive, aerospace, and industrial automation, dozens of microcontrollers must exchange real-time control messages across high-noise environments without centralized switches. Point-to-point wiring is physically impossible. CAN bus provides a multi-drop, differential two-wire network with non-destructive arbitration and hardware fault confinement. How do you configure, transmit, and filter CAN frames in silicon?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 2.4</span>
+                            <span class="plan-badge plan-badge-secondary">Module 2: RTOS, Peripherals &amp; Communication</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Master CAN differential physical signaling, 120-ohm termination, and noise immunity.</li><li>Understand CAN 2.0A/B frame layouts and non-destructive CSMA/CR arbitration.</li><li>Configure STM32 bxCAN bit timing registers and hardware acceptance filters.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Dominant (0) vs. Recessive (1) wired-AND bus arbitration dynamics.</li><li>Bit timing breakdown (Sync, Prop, Phase1, Phase2) and 87.5% sample point math.</li><li>Fault confinement: Error-Active, Error-Passive, and Bus-Off state machines.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 13.1: STM32 bxCAN initialization at 500 kbps (85.7% sample point).</li><li>Program 13.2: Transmitting multi-byte engine telemetry via CAN mailboxes.</li><li>Program 13.3: Hardware ID/Mask acceptance filter configuration for FIFO0.</li><li>Program 13.4: Host Linux SocketCAN raw packet transmission client in C.</li><li>Program 13.5: Promiscuous CAN bus sniffer and UART telemetry logger.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Missing 120-ohm termination resistors, causing high-frequency signal reflections.</li><li>Misconfiguring bit timing prescalers, drifting sample points outside acceptable windows.</li><li>Failing to clear FIFO output mailboxes, locking CAN reception permanently.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</h2>
+<p>Modern automobiles contain between 70 and 150 independent Electronic Control Units (ECUs) controlling powertrain, braking, steering, battery management, climate control, and body lighting. Point-to-point wiring between all ECUs would create an unimaginably heavy, expensive, and fault-prone copper wiring harness weighing over 100 kilograms! In 1986, Robert Bosch GmbH invented the <strong>Controller Area Network (CAN Bus)</strong> to solve this crisis with a robust, multi-drop, two-wire differential serial network.</p>
+<p>CAN operates with extreme noise immunity in harsh electromagnetic environments (such as proximity to ignition coils and electric traction inverters). The physical layer consists of two twisted-pair copper wires labeled <strong>CAN_H (High)</strong> and <strong>CAN_L (Low)</strong> terminated at both physical ends with <strong>120-ohm resistors</strong> to prevent high-frequency transmission line signal reflections.</p>
+
+<div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: #2196F3;">
+    <strong>Automotive Reality:</strong> When you press the brake pedal in a car, the Hydraulic Brake ECU broadcasts a high-priority CAN message with ID <code>0x0C8</code>. The Engine ECU, Transmission ECU, and Regenerative Inverter ECU all receive and act upon this exact same packet simultaneously within 500 microseconds over the vehicle CAN bus.
+</div>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-2_4-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-2_4-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 2.4-1: CAN Physical Layer Differential Signaling and Bus Voltage Levels</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Recessive Bit (Logic 1)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        CANH = 2.5V, CANL = 2.5V (V_diff = 0V). Driven weakly; can be overridden by...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Dominant Bit (Logic 0)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        CANH = 3.5V, CANL = 1.5V (V_diff = 2.0V). Actively driven; dominates the bu...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Common-Mode Noise Reject</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Electromagnetic noise couples equally into both twisted wires; the receiver...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">120 Ohm Termination Resi</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Placed across CANH and CANL at the two extreme cable ends to match the 120-...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 2.4-1: CAN Physical Layer Differential Signaling and Bus Voltage Levels
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Recessive Bit (Logic 1):</strong> CANH = 2.5V, CANL = 2.5V (V_diff = 0V). Driven weakly; can be overridden by any transmitter.</li><li><strong>Dominant Bit (Logic 0):</strong> CANH = 3.5V, CANL = 1.5V (V_diff = 2.0V). Actively driven; dominates the bus completely.</li><li><strong>Common-Mode Noise Rejection:</strong> Electromagnetic noise couples equally into both twisted wires; the receiver differential amplifier (CANH - CANL) subtracts common-mode spikes perfectly.</li><li><strong>120 Ohm Termination Resistors:</strong> Placed across CANH and CANL at the two extreme cable ends to match the 120-ohm characteristic impedance of the twisted pair.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</h2>
+<p>Unlike Ethernet or IP packets, CAN messages <strong>do not contain source or destination node addresses</strong>. Instead, CAN messages are content-addressed: every frame contains an <strong>Arbitration Identifier (ID)</strong> that identifies the meaning and real-time urgency of the payload (e.g. ID <code>0x0C0</code> = Engine RPM). There are two standard framing formats:</p>
+<ul>
+    <li><strong>CAN 2.0A (Standard Format):</strong> 11-bit identifier (allowing $2^{11} = 2048$ unique message IDs).</li>
+    <li><strong>CAN 2.0B (Extended Format):</strong> 29-bit identifier (11-bit base ID + 18-bit extended ID, yielding over 536 million unique message IDs, standard in SAE J1939 heavy trucks).</li>
+</ul>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 338" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-2_4-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="338" rx="10" fill="url(#bgGrad-2_4-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 2.4-2: CAN 2.0A Standard Data Frame Bit-Level Architecture</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(25, 65)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">SOF (Start of Frame)</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Single dominant bit synchronizing all receiving node clocks on the bus.
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(420, 65)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">Arbitration ID</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        11-bit message identifier; also serves as the message priority during bus contention.
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(25, 151)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">RTR (Remote Transmission Request</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        0 for Data Frames; 1 for Remote Frames requesting data from another node.
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(420, 151)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">DLC (Data Length Code)</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        4-bit binary field defining payload length from 0 to 8 bytes.
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(25, 237)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">CRC (Cyclic Redundancy Check)</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        15-bit polynomial error detection code protecting frame integrity.
+                    </div>
+                </foreignObject>
+            </g>
+            
+            <g transform="translate(420, 237)">
+                <rect width="375" height="70" rx="6" fill="rgba(99, 102, 241, 0.06)" stroke="#6366f1" stroke-width="1.2" />
+                <rect x="0" y="0" width="375" height="24" rx="6" fill="#6366f1" opacity="0.85" />
+                <text x="12" y="16" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="11" font-weight="700">ACK Slot</text>
+                <foreignObject x="8" y="28" width="359" height="38">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.3; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        Transmitter sends recessive 1; any receiver that decodes a valid CRC drives dominant 0 to ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 2.4-2: CAN 2.0A Standard Data Frame Bit-Level Architecture
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>SOF (Start of Frame):</strong> Single dominant bit synchronizing all receiving node clocks on the bus.</li><li><strong>Arbitration ID:</strong> 11-bit message identifier; also serves as the message priority during bus contention.</li><li><strong>RTR (Remote Transmission Request):</strong> 0 for Data Frames; 1 for Remote Frames requesting data from another node.</li><li><strong>DLC (Data Length Code):</strong> 4-bit binary field defining payload length from 0 to 8 bytes.</li><li><strong>CRC (Cyclic Redundancy Check):</strong> 15-bit polynomial error detection code protecting frame integrity.</li><li><strong>ACK Slot:</strong> Transmitter sends recessive 1; any receiver that decodes a valid CRC drives dominant 0 to acknowledge.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</h2>
+<p>CAN operates under <strong>Carrier Sense Multiple Access with Collision Resolution (CSMA/CR)</strong>. Multiple nodes can begin transmitting simultaneously. While transmitting the arbitration ID, each node monitors the physical bus voltage. If Node A transmits a recessive 1 but reads back a dominant 0 (because Node B transmitted a 0), Node A realizes it lost arbitration. Node A immediately ceases transmission and switches to receiver mode, allowing Node B to continue uninterrupted with zero lost bus cycles!</p>
+<p style="text-align: center; font-size: 1.1rem; font-weight: 600; color: var(--accent);"><strong>Core Rule of CAN Arbitration: The lower the numerical ID value, the higher the message priority.</strong></p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-2_4-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-2_4-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 2.4-3: Non-Destructive Bitwise Bus Arbitration in Action</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bit-by-Bit Arbitration</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Nodes transmit their ID MSB first; dominant bits (0) override recessive bit...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Zero Collisions</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Unlike Ethernet CSMA/CD, no bandwidth is wasted on collision backoffs; the ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bus Latency Guarantee</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Highest-priority frames (e.g. 0x000) experience zero arbitration delay rega...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 2.4-3: Non-Destructive Bitwise Bus Arbitration in Action
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Bit-by-Bit Arbitration:</strong> Nodes transmit their ID MSB first; dominant bits (0) override recessive bits (1).</li><li><strong>Zero Collisions:</strong> Unlike Ethernet CSMA/CD, no bandwidth is wasted on collision backoffs; the highest-priority message completes without delay.</li><li><strong>Bus Latency Guarantee:</strong> Highest-priority frames (e.g. 0x000) experience zero arbitration delay regardless of total bus traffic load.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</h2>
+<p>Because CAN is asynchronous, every node must independently reconstruct bit boundaries. A single nominal bit time is divided into 4 non-overlapping segments composed of integer multiples of <strong>Time Quanta ($t_q$)</strong>:</p>
+<ul>
+    <li><strong>Sync_Seg (Synchronization Segment):</strong> 1 $t_q$. Edge transitions occur here.</li>
+    <li><strong>Prop_Seg (Propagation Segment):</strong> Compensates for physical wire delays and transceiver delays.</li>
+    <li><strong>Phase_Seg1 & Phase_Seg2:</strong> Compensate for oscillator phase errors; adjusted dynamically via the <strong>Synchronization Jump Width (SJW)</strong>.</li>
+</ul>
+<p>The point where the bit value is latched is the <strong>Sample Point</strong>. Automotive standards (CiA 303-1) mandate locating the sample point at exactly <strong>87.5%</strong> of the bit time for 500 kbps powertrain networks.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-2_4-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-2_4-4)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 2.4-4: CAN Bit Timing Segments and 87.5% Sample Point Location</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Time Quantum (t_q)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Basic unit of timer resolution derived from prescaled peripheral APB clock.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Baud Rate Formula</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Baud Rate = 1 / (Nominal Bit Time) = f_clk / (BRP * (1 + TS1 + TS2)).
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Sample Point Position</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Sample Point (%) = ((1 + TS1) / (1 + TS1 + TS2)) * 100.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">SJW (Sync Jump Width)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Maximum number of time quanta by which Phase Segments can be lengthened or ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 2.4-4: CAN Bit Timing Segments and 87.5% Sample Point Location
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Time Quantum (t_q):</strong> Basic unit of timer resolution derived from prescaled peripheral APB clock.</li><li><strong>Baud Rate Formula:</strong> Baud Rate = 1 / (Nominal Bit Time) = f_clk / (BRP * (1 + TS1 + TS2)).</li><li><strong>Sample Point Position:</strong> Sample Point (%) = ((1 + TS1) / (1 + TS1 + TS2)) * 100.</li><li><strong>SJW (Sync Jump Width):</strong> Maximum number of time quanta by which Phase Segments can be lengthened or shortened to resynchronize.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-13-topic-5">13.5 Fault Confinement: Error State Machine & Bus-Off Recovery</h2>
+<p>CAN incorporates hardware fault confinement to prevent a malfunctioning ECU from bringing down the entire vehicle network. Each node maintains two internal error counters: <strong>Transmit Error Counter (TEC)</strong> and <strong>Receive Error Counter (REC)</strong>. Based on error counts, a node transitions through three states:</p>
+<ol>
+    <li><strong>Error-Active (TEC &lt; 128, REC &lt; 128):</strong> Normal operation; transmits active error flags (dominant 0s).</li>
+    <li><strong>Error-Passive (TEC &ge; 128 or REC &ge; 128):</strong> Node is degraded; transmits passive error flags (recessive 1s) to avoid disrupting the bus.</li>
+    <li><strong>Bus-Off (TEC &gt; 255):</strong> The node is completely disconnected from the bus by hardware; it cannot transmit or receive. Safe recovery requires explicit software reset or waiting for 128 occurrences of 11 consecutive recessive bits.</li>
+</ol>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-2_4-5" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-2_4-5)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 2.4-5: CAN Node Fault Confinement Finite State Machine</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">TEC / REC Counters</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Incremented on transmit/receive errors (bit error, stuff error, CRC error, ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bus-Off State</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Isolates a damaged ECU from the vehicle bus so it cannot jam communication.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Automatic Bus-Off Recove</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Requires software to clear the ABOM bit or monitor 128 occurrences of bus i...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 2.4-5: CAN Node Fault Confinement Finite State Machine
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>TEC / REC Counters:</strong> Incremented on transmit/receive errors (bit error, stuff error, CRC error, form error, ACK error).</li><li><strong>Bus-Off State:</strong> Isolates a damaged ECU from the vehicle bus so it cannot jam communication.</li><li><strong>Automatic Bus-Off Recovery:</strong> Requires software to clear the ABOM bit or monitor 128 occurrences of bus idle sequences.</li>
+    </ul>
+</div>
+
+<h2 id="day-13-topic-6">13.6 Hands-On Code Implementations</h2>
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define RCC_APB1ENR     (*(volatile uint32_t *)0x40023840UL)
+#define CAN1_BASE       0x40006400UL
+#define CAN_MCR         (*(volatile uint32_t *)(CAN1_BASE + 0x00UL))
+#define CAN_MSR         (*(volatile uint32_t *)(CAN1_BASE + 0x04UL))
+#define CAN_BTR         (*(volatile uint32_t *)(CAN1_BASE + 0x1CUL))
+
+/* Configure CAN1 at 500 kbps assuming 42 MHz APB1 peripheral clock:
+ * Target: 500 kbps -&gt; Bit Time = 2000 ns.
+ * Total Time Quanta = 14 tq -&gt; 1 tq = 142.85 ns -&gt; Prescaler BRP = 6 (42MHz / 6 = 7 MHz).
+ * Sync_Seg = 1 tq, TS1 = 11 tq, TS2 = 2 tq -&gt; Total = 14 tq.
+ * Sample Point = (1 + 11) / 14 = 85.7% (Meets ISO 11898 standard).
+ */
+void can1_init_500kbps(void) {
+    /* 1. Enable CAN1 peripheral clock */
+    RCC_APB1ENR |= (1UL &lt;&lt; 25);
+
+    /* 2. Request Initialization mode (INRQ = 1) and exit sleep (SLEEP = 0) */
+    CAN_MCR |= (1UL &lt;&lt; 0);
+    CAN_MCR &amp;= ~(1UL &lt;&lt; 1);
+    while (!(CAN_MSR &amp; (1UL &lt;&lt; 0))); /* Wait for INAK initialization acknowledge */
+
+    /* 3. Configure Bit Timing: BRP=6, TS1=11, TS2=2, SJW=1 */
+    /* Note: Register fields store (Value - 1) */
+    CAN_BTR = ((1UL - 1UL) &lt;&lt; 24)  |  /* SJW = 1 tq */
+              ((2UL - 1UL) &lt;&lt; 20)  |  /* TS2 = 2 tq */
+              ((11UL - 1UL) &lt;&lt; 16) |  /* TS1 = 11 tq */
+              ((6UL - 1UL) &lt;&lt; 0);     /* BRP = 6 */
+
+    /* 4. Exit Initialization mode into Normal operating mode */
+    CAN_MCR &amp;= ~(1UL &lt;&lt; 0);
+    while (CAN_MSR &amp; (1UL &lt;&lt; 0));     /* Wait for INAK cleared */
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 2.4-1: STM32 bxCAN Controller Initialization (500 kbps, 87.5% Sample Point)
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define CAN_TI0R        (*(volatile uint32_t *)0x40006580UL)
+#define CAN_TDT0R       (*(volatile uint32_t *)0x40006584UL)
+#define CAN_TDL0R       (*(volatile uint32_t *)0x40006588UL)
+#define CAN_TDH0R       (*(volatile uint32_t *)0x4000658CUL)
+#define CAN_TSR         (*(volatile uint32_t *)0x40006408UL)
+
+/* Transmit 8-byte CAN message: ID 0x100 (Standard), Engine RPM + Throttle Position */
+bool can_transmit_engine_frame(uint16_t rpm, uint8_t throttle_percent) {
+    /* Check if Mailbox 0 is empty (TME0 = 1) */
+    if (!(CAN_TSR &amp; (1UL &lt;&lt; 26))) {
+        return false; /* All mailboxes busy */
+    }
+
+    /* 1. Set 11-bit Standard Identifier into bits [31:21] */
+    CAN_TI0R = (0x100UL &lt;&lt; 21);
+
+    /* 2. Set Data Length Code (DLC = 8 bytes) */
+    CAN_TDT0R = (8UL &lt;&lt; 0);
+
+    /* 3. Pack payload: Bytes 0-1 = RPM (big-endian), Byte 2 = Throttle % */
+    uint32_t data_low = ((uint32_t)(rpm &gt;&gt; 8) &lt;&lt; 0)  |
+                        ((uint32_t)(rpm &amp; 0xFF) &lt;&lt; 8) |
+                        ((uint32_t)throttle_percent &lt;&lt; 16);
+    CAN_TDL0R = data_low;
+    CAN_TDH0R = 0x00000000; /* Remaining bytes */
+
+    /* 4. Request transmission by setting TXRQ bit */
+    CAN_TI0R |= (1UL &lt;&lt; 0);
+    return true;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 2.4-2: CAN Message Transmit Engine: Broadcasting Engine Telemetry
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define CAN_FMR         (*(volatile uint32_t *)0x40006600UL)
+#define CAN_FA1R        (*(volatile uint32_t *)0x4000661CUL)
+#define CAN_FS1R        (*(volatile uint32_t *)0x4000660CUL)
+#define CAN_FM1R        (*(volatile uint32_t *)0x40006604UL)
+#define CAN_FFA1R       (*(volatile uint32_t *)0x40006614UL)
+#define CAN_F0R1        (*(volatile uint32_t *)0x40006640UL)
+#define CAN_F0R2        (*(volatile uint32_t *)0x40006644UL)
+
+/* Configure Filter Bank 0: Accept only CAN IDs 0x100 through 0x1FF (Mask 0x700) */
+void can_filter_config(void) {
+    /* Enter Filter Initialization mode */
+    CAN_FMR |= (1UL &lt;&lt; 0);
+
+    /* Deactivate Filter Bank 0 */
+    CAN_FA1R &amp;= ~(1UL &lt;&lt; 0);
+
+    /* 32-bit scale for Filter Bank 0 */
+    CAN_FS1R |= (1UL &lt;&lt; 0);
+
+    /* Id/Mask mode (FM1R = 0) */
+    CAN_FM1R &amp;= ~(1UL &lt;&lt; 0);
+
+    /* Assign to FIFO 0 (FFA1R = 0) */
+    CAN_FFA1R &amp;= ~(1UL &lt;&lt; 0);
+
+    /* Filter ID: 0x100 (aligned to bits [31:21]) */
+    CAN_F0R1 = (0x100UL &lt;&lt; 21);
+
+    /* Filter Mask: 0x700 (Matches upper 3 bits: only 0x100-0x1FF accepted) */
+    CAN_F0R2 = (0x700UL &lt;&lt; 21);
+
+    /* Activate Filter Bank 0 */
+    CAN_FA1R |= (1UL &lt;&lt; 0);
+
+    /* Exit Filter Initialization mode */
+    CAN_FMR &amp;= ~(1UL &lt;&lt; 0);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 2.4-3: Hardware Acceptance Filter Configuration (Filter Bank 0)
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;net/if.h&gt;
+#include &lt;sys/ioctl.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;linux/can.h&gt;
+#include &lt;linux/can/raw.h&gt;
+
+int main(void) {
+    int s;
+    struct sockaddr_can addr;
+    struct ifreq ifr;
+    struct can_frame frame;
+
+    /* 1. Open raw CAN socket */
+    s = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    strcpy(ifr.ifr_name, &quot;can0&quot;);
+    ioctl(s, SIOCGIFINDEX, &amp;ifr);
+
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+    bind(s, (struct sockaddr *)&amp;addr, sizeof(addr));
+
+    /* 2. Populate CAN 2.0A frame */
+    frame.can_id = 0x100;
+    frame.can_dlc = 8;
+    frame.data[0] = 0x0A; /* RPM High */
+    frame.data[1] = 0x28; /* RPM Low (2600 RPM) */
+    frame.data[2] = 45;   /* Throttle 45% */
+
+    /* 3. Send frame to virtual or physical CAN bus */
+    write(s, &amp;frame, sizeof(struct can_frame));
+    printf(&quot;Transmitted CAN frame ID 0x%03X successfully over can0\n&quot;, frame.can_id);
+
+    close(s);
+    return 0;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 2.4-4: Linux SocketCAN Host Client in C (send_can.c)
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+
+#define CAN_RI0R        (*(volatile uint32_t *)0x400065B0UL)
+#define CAN_RDT0R       (*(volatile uint32_t *)0x400065B4UL)
+#define CAN_RDL0R       (*(volatile uint32_t *)0x400065B8UL)
+#define CAN_RDH0R       (*(volatile uint32_t *)0x400065BCUL)
+#define CAN_RF0R        (*(volatile uint32_t *)0x4000640CUL)
+
+void can_sniffer_poll(void) {
+    /* Check if message pending in FIFO 0 */
+    if ((CAN_RF0R &amp; (3UL &lt;&lt; 0)) != 0) {
+        uint32_t id = (CAN_RI0R &gt;&gt; 21) &amp; 0x7FF;
+        uint8_t dlc = CAN_RDT0R &amp; 0x0F;
+        uint32_t data_l = CAN_RDL0R;
+        uint32_t data_h = CAN_RDH0R;
+
+        printf(&quot;CAN RX -&gt; ID: 0x%03lX | DLC: %u | DATA: %02lX %02lX %02lX %02lX %02lX %02lX %02lX %02lX\r\n&quot;,
+               id, dlc,
+               (data_l &gt;&gt; 0) &amp; 0xFF, (data_l &gt;&gt; 8) &amp; 0xFF, (data_l &gt;&gt; 16) &amp; 0xFF, (data_l &gt;&gt; 24) &amp; 0xFF,
+               (data_h &gt;&gt; 0) &amp; 0xFF, (data_h &gt;&gt; 8) &amp; 0xFF, (data_h &gt;&gt; 16) &amp; 0xFF, (data_h &gt;&gt; 24) &amp; 0xFF);
+
+        /* Release FIFO 0 output mailbox */
+        CAN_RF0R |= (1UL &lt;&lt; 5);
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 2.4-5: Promiscuous CAN Bus Packet Sniffer over UART
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">CAN 2.0A vs. CAN 2.0B vs. CAN FD Protocol Evolution</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Feature / Specification</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">CAN 2.0A (Standard)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">CAN 2.0B (Extended)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">CAN FD (Flexible Data-rate)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Identifier Bit Length</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">11-Bit Identifier</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">29-Bit Identifier</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">11-Bit or 29-Bit</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Maximum Payload Length</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">8 Bytes maximum</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">8 Bytes maximum</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 64 Bytes per frame</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Arbitration Phase Speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 1.0 Mbps (typically 500 kbps)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 1.0 Mbps</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 1.0 Mbps</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Data Phase Speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fixed at arbitration speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Fixed at arbitration speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 5.0 - 8.0 Mbps (Accelerated)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">CRC Integrity Polynomial</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">15-Bit CRC</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">15-Bit CRC</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">17-Bit (<=16B) or 21-Bit (>16B) CRC</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Standard Specification</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">ISO 11898-1:2003</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">ISO 11898-1:2003</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">ISO 11898-1:2015</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Primary Target Industry</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>Automotive Body &amp; Chassis</li><li>Industrial Robotics</li></ul></td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>Heavy Trucks (SAE J1939)</li><li>Marine NMEA-2000</li></ul></td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>Electric Vehicle Powertrain</li><li>ADAS Radar &amp; Cameras</li></ul></td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the physical voltage level on the CAN_H and CAN_L lines during a Recessive (Logic 1) state?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">CAN_H = 0V, CAN_L = 0V</li><li class="mcq-option" data-correct="true">CAN_H = 2.5V, CAN_L = 2.5V (Differential Voltage = 0V)</li><li class="mcq-option" data-correct="false">CAN_H = 5.0V, CAN_L = 0V</li><li class="mcq-option" data-correct="false">CAN_H = 3.5V, CAN_L = 1.5V</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="During recessive bits, both lines idle at half the transceiver supply (2.5V), yielding zero differential voltage across the termination resistors.">During recessive bits, both lines idle at half the transceiver supply (2.5V), yielding zero differential voltage across the termination resistors.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. In CAN bus bitwise arbitration, which message wins bus access when two nodes transmit at the exact same instant?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">The message with the larger payload size (DLC)</li><li class="mcq-option" data-correct="true">The message with the numerically lower Arbitration ID</li><li class="mcq-option" data-correct="false">The message with the numerically higher Arbitration ID</li><li class="mcq-option" data-correct="false">The node closest to the 120-ohm termination resistor</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Dominant bits (0) override recessive bits (1). Therefore, frames with lower numerical IDs contain more leading zeroes and win arbitration.">Dominant bits (0) override recessive bits (1). Therefore, frames with lower numerical IDs contain more leading zeroes and win arbitration.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. Why are 120-ohm termination resistors mandatory at both ends of a high-speed CAN network?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To step down battery voltages</li><li class="mcq-option" data-correct="true">To match the characteristic impedance of the twisted-pair cable, preventing high-frequency signal reflections from corrupting bits</li><li class="mcq-option" data-correct="false">To power the microcontrollers</li><li class="mcq-option" data-correct="false">To invert the parity bits</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Unterminated transmission lines cause signal edges to reflect back along the wire, causing destructive interference and bit corruption.">Unterminated transmission lines cause signal edges to reflect back along the wire, causing destructive interference and bit corruption.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. What happens when a CAN node&#x27;s Transmit Error Counter (TEC) exceeds 255?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">The node resets the baud rate to 10 kbps</li><li class="mcq-option" data-correct="true">The node enters the Bus-Off state, physically disconnecting its transmitter from the network to protect other nodes</li><li class="mcq-option" data-correct="false">The node begins transmitting at double frequency</li><li class="mcq-option" data-correct="false">A Non-Maskable Interrupt (NMI) is triggered</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The CAN fault-confinement state machine forces defective nodes into Bus-Off (TEC &gt; 255) to prevent a broken ECU from jamming traffic.">The CAN fault-confinement state machine forces defective nodes into Bus-Off (TEC &gt; 255) to prevent a broken ECU from jamming traffic.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. What is the maximum payload data length of a standard CAN 2.0A or 2.0B frame?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">4 Bytes</li><li class="mcq-option" data-correct="true">8 Bytes</li><li class="mcq-option" data-correct="false">64 Bytes</li><li class="mcq-option" data-correct="false">1500 Bytes</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Standard CAN 2.0 frames are limited to a maximum payload of 8 bytes (DLC = 8). CAN FD expands this to 64 bytes.">Standard CAN 2.0 frames are limited to a maximum payload of 8 bytes (DLC = 8). CAN FD expands this to 64 bytes.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. Where is the recommended bit Sample Point location for automotive 500 kbps powertrain CAN networks?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">50.0%</li><li class="mcq-option" data-correct="false">75.0%</li><li class="mcq-option" data-correct="true">87.5%</li><li class="mcq-option" data-correct="false">99.0%</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Automotive CiA 303-1 and ISO 11898 standards mandate placing the sample point at 87.5% of the bit duration to tolerate propagation delays.">Automotive CiA 303-1 and ISO 11898 standards mandate placing the sample point at 87.5% of the bit duration to tolerate propagation delays.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. How does an acknowledging node confirm successful receipt of a valid CAN frame?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">By driving a dominant 0 during the ACK Slot bit on the bus</li><li class="mcq-option" data-correct="false">By replying with a 64-byte ACK frame</li><li class="mcq-option" data-correct="false">By toggling an external handshake line</li><li class="mcq-option" data-correct="false">By resetting its receive error counter</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The transmitting node outputs a recessive 1 during the ACK bit; any receiver that computed a matching CRC pulls the bus dominant (0).">The transmitting node outputs a recessive 1 during the ACK bit; any receiver that computed a matching CRC pulls the bus dominant (0).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. What feature distinguishes CAN FD from legacy CAN 2.0?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">CAN FD uses fiber optic cables instead of copper</li><li class="mcq-option" data-correct="true">CAN FD supports larger payloads up to 64 bytes and switches to higher clock speeds (up to 8 Mbps) during the data phase</li><li class="mcq-option" data-correct="false">CAN FD eliminates the CRC checksum</li><li class="mcq-option" data-correct="false">CAN FD requires 6 physical wires</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="CAN Flexible Data-rate retains classical arbitration speeds (e.g. 500 kbps) but accelerates data phase clocks up to 5-8 Mbps with 64-byte payloads.">CAN Flexible Data-rate retains classical arbitration speeds (e.g. 500 kbps) but accelerates data phase clocks up to 5-8 Mbps with 64-byte payloads.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What is the role of the Linux SocketCAN kernel subsystem?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To emulate USB printers</li><li class="mcq-option" data-correct="true">To treat CAN controllers as network interfaces (like eth0), allowing applications to use standard Berkeley socket APIs</li><li class="mcq-option" data-correct="false">To convert CAN frames into Python scripts</li><li class="mcq-option" data-correct="false">To simulate analog battery degradation</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="SocketCAN integrates CAN natively into the Linux networking stack, allowing software to use standard socket(), bind(), and write() syscalls.">SocketCAN integrates CAN natively into the Linux networking stack, allowing software to use standard socket(), bind(), and write() syscalls.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. What is Bit Stuffing in CAN communication?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">Padding payload data with random noise</li><li class="mcq-option" data-correct="true">An automatic rule where the transmitter inserts an opposite bit after 5 consecutive identical bits to guarantee clock synchronization edges</li><li class="mcq-option" data-correct="false">Compressing 16-bit integers into 8 bits</li><li class="mcq-option" data-correct="false">Overclocking the prescaler</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="To prevent receivers from losing clock synchronization during long runs of 1s or 0s, CAN inserts a stuffed bit of complementary polarity after 5 identical bits.">To prevent receivers from losing clock synchronization during long runs of 1s or 0s, CAN inserts a stuffed bit of complementary polarity after 5 identical bits.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: CAN Bit Timing Parameter Calculator</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Given a 42 MHz APB1 peripheral clock, write a C or Python script that computes the exact BRP, TS1, and TS2 register values required for 125 kbps, 250 kbps, 500 kbps, and 1 Mbps baud rates with sample points closest to 87.5%.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Dual-Node Real-Time Engine RPM Broadcast Simulator</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Connect two STM32 boards (or an STM32 to a PC USB-CAN adapter). Node 1 broadcasts simulated engine RPM frames every 20 ms. Node 2 receives the frames via FIFO interrupt and controls a PWM tachometer needle.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: OBD-II Engine Coolant Temperature Requester</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Send an OBD-II diagnostic request frame (ID=0x7DF, Data=[02 01 05 00 00 00 00 00]). Parse the ECU response frame (ID=0x7E8), decode the temperature byte ($A - 40$), and display engine coolant in Celsius over UART.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: CAN Bus Fault Injection &amp; Recovery Testbed</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Deliberately disconnect the CAN_H wire to trigger transmission errors. Monitor the CAN_ESR register: log the transition from Error-Active to Error-Passive and Bus-Off. Verify that automatic bus-off recovery restores operation upon reconnection.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: SocketCAN Linux Virtual Bus Simulation (vcan0)</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Set up a virtual CAN interface (`sudo ip link add dev vcan0 type vcan`). Write a Python script using `python-can` that streams synthetic vehicle telemetry and verify that `candump vcan0` captures all frames.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">International Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">International Organization for Standardization</span>
+            </div>
+            <h4>ISO 11898-1:2015: Road Vehicles - Controller Area Network (CAN) - Part 1: Data Link Layer</h4>
+            <p>The primary international standard for CAN 2.0 and CAN FD framing, arbitration rules, error confinement, and bit timing specifications.</p>
+            <a href="https://www.iso.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Industry Specification</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">CAN in Automation (CiA)</span>
+            </div>
+            <h4>CiA 303-1: CANopen Cabling and Connector Recommendations</h4>
+            <p>Engineering standard detailing differential physical layers, pinouts, bus line termination, and sample point placement for automotive networks.</p>
+            <a href="https://www.can-cia.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Kernel Documentation</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Linux Kernel Documentation</span>
+            </div>
+            <h4>SocketCAN - The Official Linux CAN Subsystem Documentation</h4>
+            <p>Complete reference for Linux CAN networking architecture, raw sockets, broadcast managers, and CAN FD framing APIs.</p>
+            <a href="https://www.kernel.org/doc/html/latest/networking/can.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_12.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 12: DMA &amp; High-Speed Transfers</span>
+                </a>
+                <a href="day_14.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 14: USB, Ethernet &amp; Wireless</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

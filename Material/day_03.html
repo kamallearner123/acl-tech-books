@@ -215,7 +215,7 @@ print(f"Token IDs: {token_ids}\n")
 print("Individual Token Fragments:")
 for tid in token_ids:
     token_bytes = encoder.decode_single_token_bytes(tid)
-    print(f"  ID {tid:<6} -> {token_bytes}")
+    print(f"  ID {tid:&lt;6} -> {token_bytes}")
                 </code></pre>
                 <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 3.0-1: Inspecting Subword Token Fragmentation</div>
 

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Systems Engineering: Learn by Examples</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar / Table of Contents -->
+    <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li class="active"><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="day_07.html#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="day_07.html#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="day_07.html#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="day_07.html#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="day_07.html#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="day_07.html#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="top-nav" id="top-nav">
+            <div class="nav-left">
+                <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-actions">
+                <div class="completeness-badge">Curriculum: <span>100% Ready</span></div>
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                <button class="icon-btn" aria-label="GitHub" title="View GitHub Repository">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <article class="book-page" style="max-width: 960px;">
+            <!-- Hero Section -->
+            <div style="text-align: center; padding: 2.5rem 1rem 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2.5rem;">
+                <div style="display: inline-block; background-color: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 0.85rem; padding: 0.35rem 1rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; border: 1px solid var(--accent);">
+                    Professional Engineering Curriculum
+                </div>
+                <h1 style="font-size: 2.75rem; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.02em;">
+                    Embedded Systems Engineering
+                </h1>
+                <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 1.75rem; line-height: 1.6;">
+                    A rigorous, 24-day engineering blueprint for designing, testing, and shipping real embedded systems. Master bare-metal C, FreeRTOS, hardware peripherals, CAN bus, OTA bootloaders, and safety-critical firmware design.
+                </p>
+
+                <!-- Quick Metrics Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 2rem 0; text-align: center;">
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">24</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Intensive Days</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">20+</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Hands-on Projects</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">240</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Interactive MCQs</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">120</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Lab Assignments</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">100%</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Bare-Metal C</div>
+                    </div>
+                </div>
+
+                <!-- Module 1 -->
+                <div style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; margin-bottom: 0.5rem;">
+                    Module 1: Embedded C Foundations &amp; Hardware Fundamentals
+                </div>
+                <div style="display: grid; gap: 0.5rem;">
+                    <a href="day_01.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 1:</strong> Introduction to Embedded Systems &amp; C Programming</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.0</span>
+                    </a>
+                    <a href="day_02.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 2:</strong> Memory Architecture &amp; Bit Manipulation</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.1</span>
+                    </a>
+                    <a href="day_03.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 3:</strong> GPIO, Registers &amp; Bare-Metal LED Control</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.2</span>
+                    </a>
+                    <a href="day_04.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 4:</strong> Interrupts, NVIC &amp; Event-Driven Programming</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.3</span>
+                    </a>
+                    <a href="day_05.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 5:</strong> Timers, PWM &amp; Real-Time Clocks</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.4</span>
+                    </a>
+                    <a href="day_06.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 6:</strong> ADC, DAC &amp; Sensor Interfacing</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.5</span>
+                    </a>
+                    <a href="day_07.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 7:</strong> UART, SPI &amp; I2C Communication Protocols</span>
+                        <span class="plan-badge plan-badge-secondary">Session 1.6</span>
+                    </a>
+                    <a href="day_08.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--accent-light); border: 1px solid var(--accent); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 8:</strong> Capstone: Sensor Logger with Serial Output</span>
+                        <span class="plan-badge plan-badge-primary">Capstone 1</span>
+                    </a>
+                </div>
+
+                <!-- Module 2 -->
+                <div style="font-weight: 700; color: #10b981; font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; margin-bottom: 0.5rem;">
+                    Module 2: RTOS, Peripherals &amp; Communication Protocols
+                </div>
+                <div style="display: grid; gap: 0.5rem;">
+                    <a href="day_09.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 9:</strong> RTOS Fundamentals (FreeRTOS)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.0</span>
+                    </a>
+                    <a href="day_10.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 10:</strong> Task Scheduling, Priorities &amp; Context Switching</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.1</span>
+                    </a>
+                    <a href="day_11.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 11:</strong> Queues, Semaphores &amp; Mutexes</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.2</span>
+                    </a>
+                    <a href="day_12.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 12:</strong> DMA &amp; High-Speed Data Transfers</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.3</span>
+                    </a>
+                    <a href="day_13.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 13:</strong> CAN Bus &amp; Automotive Protocols</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.4</span>
+                    </a>
+                    <a href="day_14.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 14:</strong> USB, Ethernet &amp; Wireless (BLE/Wi-Fi)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.5</span>
+                    </a>
+                    <a href="day_15.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 15:</strong> Bootloaders &amp; Firmware Update (OTA)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 2.6</span>
+                    </a>
+                    <a href="day_16.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 16:</strong> Capstone: Multi-Tasking RTOS Sensor Hub</span>
+                        <span class="plan-badge" style="background-color: #10b981; color: #fff;">Capstone 2</span>
+                    </a>
+                </div>
+
+                <!-- Module 3 -->
+                <div style="font-weight: 700; color: #f59e0b; font-size: 1.1rem; margin-top: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; margin-bottom: 0.5rem;">
+                    Module 3: Advanced Topics, Safety, Debugging &amp; Capstone
+                </div>
+                <div style="display: grid; gap: 0.5rem;">
+                    <a href="day_17.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 17:</strong> Low-Power Design &amp; Sleep Modes</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.0</span>
+                    </a>
+                    <a href="day_18.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 18:</strong> Flash Memory, EEPROM &amp; File Systems (FatFS)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.1</span>
+                    </a>
+                    <a href="day_19.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 19:</strong> Safety-Critical Firmware &amp; MISRA-C</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.2</span>
+                    </a>
+                    <a href="day_20.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 20:</strong> Hardware Debugging (JTAG, SWD, Logic Analyzer)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.3</span>
+                    </a>
+                    <a href="day_21.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 21:</strong> Testing Embedded Systems (Unity, CMock, HIL)</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.4</span>
+                    </a>
+                    <a href="day_22.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 22:</strong> Embedded Linux &amp; Device Drivers</span>
+                        <span class="plan-badge plan-badge-secondary">Session 3.5</span>
+                    </a>
+                    <a href="day_23.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 23:</strong> Milestone Project: Self-Recovering IoT Node</span>
+                        <span class="plan-badge" style="background-color: #10b981; color: #fff;">Milestone</span>
+                    </a>
+                    <a href="day_24.html" style="text-decoration: none; padding: 0.75rem 1rem; background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color);">
+                        <span><strong>Day 24:</strong> Grand Capstone: Automotive ECU Diagnostic Assistant</span>
+                        <span class="plan-badge" style="background-color: #ef4444; color: #fff;">Grand Capstone</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- References Section -->
+            <div class="references-section">
+                <h2>Seminal Literature, Standards &amp; Resources</h2>
+                <p class="references-intro">
+                    This textbook-grade curriculum is built upon peer-reviewed research, industry standards, and open-source frameworks:
+                </p>
+                <div class="reference-grid">
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">Joseph Yiu</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Press</span>
+                        </div>
+                        <h4>The Definitive Guide to ARM Cortex-M3 and Cortex-M4 Processors</h4>
+                        <p>The definitive reference for ARM Cortex-M architecture, memory maps, NVIC, fault handling, and the Thumb-2 instruction set.</p>
+                        <a href="https://www.arm.com/resources/ebook/the-definitive-guide-to-arm-cortex-m3-and-cortex-m4-processors" target="_blank" rel="noopener noreferrer" class="ref-link">Read on ARM &rarr;</a>
+                    </div>
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">MISRA-C:2012</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Safety Standard</span>
+                        </div>
+                        <h4>Guidelines for the Use of the C Language in Critical Systems</h4>
+                        <p>The industry-standard set of C coding rules mandated by automotive, aerospace, and medical device manufacturers for safety-critical firmware.</p>
+                        <a href="https://www.misra.org.uk/misra-c/" target="_blank" rel="noopener noreferrer" class="ref-link">Visit MISRA &rarr;</a>
+                    </div>
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">FreeRTOS</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Official Docs</span>
+                        </div>
+                        <h4>FreeRTOS Kernel Developer Documentation</h4>
+                        <p>Official technical specifications for FreeRTOS tasks, queues, semaphores, mutexes, event groups, and memory management models.</p>
+                        <a href="https://www.freertos.org/Documentation/RTOS_book.html" target="_blank" rel="noopener noreferrer" class="ref-link">Explore FreeRTOS Docs &rarr;</a>
+                    </div>
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">ISO 26262</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Safety Standard</span>
+                        </div>
+                        <h4>Functional Safety for Road Vehicles (ASIL A–D)</h4>
+                        <p>International standard defining Automotive Safety Integrity Levels (ASIL) and the full V-model functional safety lifecycle for road vehicles.</p>
+                        <a href="https://www.iso.org/standard/68383.html" target="_blank" rel="noopener noreferrer" class="ref-link">Visit ISO 26262 &rarr;</a>
+                    </div>
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">Barr Group</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Coding Standard</span>
+                        </div>
+                        <h4>Embedded C Coding Standard</h4>
+                        <p>Practical, readable guidelines for writing maintainable, portable, and reliable embedded C code — covering naming, formatting, and safety rules.</p>
+                        <a href="https://barrgroup.com/embedded-systems/books/embedded-c-coding-standard" target="_blank" rel="noopener noreferrer" class="ref-link">Read Barr Standard &rarr;</a>
+                    </div>
+                    <div class="reference-card">
+                        <div class="reference-header">
+                            <span class="ref-tag">GitHub</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Open Source</span>
+                        </div>
+                        <h4>Embedded Systems Course Official GitHub Repository</h4>
+                        <p>Clone the complete executable C codebase, Makefiles, linker scripts, FreeRTOS project templates, and lab starter code for this course.</p>
+                        <a href="https://github.com/kamallearner123/AgenticAIBook" target="_blank" rel="noopener noreferrer" class="ref-link">Visit Repository &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <footer class="page-navigation">
+            <a href="#" class="nav-button prev disabled" tabindex="-1">
+                <span class="nav-label">Previous</span>
+                <span class="nav-title">Start of Curriculum</span>
+            </a>
+            <a href="day_01.html" class="nav-button next">
+                <span class="nav-label">Next Lesson</span>
+                <span class="nav-title">Day 1: Intro to Embedded Systems</span>
+            </a>
+        </footer>
+
+        <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+            Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a>
+            <br><span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+        </div>
+    </main>
+</div>
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

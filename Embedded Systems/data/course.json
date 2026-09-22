@@ -1,0 +1,91 @@
+{
+  "title": "Embedded C Programming",
+  "subtitle": "for Resource-Constrained Systems",
+  "duration": "6 weeks / 30-35 hours",
+  "version": "1.0.0",
+  "modules": [
+    {
+      "id": 1,
+      "week": 1,
+      "title": "Embedded C Fundamentals",
+      "icon": "⚡",
+      "color": "#f97316",
+      "lessons": [
+        { "id": "1-1", "title": "What is Embedded C?", "type": "concept", "duration": 20 },
+        { "id": "1-2", "title": "Your First Embedded Program", "type": "code", "duration": 25 },
+        { "id": "1-3", "title": "Volatile & Register Keywords", "type": "code", "duration": 20 },
+        { "id": "1-4", "title": "The Build Pipeline", "type": "simulator", "duration": 15 }
+      ]
+    },
+    {
+      "id": 2,
+      "week": 2,
+      "title": "Data Types & Memory",
+      "icon": "🧠",
+      "color": "#3b82f6",
+      "lessons": [
+        { "id": "2-1", "title": "Embedded-Safe Data Types", "type": "concept", "duration": 20 },
+        { "id": "2-2", "title": "Integer Overflow & Wrapping", "type": "code", "duration": 25 },
+        { "id": "2-3", "title": "Memory Sections (.text .data .bss)", "type": "simulator", "duration": 25 },
+        { "id": "2-4", "title": "Pointers in Embedded C", "type": "code", "duration": 30 }
+      ]
+    },
+    {
+      "id": 3,
+      "week": 3,
+      "title": "Buffers, Structs & Bit Manipulation",
+      "icon": "🔧",
+      "color": "#10b981",
+      "lessons": [
+        { "id": "3-1", "title": "Bit Manipulation Mastery", "type": "code", "duration": 30 },
+        { "id": "3-2", "title": "Arrays & Ring Buffers", "type": "code", "duration": 30 },
+        { "id": "3-3", "title": "Structs & Register Maps", "type": "code", "duration": 25 },
+        { "id": "3-4", "title": "Modular Firmware Design", "type": "concept", "duration": 20 }
+      ]
+    },
+    {
+      "id": 4,
+      "week": 4,
+      "title": "Firmware Architecture",
+      "icon": "🏗️",
+      "color": "#8b5cf6",
+      "lessons": [
+        { "id": "4-1", "title": "GPIO & Memory-Mapped Registers", "type": "simulator", "duration": 30 },
+        { "id": "4-2", "title": "State Machines", "type": "simulator", "duration": 30 },
+        { "id": "4-3", "title": "Event-Driven Programming", "type": "simulator", "duration": 25 },
+        { "id": "4-4", "title": "Event Queue Implementation", "type": "code", "duration": 30 }
+      ]
+    },
+    {
+      "id": 5,
+      "week": 5,
+      "title": "Interrupts, Debugging & Standards",
+      "icon": "🐛",
+      "color": "#ef4444",
+      "lessons": [
+        { "id": "5-1", "title": "Interrupts & ISRs", "type": "concept", "duration": 25 },
+        { "id": "5-2", "title": "UART Communication", "type": "simulator", "duration": 25 },
+        { "id": "5-3", "title": "Debugging Laboratory", "type": "debug", "duration": 35 },
+        { "id": "5-4", "title": "Build Systems & Git", "type": "simulator", "duration": 20 }
+      ]
+    },
+    {
+      "id": 6,
+      "week": 6,
+      "title": "Capstone Project",
+      "icon": "🏆",
+      "color": "#f59e0b",
+      "lessons": [
+        { "id": "6-1", "title": "Smart Sensor Controller", "type": "capstone", "duration": 120 }
+      ]
+    }
+  ],
+  "challenges": [
+    { "id": "c1", "title": "Set a Bit", "difficulty": "easy", "moduleId": 3 },
+    { "id": "c2", "title": "Clear a Bit", "difficulty": "easy", "moduleId": 3 },
+    { "id": "c3", "title": "Toggle a Bit", "difficulty": "easy", "moduleId": 3 },
+    { "id": "c4", "title": "Ring Buffer Push", "difficulty": "medium", "moduleId": 3 },
+    { "id": "c5", "title": "State Machine Step", "difficulty": "medium", "moduleId": 4 },
+    { "id": "c6", "title": "Overflow Guard", "difficulty": "hard", "moduleId": 2 }
+  ]
+}

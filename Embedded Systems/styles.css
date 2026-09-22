@@ -284,7 +284,7 @@ body {
 
 .toc-subtopics li a:hover {
     color: var(--accent) !important;
-    background-color: rgba(234, 88, 12, 0.08) !important;
+    background-color: rgba(99, 102, 241, 0.08) !important;
     transform: translateX(2px);
 }
 
@@ -860,7 +860,7 @@ body {
 
 .mcq-option:hover {
     border-color: var(--accent) !important;
-    background: rgba(234, 88, 12, 0.08) !important;
+    background: rgba(99, 102, 241, 0.08) !important;
     transform: translateX(4px);
 }
 
@@ -871,7 +871,7 @@ body {
 /* Selected state */
 .mcq-option.selected {
     border-color: var(--accent) !important;
-    background: rgba(234, 88, 12, 0.14) !important;
+    background: rgba(99, 102, 241, 0.14) !important;
     font-weight: 600;
     color: var(--text-color);
 }
@@ -926,7 +926,7 @@ body {
 }
 
 .mcq-submit:hover:not(:disabled) {
-    background: var(--accent-hover, #c2410c);
+    background: var(--accent-hover, #4f46e5);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

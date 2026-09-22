@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 7: UART, SPI &amp; I2C Communication - Embedded Systems Engineering</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Embedded Systems Course</h2>
+    </div>
+    <div class="sidebar-content">
+        <ul class="toc">
+            <li><a href="index.html">Course Overview</a></li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_01.html">Day 1: Intro to Embedded Systems &amp; C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 1 subtopics">
+                        <li><a href="day_01.html#day-01-topic-1">1.1 What is an Embedded System?</a></li>
+                        <li><a href="day_01.html#day-01-topic-2">1.2 Microcontrollers vs Microprocessors</a></li>
+                        <li><a href="day_01.html#day-01-topic-3">1.3 The Embedded C Cross-Compilation Toolchain</a></li>
+                        <li><a href="day_01.html#day-01-topic-4">1.4 Microcontroller Memory Map &amp; C Memory Sections</a></li>
+                        <li><a href="day_01.html#day-01-topic-5">1.5 The Vector Table &amp; Startup Sequence</a></li>
+                        <li><a href="day_01.html#day-01-topic-6">1.6 Direct Register Programming &amp; The volatile Keyword</a></li>
+                        <li><a href="day_01.html#day-01-topic-7">1.7 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_02.html">Day 2: Memory &amp; Bit Manipulation</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 2 subtopics">
+                        <li><a href="day_02.html#day-02-topic-1">2.1 Harvard vs. Von Neumann Memory Architecture</a></li>
+                        <li><a href="day_02.html#day-02-topic-2">2.2 Memory Alignment, Struct Packing, and Padding</a></li>
+                        <li><a href="day_02.html#day-02-topic-3">2.3 The Anatomy of the Call Stack &amp; Stack Overflow Detection</a></li>
+                        <li><a href="day_02.html#day-02-topic-4">2.4 Bit Manipulation Operators &amp; Hardware Register Bitmasks</a></li>
+                        <li><a href="day_02.html#day-02-topic-5">2.5 Bit Fields, Unions, and Fixed-Point Q-Format Math</a></li>
+                        <li><a href="day_02.html#day-02-topic-6">2.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_03.html">Day 3: GPIO &amp; Bare-Metal Control</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 3 subtopics">
+                        <li><a href="day_03.html#day-03-topic-1">3.1 Memory-Mapped I/O and Peripheral Register Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-2">3.2 GPIO Register Set: MODER, OTYPER, OSPEEDR, PUPDR, IDR, ODR, and BSRR</a></li>
+                        <li><a href="day_03.html#day-03-topic-3">3.3 Atomic Pin Control: Why BSRR Eliminates Race Conditions</a></li>
+                        <li><a href="day_03.html#day-03-topic-4">3.4 Button Debouncing: Mechanical Bounce vs. Digital Filtering</a></li>
+                        <li><a href="day_03.html#day-03-topic-5">3.5 Peripheral Clock Gating Architecture</a></li>
+                        <li><a href="day_03.html#day-03-topic-6">3.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_04.html">Day 4: Interrupts &amp; NVIC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 4 subtopics">
+                        <li><a href="day_04.html#day-04-topic-1">4.1 The Event-Driven Paradigm vs. Busy Polling</a></li>
+                        <li><a href="day_04.html#day-04-topic-2">4.2 Nested Vectored Interrupt Controller (NVIC) &amp; Priority Grouping</a></li>
+                        <li><a href="day_04.html#day-04-topic-3">4.3 External Interrupts: EXTI Architecture and Line Multiplexing</a></li>
+                        <li><a href="day_04.html#day-04-topic-4">4.4 ISR Design Best Practices &amp; Critical Sections</a></li>
+                        <li><a href="day_04.html#day-04-topic-5">4.5 Nested Interrupt Preemption in Action</a></li>
+                        <li><a href="day_04.html#day-04-topic-6">4.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_05.html">Day 5: Timers, PWM &amp; RTC</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 5 subtopics">
+                        <li><a href="day_05.html#day-05-topic-1">5.1 Hardware Timer Architecture: Prescalers, Counters, and Auto-Reload</a></li>
+                        <li><a href="day_05.html#day-05-topic-2">5.2 Pulse Width Modulation (PWM): Frequency, Duty Cycle, and Edge vs. Center Aligned</a></li>
+                        <li><a href="day_05.html#day-05-topic-3">5.3 Input Capture: Measuring Pulse Widths and Signal Frequency</a></li>
+                        <li><a href="day_05.html#day-05-topic-4">5.4 The Real-Time Clock (RTC) &amp; Calendar Subsystem</a></li>
+                        <li><a href="day_05.html#day-05-topic-5">5.5 Timer Cascading &amp; Master/Slave Synchronization</a></li>
+                        <li><a href="day_05.html#day-05-topic-6">5.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_06.html">Day 6: ADC, DAC &amp; Sensors</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 6 subtopics">
+                        <li><a href="day_06.html#day-06-topic-1">6.1 Bridging the Analog Real-World and Digital Computing</a></li>
+                        <li><a href="day_06.html#day-06-topic-2">6.2 ADC Resolution, Reference Voltage, and Quantization Error</a></li>
+                        <li><a href="day_06.html#day-06-topic-3">6.3 Sensor Signal Conditioning: Voltage Dividers &amp; The Steinhart-Hart Equation</a></li>
+                        <li><a href="day_06.html#day-06-topic-4">6.4 Multi-Channel Scanning and DMA Autonomous Data Streaming</a></li>
+                        <li><a href="day_06.html#day-06-topic-5">6.5 Digital-to-Analog Conversion (DAC) &amp; Waveform Synthesis</a></li>
+                        <li><a href="day_06.html#day-06-topic-6">6.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item active">
+                <details class="day-toc-group active" open>
+                    <summary><a href="day_07.html">Day 7: UART, SPI &amp; I2C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 7 subtopics">
+                        <li><a href="#day-07-topic-1">7.1 Serial Communication in Embedded Systems</a></li>
+                        <li><a href="#day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</a></li>
+                        <li><a href="#day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</a></li>
+                        <li><a href="#day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</a></li>
+                        <li><a href="#day-07-topic-5">7.5 High-Throughput Serial Communication with DMA &amp; printf Retargeting</a></li>
+                        <li><a href="#day-07-topic-6">7.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_08.html">Day 8: Capstone: Sensor Logger</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 8 subtopics">
+                        <li><a href="day_08.html#day-08-topic-1">8.1 Module 1 Capstone: End-to-End System Architecture</a></li>
+                        <li><a href="day_08.html#day-08-topic-2">8.2 The Thread-Safe Circular Ring Buffer Design Pattern</a></li>
+                        <li><a href="day_08.html#day-08-topic-3">8.3 The Interrupt-Driven Sensor Acquisition Pipeline</a></li>
+                        <li><a href="day_08.html#day-08-topic-4">8.4 Structured ASCII Log Frame Format with XOR Checksum</a></li>
+                        <li><a href="day_08.html#day-08-topic-5">8.5 Overrun Detection and Fault Management</a></li>
+                        <li><a href="day_08.html#day-08-topic-6">8.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_09.html">Day 9: RTOS Fundamentals (FreeRTOS)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 9 subtopics">
+                        <li><a href="day_09.html#day-09-topic-1">9.1 Beyond the Bare-Metal Superloop: The Need for an RTOS</a></li>
+                        <li><a href="day_09.html#day-09-topic-2">9.2 The Mechanics of a Real-Time Context Switch</a></li>
+                        <li><a href="day_09.html#day-09-topic-3">9.3 FreeRTOS Dynamic Memory Allocation Models (Heap 1 through Heap 5)</a></li>
+                        <li><a href="day_09.html#day-09-topic-4">9.4 Deterministic Timekeeping: vTaskDelay vs. vTaskDelayUntil</a></li>
+                        <li><a href="day_09.html#day-09-topic-5">9.5 Stack Sizing and Stack Overflow Detection Hooks</a></li>
+                        <li><a href="day_09.html#day-09-topic-6">9.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_10.html">Day 10: Task Scheduling &amp; Context Switching</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 10 subtopics">
+                        <li><a href="day_10.html#day-10-topic-1">10.1 Real-Time Scheduling Paradigms: Preemptive vs. Cooperative</a></li>
+                        <li><a href="day_10.html#day-10-topic-2">10.2 Rate-Monotonic Scheduling (RMS) Theory &amp; Schedulability Bounds</a></li>
+                        <li><a href="day_10.html#day-10-topic-3">10.3 Measuring Worst-Case Execution Time (WCET) via DWT Cycle Counters</a></li>
+                        <li><a href="day_10.html#day-10-topic-4">10.4 FreeRTOS Trace Hooks and Runtime Execution Statistics</a></li>
+                        <li><a href="day_10.html#day-10-topic-5">10.5 Low-Power Tickless Idle Architecture</a></li>
+                        <li><a href="day_10.html#day-10-topic-6">10.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_11.html">Day 11: Queues, Semaphores &amp; Mutexes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 11 subtopics">
+                        <li><a href="day_11.html#day-11-topic-1">11.1 Inter-Process Communication (IPC) in Real-Time Systems</a></li>
+                        <li><a href="day_11.html#day-11-topic-2">11.2 Semaphores: Binary Signaling vs. Counting Pools</a></li>
+                        <li><a href="day_11.html#day-11-topic-3">11.3 Mutexes and the Catastrophic Priority Inversion Hazard</a></li>
+                        <li><a href="day_11.html#day-11-topic-4">11.4 The Solution: Priority Inheritance Protocol</a></li>
+                        <li><a href="day_11.html#day-11-topic-5">11.5 Event Groups: Multi-Event Synchronization</a></li>
+                        <li><a href="day_11.html#day-11-topic-6">11.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_12.html">Day 12: DMA &amp; High-Speed Transfers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 12 subtopics">
+                        <li><a href="day_12.html#day-12-topic-1">12.1 The Need for Direct Memory Access (DMA)</a></li>
+                        <li><a href="day_12.html#day-12-topic-2">12.2 Transfer Directions and DMA Operating Modes</a></li>
+                        <li><a href="day_12.html#day-12-topic-3">12.3 Double-Buffering (Ping-Pong) DMA: Continuous Stream Processing</a></li>
+                        <li><a href="day_12.html#day-12-topic-4">12.4 DMA FIFO Architecture and Burst Transfers</a></li>
+                        <li><a href="day_12.html#day-12-topic-5">12.5 The ARM Cortex-M7 Cache Coherency Hazard</a></li>
+                        <li><a href="day_12.html#day-12-topic-6">12.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_13.html">Day 13: CAN Bus &amp; Automotive Protocols</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 13 subtopics">
+                        <li><a href="day_13.html#day-13-topic-1">13.1 The Backbone of Automotive Electronics: CAN Bus Architecture</a></li>
+                        <li><a href="day_13.html#day-13-topic-2">13.2 CAN Data Frame Architecture: 11-Bit Standard vs. 29-Bit Extended</a></li>
+                        <li><a href="day_13.html#day-13-topic-3">13.3 Non-Destructive Bitwise Arbitration (CSMA/CR)</a></li>
+                        <li><a href="day_13.html#day-13-topic-4">13.4 Bit Timing, Time Quanta, and Sample Point Configuration</a></li>
+                        <li><a href="day_13.html#day-13-topic-5">13.5 Fault Confinement: Error State Machine &amp; Bus-Off Recovery</a></li>
+                        <li><a href="day_13.html#day-13-topic-6">13.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_14.html">Day 14: USB, Ethernet &amp; Wireless</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 14 subtopics">
+                        <li><a href="day_14.html#day-14-topic-1">14.1 Connectivity Beyond the Circuit Board</a></li>
+                        <li><a href="day_14.html#day-14-topic-2">14.2 USB Device Classes: Communication Device Class (CDC) vs. Human Interface Device (HID)</a></li>
+                        <li><a href="day_14.html#day-14-topic-3">14.3 Embedded TCP/IP Networking: The lwIP Architecture</a></li>
+                        <li><a href="day_14.html#day-14-topic-4">14.4 Bluetooth Low Energy (BLE): GAP Advertising &amp; GATT Data Hierarchy</a></li>
+                        <li><a href="day_14.html#day-14-topic-5">14.5 Wireless IoT via Cellular &amp; Wi-Fi: The AT Command State Machine</a></li>
+                        <li><a href="day_14.html#day-14-topic-6">14.6 Hands-On Code Implementations</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_15.html">Day 15: Bootloaders &amp; OTA Updates</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 15 subtopics">
+                        <li><a href="day_15.html#day-15-topic-1">15.1 Bootloader vs Application Architectural Separation</a></li>
+                        <li><a href="day_15.html#day-15-topic-2">15.2 The Boot Decision Flow and Vector Relocation (VTOR)</a></li>
+                        <li><a href="day_15.html#day-15-topic-3">15.3 Vector Table Jump and Stack Pointer Initialization in C</a></li>
+                        <li><a href="day_15.html#day-15-topic-4">15.4 Bare-Metal Flash Memory Driver: Sector Erasing and Word Programming</a></li>
+                        <li><a href="day_15.html#day-15-topic-5">15.5 Hardware CRC32 Firmware Integrity Verification</a></li>
+                        <li><a href="day_15.html#day-15-topic-6">15.6 UART Packetized Device Firmware Upgrade (DFU) Protocol</a></li>
+                        <li><a href="day_15.html#day-15-topic-7">15.7 Non-Volatile A/B Dual-Bank Partitioning State Machine</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_16.html">Day 16: Capstone: RTOS Sensor Hub</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 16 subtopics">
+                        <li><a href="day_16.html#day-16-topic-1">16.1 Industrial Multi-Tasking RTOS System Architecture</a></li>
+                        <li><a href="day_16.html#day-16-topic-2">16.2 Task Configuration Table and Thread Allocation</a></li>
+                        <li><a href="day_16.html#day-16-topic-3">16.3 High-Rate Sensor Acquisition Task (I2C + ADC DMA)</a></li>
+                        <li><a href="day_16.html#day-16-topic-4">16.4 CAN Bus Telemetry Transmission Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-5">16.5 Mutex-Protected Command-Line Interface (CLI) Task</a></li>
+                        <li><a href="day_16.html#day-16-topic-6">16.6 System Health Monitor and Hardware Watchdog (IWDG)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_17.html">Day 17: Low-Power Design &amp; Sleep Modes</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 17 subtopics">
+                        <li><a href="day_17.html#day-17-topic-1">17.1 The Physics of Microcontroller Power Dissipation</a></li>
+                        <li><a href="day_17.html#day-17-topic-2">17.2 Duty Cycling and Average Current Profile Engineering</a></li>
+                        <li><a href="day_17.html#day-17-topic-3">17.3 Core Sleep Mode Entry with Wait For Interrupt (__WFI)</a></li>
+                        <li><a href="day_17.html#day-17-topic-4">17.4 STM32 Stop 2 Mode with Hardware RTC Periodic Wakeup</a></li>
+                        <li><a href="day_17.html#day-17-topic-5">17.5 Dynamic Clock Gating and Unused Peripheral Power Isolation</a></li>
+                        <li><a href="day_17.html#day-17-topic-6">17.6 FreeRTOS Tickless Idle Architecture</a></li>
+                        <li><a href="day_17.html#day-17-topic-7">17.7 System Power Budgeting and Battery Lifetime Calculator</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_18.html">Day 18: Flash, EEPROM &amp; FatFS</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 18 subtopics">
+                        <li><a href="day_18.html#day-18-topic-1">18.1 Solid-State Non-Volatile Memory: NOR, NAND, and EEPROM</a></li>
+                        <li><a href="day_18.html#day-18-topic-2">18.2 EEPROM Emulation in Microcontroller Flash</a></li>
+                        <li><a href="day_18.html#day-18-topic-3">18.3 External SPI NOR Flash Driver (Winbond W25Q32 / W25Q128)</a></li>
+                        <li><a href="day_18.html#day-18-topic-4">18.4 Chan&#x27;s FatFS Architecture on Embedded Media</a></li>
+                        <li><a href="day_18.html#day-18-topic-5">18.5 FAT32 Cluster Allocation and Power-Loss Corruption</a></li>
+                        <li><a href="day_18.html#day-18-topic-6">18.6 Wear-Leveling and Flash Longevity Auditing</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_19.html">Day 19: Safety-Critical Firmware &amp; MISRA-C</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 19 subtopics">
+                        <li><a href="day_19.html#day-19-topic-1">19.1 Functional Safety and the ISO 26262 V-Model</a></li>
+                        <li><a href="day_19.html#day-19-topic-2">19.2 Automotive Safety Integrity Levels (ASIL A, B, C, D)</a></li>
+                        <li><a href="day_19.html#day-19-topic-3">19.3 The Dangers of Undefined Behavior in C and MISRA-C:2012</a></li>
+                        <li><a href="day_19.html#day-19-topic-4">19.4 Defensive Input Validation and Stuck-At Sensor Fault Detection</a></li>
+                        <li><a href="day_19.html#day-19-topic-5">19.5 Deterministic Memory Safety: Eliminating Dynamic Heap (FreeRTOS Static Allocation)</a></li>
+                        <li><a href="day_19.html#day-19-topic-6">19.6 Two-Stage Hardware and Software Multi-Rate Watchdog Architecture</a></li>
+                        <li><a href="day_19.html#day-19-topic-7">19.7 Automated Static Analysis with cppcheck and MISRA Addon</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_20.html">Day 20: Hardware Debugging (JTAG/SWD)</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 20 subtopics">
+                        <li><a href="day_20.html#day-20-topic-1">20.1 ARM CoreSight Hardware Debug Architecture and Debug Probes</a></li>
+                        <li><a href="day_20.html#day-20-topic-2">20.2 JTAG (IEEE 1149.1) vs. Serial Wire Debug (SWD)</a></li>
+                        <li><a href="day_20.html#day-20-topic-3">20.3 Non-Intrusive Real-Time Tracing with ITM and SWO</a></li>
+                        <li><a href="day_20.html#day-20-topic-4">20.4 ARM Cortex-M Fault Architecture and Register Decoding</a></li>
+                        <li><a href="day_20.html#day-20-topic-5">20.5 OpenOCD and GDB Remote Scripting Automation</a></li>
+                        <li><a href="day_20.html#day-20-topic-6">20.6 Logic Analyzer Protocol Decoding (UART, SPI, I2C, CAN)</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_21.html">Day 21: Testing Embedded Systems</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 21 subtopics">
+                        <li><a href="day_21.html#day-21-topic-1">21.1 The Embedded Testing Pyramid: Host Unit Tests, Mocks, and HIL</a></li>
+                        <li><a href="day_21.html#day-21-topic-2">21.2 The Unity Unit Testing Framework for Embedded C</a></li>
+                        <li><a href="day_21.html#day-21-topic-3">21.3 Decoupling Hardware Registers with Fake Function Framework (fff)</a></li>
+                        <li><a href="day_21.html#day-21-topic-4">21.4 Test-Driven Development (TDD) of a Sensor Driver</a></li>
+                        <li><a href="day_21.html#day-21-topic-5">21.5 Host-Based Build Makefile with Code Coverage (gcov / lcov)</a></li>
+                        <li><a href="day_21.html#day-21-topic-6">21.6 Hardware-in-the-Loop (HIL) Automated Test Framework</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_22.html">Day 22: Embedded Linux &amp; Device Drivers</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 22 subtopics">
+                        <li><a href="day_22.html#day-22-topic-1">22.1 When Bare-Metal and RTOS Are Not Enough: The Embedded Linux Paradigm</a></li>
+                        <li><a href="day_22.html#day-22-topic-2">22.2 The Linux Device Tree (DTS / DTB) Hardware Abstraction</a></li>
+                        <li><a href="day_22.html#day-22-topic-3">22.3 User-Space GPIO Control using modern libgpiod</a></li>
+                        <li><a href="day_22.html#day-22-topic-4">22.4 User-Space SPI Communication with /dev/spidev</a></li>
+                        <li><a href="day_22.html#day-22-topic-5">22.5 User-Space I2C Communication via /dev/i2c-dev</a></li>
+                        <li><a href="day_22.html#day-22-topic-6">22.6 Writing a Minimal Linux Kernel Character Device Driver</a></li>
+                        <li><a href="day_22.html#day-22-topic-7">22.7 Building Custom Linux Distributions with the Yocto Project</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_23.html">Day 23: Milestone: Self-Recovering IoT Node</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 23 subtopics">
+                        <li><a href="day_23.html#day-23-topic-1">23.1 The Imperative of Autonomous Self-Recovery in Remote IoT</a></li>
+                        <li><a href="day_23.html#day-23-topic-2">23.2 Resilient Wi-Fi Connection Manager with Exponential Backoff</a></li>
+                        <li><a href="day_23.html#day-23-topic-3">23.3 MQTT Keep-Alive Watchdog and Broker Reconnection</a></li>
+                        <li><a href="day_23.html#day-23-topic-4">23.4 Sensor Anomaly Detection and Last-Known-Good Fallback</a></li>
+                        <li><a href="day_23.html#day-23-topic-5">23.5 Cryptographically Verified OTA Triggered via MQTT Command</a></li>
+                        <li><a href="day_23.html#day-23-topic-6">23.6 Non-Volatile Event and Fault Black-Box Logger</a></li>
+                    </ul>
+                </details>
+            </li>
+            <li class="toc-day-item">
+                <details class="day-toc-group">
+                    <summary><a href="day_24.html">Day 24: Grand Capstone: ECU Diagnostic Tool</a></summary>
+                    <ul class="toc-subtopics" aria-label="Day 24 subtopics">
+                        <li><a href="day_24.html#day-24-topic-1">24.1 Grand Capstone: The Modern Automotive Diagnostic Subsystem</a></li>
+                        <li><a href="day_24.html#day-24-topic-2">24.2 OBD-II (SAE J1979) Protocol and Parameter IDs (PIDs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-3">24.3 ISO 14229 Unified Diagnostic Services (UDS) and ISO-TP (ISO 15765-2)</a></li>
+                        <li><a href="day_24.html#day-24-topic-4">24.4 Reading and Clearing Diagnostic Trouble Codes (DTCs)</a></li>
+                        <li><a href="day_24.html#day-24-topic-5">24.5 Concurrent Wireless BLE Telemetry and MicroSD Black-Box Logger</a></li>
+                        <li><a href="day_24.html#day-24-topic-6">24.6 Live PC Terminal Diagnostic Dashboard over USB CDC</a></li>
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button class="menu-toggle" aria-label="Toggle Menu" title="Toggle Navigation Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="completeness-badge">
+                        Curriculum: <span>29%</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub" title="GitHub Repository">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Session 1.6</span>
+                <h1>Day 7: UART, SPI &amp; I2C Communication</h1>
+
+                <!-- Problem Statement Callout -->
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: var(--text-muted); padding: 1.25rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--text-muted);">
+                    <strong>Problem Statement:</strong> Sensors, displays, and host computers must exchange data reliably across printed circuit boards and cable harnesses. UART, SPI, and I2C each resolve trade-offs between wire count, clock speed, full-duplex concurrency, and multi-drop topologies. How do you implement and troubleshoot these foundational serial communication protocols from bare-metal registers?
+                </div>
+
+                <!-- Daily Plan Card -->
+                <div class="daily-plan-card">
+                    <div class="daily-plan-header">
+                        <div class="daily-plan-title">
+                            <span>📋</span> Daily Plan & Learning Architecture
+                        </div>
+                        <div class="daily-plan-badges">
+                            <span class="plan-badge plan-badge-primary">Session 1.6</span>
+                            <span class="plan-badge plan-badge-secondary">Module 1: Embedded C Foundations</span>
+                            <span class="plan-badge plan-badge-secondary">Estimated: 3.5 hrs</span>
+                        </div>
+                    </div>
+                    <div class="daily-plan-grid">
+                        <div class="plan-col">
+                            <h4>🎯 Today's Mission & Relevance</h4>
+                            <ul>
+                                <li>Master asynchronous UART framing, baud rate generation, and printf retargeting.</li><li>Implement high-speed 4-wire synchronous SPI Master drivers for Flash and sensors.</li><li>Understand I2C open-drain electrical dynamics, multi-drop addressing, and bus arbitration.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>📐 Theoretical Milestones</h4>
+                            <ul>
+                                <li>Baud rate timing tolerances and oversampling clock recovery.</li><li>SPI Clock Polarity (CPOL) and Clock Phase (CPHA) operating modes 0-3.</li><li>I2C START/STOP conditions, 7-bit addressing, ACK/NACK signaling, and clock stretching.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>💻 Hands-On Blueprint</h4>
+                            <ul>
+                                <li>Program 7.1: Bare-metal polled USART2 driver at 115200 baud.</li><li>Program 7.2: printf() redirection via Newlib C library _write() hook.</li><li>Program 7.3: SPI master Flash driver reading W25Q32 JEDEC device ID.</li><li>Program 7.4: I2C sensor communication reading BMP280 barometric chip registers.</li><li>Program 7.5: High-throughput UART transmission via DMA with TC interrupt.</li>
+                            </ul>
+                        </div>
+                        <div class="plan-col">
+                            <h4>🛡️ Production Failure Modes</h4>
+                            <ul>
+                                <li>Omitting external pull-up resistors on I2C bus, causing permanent line low lockup.</li><li>Selecting incorrect SPI CPOL/CPHA mode, resulting in shifted or inverted bit data.</li><li>Blocking CPU cores with polled UART writes instead of using DMA buffering.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="daily-plan-footer">
+                        <span>🏁 <strong>Daily Milestone Deliverables:</strong> 5 Interactive Register-Level Programs • 5 Architecture Diagrams • 10 Practice MCQs • 5 Hands-On Assignments</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Core Lecture Body -->
+                
+<h2 id="day-07-topic-1">7.1 Serial Communication in Embedded Systems</h2>
+<p>Microcontrollers cannot operate in isolation: they must stream telemetry to host computers, interrogate environmental sensor arrays, display graphics on LCD screens, and exchange packets with wireless modems. The three canonical embedded serial protocols are <strong>UART (Universal Asynchronous Receiver/Transmitter)</strong>, <strong>SPI (Serial Peripheral Interface)</strong>, and <strong>I2C (Inter-Integrated Circuit)</strong>. Each protocol resolves trade-offs between wire count, transmission speed, bus topology, and silicon complexity.</p>
+
+<div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px; border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: #2196F3;">
+    <strong>Real World Example:</strong> In a modern quadcopter drone, the STM32 flight controller communicates simultaneously across all three buses: <strong>UART</strong> streams GPS NMEA coordinates and telemetries to the radio link at 115200 baud; <strong>SPI</strong> samples a 6-axis IMU gyro/accelerometer at 8 MHz for sub-millisecond PID stabilization; and <strong>I2C</strong> reads an external magnetic compass and barometric altimeter at 400 kHz over a shared 2-wire bus.
+</div>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_6-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_6-1)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.6-1: UART Asynchronous Frame Structure and Timing</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Start Bit (Logic 0)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Signals receiver hardware to synchronize its internal clock counter to the ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Baud Rate Formula</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Bit Duration = 1 / Baud Rate. At 115200 baud, each bit lasts exactly 8.68 m...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Oversampling Receiver</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Receivers sample each incoming bit 8x or 16x per bit period, taking majorit...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Clock Drift Tolerance</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Asynchronous framing requires sender and receiver crystal clocks to match w...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.6-1: UART Asynchronous Frame Structure and Timing
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Start Bit (Logic 0):</strong> Signals receiver hardware to synchronize its internal clock counter to the incoming frame.</li><li><strong>Baud Rate Formula:</strong> Bit Duration = 1 / Baud Rate. At 115200 baud, each bit lasts exactly 8.68 microseconds.</li><li><strong>Oversampling Receiver:</strong> Receivers sample each incoming bit 8x or 16x per bit period, taking majority votes at sample counts 7, 8, and 9 to reject line noise.</li><li><strong>Clock Drift Tolerance:</strong> Asynchronous framing requires sender and receiver crystal clocks to match within +/- 2.5% to avoid bit slip errors.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-07-topic-2">7.2 SPI: Synchronous 4-Wire Master-Slave Protocol</h2>
+<p><strong>SPI (Serial Peripheral Interface)</strong> is a high-speed, full-duplex, synchronous serial bus developed by Motorola. It utilizes four physical lines:</p>
+<ul>
+    <li><strong>SCLK (Serial Clock):</strong> Driven exclusively by the Master device.</li>
+    <li><strong>MOSI (Master Out, Slave In):</strong> Data transmission from Master to Slave.</li>
+    <li><strong>MISO (Master In, Slave Out):</strong> Data transmission from Slave to Master.</li>
+    <li><strong>CS / SS (Chip Select / Slave Select):</strong> Active-LOW line asserted by Master to address a specific slave on the bus.</li>
+</ul>
+<p>SPI clocking is governed by two parameters: <strong>CPOL (Clock Polarity)</strong> and <strong>CPHA (Clock Phase)</strong>, forming 4 distinct operating modes (Mode 0 through Mode 3).</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_6-2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_6-2)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.6-2: SPI 4-Wire Topology and CPOL / CPHA Clock Timing Modes</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">CPOL = 0 / 1</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Defines idle clock level: 0 = SCLK idles LOW; 1 = SCLK idles HIGH.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">CPHA = 0 / 1</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Defines capture edge: 0 = data sampled on first clock transition; 1 = data ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">High Throughput</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        SPI easily achieves 20 MHz to 80 MHz clock speeds, making it ideal for SPI ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Independent Chip Selects</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Adding multiple slaves requires a dedicated GPIO CS line per slave device.
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.6-2: SPI 4-Wire Topology and CPOL / CPHA Clock Timing Modes
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>CPOL = 0 / 1:</strong> Defines idle clock level: 0 = SCLK idles LOW; 1 = SCLK idles HIGH.</li><li><strong>CPHA = 0 / 1:</strong> Defines capture edge: 0 = data sampled on first clock transition; 1 = data sampled on second transition.</li><li><strong>High Throughput:</strong> SPI easily achieves 20 MHz to 80 MHz clock speeds, making it ideal for SPI Flash, SD cards, and TFT displays.</li><li><strong>Independent Chip Selects:</strong> Adding multiple slaves requires a dedicated GPIO CS line per slave device.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-07-topic-3">7.3 I2C: Synchronous 2-Wire Multi-Device Bus with Open-Drain Architecture</h2>
+<p>Invented by Philips (now NXP), <strong>I2C (Inter-Integrated Circuit)</strong> reduces bus wiring to just two lines: <strong>SDA (Serial Data)</strong> and <strong>SCL (Serial Clock)</strong>. Both lines operate in <strong>Open-Drain mode</strong> with external pull-up resistors to VDD. Key I2C protocol rules include:</p>
+<ul>
+    <li><strong>START Condition:</strong> SDA transitions HIGH to LOW while SCL remains HIGH.</li>
+    <li><strong>STOP Condition:</strong> SDA transitions LOW to HIGH while SCL remains HIGH.</li>
+    <li><strong>Data Validity:</strong> SDA must remain stable while SCL is HIGH; SDA may only change when SCL is LOW.</li>
+    <li><strong>ACK / NACK:</strong> Following every 8-bit byte transfer, the receiving device must pull SDA LOW during the 9th clock pulse to acknowledge receipt (ACK).</li>
+    <li><strong>7-Bit Device Addressing:</strong> The first byte transmitted by the Master contains the 7-bit slave address and bit 0 indicating Read ($1$) or Write ($0$).</li>
+</ul>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_6-3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_6-3)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.6-3: I2C Bus Electrical Architecture and Packet Protocol Frame</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Open-Drain + Pull-Ups</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Enables wired-AND bus arbitration without short circuits when multiple node...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">ACK (Logic 0)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Receiver pulls SDA LOW during 9th clock to confirm byte reception.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">NACK (Logic 1)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        SDA remains HIGH (released to pull-up), signaling byte rejection or end of ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bus Speed Grades</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Standard Mode (100 kbps), Fast Mode (400 kbps), Fast Mode Plus (1 Mbps), Hi...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.6-3: I2C Bus Electrical Architecture and Packet Protocol Frame
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Open-Drain + Pull-Ups:</strong> Enables wired-AND bus arbitration without short circuits when multiple nodes pull lines LOW.</li><li><strong>ACK (Logic 0):</strong> Receiver pulls SDA LOW during 9th clock to confirm byte reception.</li><li><strong>NACK (Logic 1):</strong> SDA remains HIGH (released to pull-up), signaling byte rejection or end of multi-byte read.</li><li><strong>Bus Speed Grades:</strong> Standard Mode (100 kbps), Fast Mode (400 kbps), Fast Mode Plus (1 Mbps), High Speed (3.4 Mbps).</li>
+    </ul>
+</div>
+
+
+<h2 id="day-07-topic-4">7.4 I2C Multi-Master Arbitration and Clock Stretching</h2>
+<p>Because I2C pins are open-drain, multiple master devices can share the same bus. When two masters transmit simultaneously, <strong>Non-Destructive Bus Arbitration</strong> occurs: both monitor SDA while transmitting. The first master attempting to send a 1 that reads back a 0 (because the other master drove a dominant 0) immediately detects that it lost arbitration, gracefully yielding the bus without corrupting the winning master's frame.</p>
+<p>Additionally, slow slave devices can execute <strong>Clock Stretching</strong> by holding the SCL line LOW, temporarily pausing the master until the slave finishes internal processing.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_6-4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_6-4)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.6-4: I2C Multi-Master Bus Arbitration on Open-Drain SDA Line</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Dominant State (0)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Actively driven to ground by internal N-MOS transistor; overrides recessive...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 206 115 L 222 115 M 216 111 L 222 115 L 216 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(226, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Recessive State (1)</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Line pulled HIGH by external resistor; can be pulled down by any other conn...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 402 115 L 418 115 M 412 111 L 418 115 L 412 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(422, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Clock Stretching</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Slave pulls SCL LOW to insert hardware wait-states while preparing data.
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 598 115 L 614 115 M 608 111 L 614 115 L 608 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(618, 65)">
+                <rect width="172" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="172" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="86" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Bus Lockup Condition</text>
+                <foreignObject x="8" y="34" width="156" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        If a slave crashes while pulling SDA LOW, the bus hangs; masters must toggl...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.6-4: I2C Multi-Master Bus Arbitration on Open-Drain SDA Line
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>Dominant State (0):</strong> Actively driven to ground by internal N-MOS transistor; overrides recessive state.</li><li><strong>Recessive State (1):</strong> Line pulled HIGH by external resistor; can be pulled down by any other connected device.</li><li><strong>Clock Stretching:</strong> Slave pulls SCL LOW to insert hardware wait-states while preparing data.</li><li><strong>Bus Lockup Condition:</strong> If a slave crashes while pulling SDA LOW, the bus hangs; masters must toggle SCL 9 times to force a reset.</li>
+    </ul>
+</div>
+
+
+<h2 id="day-07-topic-5">7.5 High-Throughput Serial Communication with DMA & printf Retargeting</h2>
+<p>Transmitting a 128-byte log message over UART at 115200 baud via software polling takes approximately 11 milliseconds—equivalent to nearly 2 million lost CPU cycles on a 168 MHz processor. By retargeting standard C library <code>printf()</code> functions through a circular <strong>UART DMA Controller</strong>, the processor initiates transmission in a single cycle and continues executing application tasks while DMA hardware streams bytes out the serial port.</p>
+
+
+<div class="figure-card" style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; margin: 1.75rem 0 0.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+    
+    <svg viewBox="0 0 820 200" width="100%" height="auto" style="display: block; margin: 0 auto; max-width: 100%;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="bgGrad-1_6-5" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--sidebar-bg, #0f172a)" />
+                <stop offset="100%" stop-color="var(--bg-color, #1e293b)" />
+            </linearGradient>
+        </defs>
+        <rect width="820" height="200" rx="10" fill="url(#bgGrad-1_6-5)" stroke="var(--border-color, #334155)" stroke-width="1.5" />
+        
+        <!-- Header bar -->
+        <rect x="0" y="0" width="820" height="42" rx="10" fill="rgba(99, 102, 241, 0.12)" />
+        <line x1="0" y1="42" x2="820" y2="42" stroke="var(--border-color, #334155)" stroke-width="1" />
+        
+        <circle cx="20" cy="21" r="5" fill="#ef4444" opacity="0.8" />
+        <circle cx="36" cy="21" r="5" fill="#f59e0b" opacity="0.8" />
+        <circle cx="52" cy="21" r="5" fill="#10b981" opacity="0.8" />
+        
+        <text x="75" y="25" fill="var(--text-color, #e2e8f0)" font-family="'Outfit', sans-serif" font-size="13" font-weight="700">FIG 1.6-5: UART DMA Streaming Pipeline vs. Polling Overhead</text>
+        <rect x="695" y="11" width="105" height="20" rx="4" fill="#6366f1" opacity="0.25" />
+        <text x="748" y="25" fill="#a5b4fc" font-family="'Fira Code', monospace" font-size="10" font-weight="600" text-anchor="middle">HARDWARE ARCH</text>
+        
+        
+            <g transform="translate(30, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">USART_DR to Memory DMA</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Transfers bytes from RAM to transmit data register automatically as TXE fla...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 271 115 L 287 115 M 281 111 L 287 115 L 281 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(291, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Retargeting _write()</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Newlib syscall hook that intercepts standard C library printf() and routes ...
+                    </div>
+                </foreignObject>
+            </g>
+            
+                <path d="M 532 115 L 548 115 M 542 111 L 548 115 L 542 119" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                
+            <g transform="translate(552, 65)">
+                <rect width="237" height="100" rx="8" fill="rgba(99, 102, 241, 0.08)" stroke="#6366f1" stroke-width="1.5" />
+                <rect x="0" y="0" width="237" height="28" rx="8" fill="#6366f1" opacity="0.9" />
+                <text x="118" y="18" fill="#ffffff" font-family="'Outfit', sans-serif" font-size="12" font-weight="700" text-anchor="middle">Transfer Complete (TC) I</text>
+                <foreignObject x="8" y="34" width="221" height="62">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 11px; line-height: 1.35; color: var(--text-color, #94a3b8); font-family: 'Inter', sans-serif; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                        Fires only when the entire multi-byte buffer has completely cleared the UAR...
+                    </div>
+                </foreignObject>
+            </g>
+            
+    </svg>
+    
+</div>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Figure 1.6-5: UART DMA Streaming Pipeline vs. Polling Overhead
+</div>
+<div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+    <strong>Figure Parameters Explained:</strong>
+    <ul style="margin-top: 0.5rem; line-height: 1.6; padding-left: 1.25rem;">
+        <li><strong>USART_DR to Memory DMA:</strong> Transfers bytes from RAM to transmit data register automatically as TXE flags assert.</li><li><strong>Retargeting _write():</strong> Newlib syscall hook that intercepts standard C library printf() and routes characters to UART.</li><li><strong>Transfer Complete (TC) ISR:</strong> Fires only when the entire multi-byte buffer has completely cleared the UART shift register.</li>
+    </ul>
+</div>
+
+<h2 id="day-07-topic-6">7.6 Hands-On Code Implementations</h2>
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define RCC_AHB1ENR     (*(volatile uint32_t *)0x40023830UL)
+#define RCC_APB1ENR     (*(volatile uint32_t *)0x40023840UL)
+
+#define GPIOA_MODER     (*(volatile uint32_t *)0x40020000UL)
+#define GPIOA_AFRL      (*(volatile uint32_t *)0x40020020UL)
+
+#define USART2_BASE     0x40004400UL
+#define USART2_SR       (*(volatile uint32_t *)(USART2_BASE + 0x00UL))
+#define USART2_DR       (*(volatile uint32_t *)(USART2_BASE + 0x04UL))
+#define USART2_BRR      (*(volatile uint32_t *)(USART2_BASE + 0x08UL))
+#define USART2_CR1      (*(volatile uint32_t *)(USART2_BASE + 0x0CUL))
+
+/* Initialize USART2 on PA2 (TX) at 115200 baud (assuming 16 MHz APB1 clock) */
+void usart2_init_115200(void) {
+    /* 1. Enable clocks for GPIOA and USART2 */
+    RCC_AHB1ENR |= (1UL &lt;&lt; 0);
+    RCC_APB1ENR |= (1UL &lt;&lt; 17);
+
+    /* 2. Configure PA2 as Alternate Function AF7 (MODER2 = 0b10) */
+    GPIOA_MODER &amp;= ~(3UL &lt;&lt; 4);
+    GPIOA_MODER |= (2UL &lt;&lt; 4);
+    GPIOA_AFRL &amp;= ~(0xFUL &lt;&lt; 8);
+    GPIOA_AFRL |= (0x7UL &lt;&lt; 8); /* AF7 = USART2_TX */
+
+    /* 3. Configure Baud Rate: BRR = 16,000,000 / (16 * 115200) = 8.6805
+          Mantissa = 8, Fraction = 0.6805 * 16 = 11 (0x8B) */
+    USART2_BRR = 0x008B;
+
+    /* 4. Enable Transmitter (TE) and USART peripheral (UE) */
+    USART2_CR1 |= (1UL &lt;&lt; 3) | (1UL &lt;&lt; 13);
+}
+
+void uart2_send_char(char c) {
+    /* Wait until Transmit Data Register Empty (TXE) flag is set */
+    while (!(USART2_SR &amp; (1UL &lt;&lt; 7))) {
+        /* Wait */
+    }
+    USART2_DR = (uint32_t)c;
+}
+
+void uart2_send_string(const char *str) {
+    while (*str) {
+        uart2_send_char(*str++);
+    }
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.6-1: Bare-Metal Polled UART Transmit Driver (USART2 @ 115200 Baud)
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+
+void uart2_send_char(char c);
+
+/* Retarget low-level Newlib system call to route printf output to UART */
+int _write(int file, char *ptr, int len) {
+    (void)file;
+    for (int i = 0; i &lt; len; i++) {
+        /* Handle Unix newline to DOS CRLF conversion */
+        if (ptr[i] == &#x27;\n&#x27;) {
+            uart2_send_char(&#x27;\r&#x27;);
+        }
+        uart2_send_char(ptr[i]);
+    }
+    return len;
+}
+
+void demo_printf(void) {
+    uint32_t sensor_val = 1024;
+    float voltage = 3.3f;
+    printf(&quot;Telemetry Log: Sensor Raw = %lu, Voltage = %.2f V\n&quot;, sensor_val, voltage);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.6-2: Retargeting standard printf() via Newlib _write() Implementation
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define SPI1_BASE       0x40013000UL
+#define SPI1_CR1        (*(volatile uint32_t *)(SPI1_BASE + 0x00UL))
+#define SPI1_SR         (*(volatile uint32_t *)(SPI1_BASE + 0x08UL))
+#define SPI1_DR         (*(volatile uint32_t *)(SPI1_BASE + 0x0CUL))
+
+#define GPIOA_BSRR      (*(volatile uint32_t *)0x40020018UL)
+#define CS_PIN          4 /* PA4 as Software Chip Select */
+
+static inline void spi_cs_low(void)  { GPIOA_BSRR = (1UL &lt;&lt; (CS_PIN + 16)); }
+static inline void spi_cs_high(void) { GPIOA_BSRR = (1UL &lt;&lt; CS_PIN); }
+
+uint8_t spi1_transfer(uint8_t tx_data) {
+    /* Wait until TX buffer empty (TXE) */
+    while (!(SPI1_SR &amp; (1UL &lt;&lt; 1)));
+    SPI1_DR = tx_data;
+
+    /* Wait until RX buffer full (RXNE) */
+    while (!(SPI1_SR &amp; (1UL &lt;&lt; 0)));
+    return (uint8_t)SPI1_DR;
+}
+
+/* Read 3-byte JEDEC Manufacturer and Device ID (0x9F command) */
+uint32_t read_flash_jedec_id(void) {
+    spi_cs_low();
+    
+    spi1_transfer(0x9F); /* JEDEC ID command */
+    uint8_t mfg_id  = spi1_transfer(0x00); /* Manufacturer (0xEF for Winbond) */
+    uint8_t mem_type = spi1_transfer(0x00); /* Memory Type */
+    uint8_t capacity = spi1_transfer(0x00); /* Capacity (0x16 for 32Mb / 4MB) */
+    
+    spi_cs_high();
+    
+    return ((uint32_t)mfg_id &lt;&lt; 16) | ((uint32_t)mem_type &lt;&lt; 8) | capacity;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.6-3: SPI Master Flash Read: Reading JEDEC ID from W25Q32
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+#define I2C1_BASE       0x40005400UL
+#define I2C1_CR1        (*(volatile uint32_t *)(I2C1_BASE + 0x00UL))
+#define I2C1_CR2        (*(volatile uint32_t *)(I2C1_BASE + 0x04UL))
+#define I2C1_DR         (*(volatile uint32_t *)(I2C1_BASE + 0x10UL))
+#define I2C1_SR1        (*(volatile uint32_t *)(I2C1_BASE + 0x14UL))
+#define I2C1_SR2        (*(volatile uint32_t *)(I2C1_BASE + 0x18UL))
+
+#define BMP280_I2C_ADDR 0x76 /* 7-bit slave address */
+
+/* Read single register from I2C slave */
+uint8_t i2c_read_reg(uint8_t dev_addr, uint8_t reg_addr) {
+    /* 1. Generate START condition */
+    I2C1_CR1 |= (1UL &lt;&lt; 8);
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 0))); /* Wait for SB flag */
+
+    /* 2. Send 7-bit Address with Write bit (0) */
+    I2C1_DR = (dev_addr &lt;&lt; 1);
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 1))); /* Wait for ADDR flag */
+    (void)I2C1_SR2; /* Clear ADDR by reading SR2 */
+
+    /* 3. Send target register address */
+    I2C1_DR = reg_addr;
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 2))); /* Wait for BTF (Byte Transfer Finished) */
+
+    /* 4. Repeated START for read */
+    I2C1_CR1 |= (1UL &lt;&lt; 8);
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 0)));
+
+    /* 5. Send 7-bit Address with Read bit (1) */
+    I2C1_DR = (dev_addr &lt;&lt; 1) | 1;
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 1)));
+    
+    /* Disable ACK before reading single byte, generate STOP */
+    I2C1_CR1 &amp;= ~(1UL &lt;&lt; 10);
+    (void)I2C1_SR2;
+    I2C1_CR1 |= (1UL &lt;&lt; 9); /* STOP */
+
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 6))); /* Wait for RXNE */
+    return (uint8_t)I2C1_DR;
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.6-4: I2C Sensor Interface: Reading BMP280 Barometer Chip ID
+</div>
+
+
+<pre><code class="language-c">
+#include &lt;stdint.h&gt;
+
+#define DMA1_STREAM6_BASE   0x400260A0UL
+#define DMA_SxCR(base)      (*(volatile uint32_t *)(base + 0x00UL))
+#define DMA_SxNDTR(base)    (*(volatile uint32_t *)(base + 0x04UL))
+#define DMA_SxPAR(base)     (*(volatile uint32_t *)(base + 0x08UL))
+#define DMA_SxM0AR(base)    (*(volatile uint32_t *)(base + 0x0CUL))
+
+void uart2_dma_transmit(const uint8_t *data, uint16_t length) {
+    /* 1. Disable DMA stream to allow configuration */
+    DMA_SxCR(DMA1_STREAM6_BASE) &amp;= ~(1UL &lt;&lt; 0);
+    while (DMA_SxCR(DMA1_STREAM6_BASE) &amp; (1UL &lt;&lt; 0));
+
+    /* 2. Set peripheral address to USART2-&gt;DR */
+    DMA_SxPAR(DMA1_STREAM6_BASE) = 0x40004404UL;
+
+    /* 3. Set memory buffer address and transfer length */
+    DMA_SxM0AR(DMA1_STREAM6_BASE) = (uint32_t)data;
+    DMA_SxNDTR(DMA1_STREAM6_BASE) = length;
+
+    /* 4. Configure DMA: Channel 4, Memory Increment, Memory-to-Peripheral, TC Interrupt */
+    DMA_SxCR(DMA1_STREAM6_BASE) = (4UL &lt;&lt; 25) | (1UL &lt;&lt; 10) | (1UL &lt;&lt; 6) | (1UL &lt;&lt; 4);
+
+    /* 5. Enable DMA stream to begin transmission */
+    DMA_SxCR(DMA1_STREAM6_BASE) |= (1UL &lt;&lt; 0);
+}
+</code></pre>
+<div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+    Program 1.6-5: High-Throughput UART Transmit via DMA with TC Interrupt
+</div>
+
+
+<h3 style="margin-top: 2rem; color: var(--accent);">UART vs. SPI vs. I2C Serial Protocol Architectural Comparison</h3>
+<div style="overflow-x: auto; margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse; background: var(--sidebar-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+        <thead>
+            <tr style="background: rgba(var(--accent-rgb, 99, 102, 241), 0.1);">
+                <th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">Metric / Feature</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">UART / USART</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">SPI (Serial Peripheral Interface)</th><th style="padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--accent); color: var(--accent);">I2C (Inter-Integrated Circuit)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Physical Wires</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 wires (TX, RX)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">4 wires (SCLK, MOSI, MISO, CS)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">2 wires (SDA, SCL)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Maximum Speed</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 10 Mbps (typically 115.2 kbps)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Up to 80+ Mbps</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">100 kbps, 400 kbps, 1 Mbps, 3.4 Mbps</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Communication Mode</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Asynchronous, Full-Duplex</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Synchronous, Full-Duplex</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Synchronous, Half-Duplex</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Bus Topology</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Point-to-Point (1 to 1)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Master-Multi-Slave (dedicated CS lines)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Multi-Master, Multi-Slave (shared 2-wire bus)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Addressing Mechanism</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">None (Direct point-to-point)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Hardware Chip Select line per slave</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Software 7-bit or 10-bit address field</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Hardware Overhead</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Medium (Baud clock recovery logic)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Low (Simple shift registers)</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Medium (Open-drain buffers & arbitration logic)</td></tr><tr><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">Typical Use Cases</td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>GPS receivers</li><li>Bluetooth / Cellular modems</li><li>Debug console shells</li></ul></td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>High-speed SPI Flash</li><li>SD card mass storage</li><li>Color TFT LCD displays</li></ul></td><td style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color);"><ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem;"><li>Temperature / Humidity sensors</li><li>RTC chips</li><li>EEPROM configuration memory</li></ul></td></tr>
+        </tbody>
+    </table>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2 id="topic-quiz">Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of today's embedded systems architecture, registers, and runtime behaviors.</p>
+                
+<div class="mcq-container">
+    <div class="mcq-question">1. What is the primary function of the Start bit (Logic 0) in an asynchronous UART data frame?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To charge the receiver decoupling capacitors</li><li class="mcq-option" data-correct="true">To synchronize the receiver&#x27;s internal bit-sampling clock to the incoming frame</li><li class="mcq-option" data-correct="false">To transmit the device hardware address</li><li class="mcq-option" data-correct="false">To clear the parity error flag</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Because UART has no shared clock wire, the falling edge of the Start bit alerts the receiver to synchronize its oversampling timer.">Because UART has no shared clock wire, the falling edge of the Start bit alerts the receiver to synchronize its oversampling timer.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">2. In SPI communication, what does the configuration `CPOL = 0, CPHA = 1` define?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="true">Clock idles LOW, data is captured on the second (falling) clock edge</li><li class="mcq-option" data-correct="false">Clock idles HIGH, data is captured on the first clock edge</li><li class="mcq-option" data-correct="false">Clock idles LOW, data is captured on the first (rising) clock edge</li><li class="mcq-option" data-correct="false">Clock idles HIGH, data is captured on the second clock edge</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="CPOL=0 means SCLK idles LOW. CPHA=1 specifies that data is sampled on the second clock transition (falling edge).">CPOL=0 means SCLK idles LOW. CPHA=1 specifies that data is sampled on the second clock transition (falling edge).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">3. Why are external pull-up resistors mandatory on I2C SDA and SCL bus lines?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">To protect against electrostatic discharge (ESD)</li><li class="mcq-option" data-correct="true">Because I2C pins operate in Open-Drain mode and can only pull the lines LOW, requiring resistors to pull HIGH</li><li class="mcq-option" data-correct="false">To step down 5V signals to 3.3V</li><li class="mcq-option" data-correct="false">To prevent high-frequency reflections on long cables</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="I2C drivers are open-drain (N-MOS only). They pull lines to ground (0) or float (Hi-Z). External pull-ups are required to pull lines to VDD (1).">I2C drivers are open-drain (N-MOS only). They pull lines to ground (0) or float (Hi-Z). External pull-ups are required to pull lines to VDD (1).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">4. How does an I2C slave acknowledge successful reception of an 8-bit data byte from the master?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">By transmitting an ASCII &#x27;OK&#x27; string</li><li class="mcq-option" data-correct="true">By pulling the SDA line LOW (ACK) during the 9th SCL clock pulse</li><li class="mcq-option" data-correct="false">By holding SCL LOW for 5 milliseconds</li><li class="mcq-option" data-correct="false">By asserting an external interrupt pin</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="During the 9th clock cycle, the master releases SDA and the receiver pulls SDA LOW to indicate ACK (0 = ACK, 1 = NACK).">During the 9th clock cycle, the master releases SDA and the receiver pulls SDA LOW to indicate ACK (0 = ACK, 1 = NACK).</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">5. What occurs during I2C multi-master arbitration if Master A transmits a 1 while Master B transmits a 0 on SDA?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">A short-circuit condition destroys both transmitters</li><li class="mcq-option" data-correct="true">Master B drives the line LOW; Master A detects the collision, yields the bus, and Master B continues without error</li><li class="mcq-option" data-correct="false">The bus controller asserts a HardFault on both processors</li><li class="mcq-option" data-correct="false">Both masters immediately abort transmission and generate STOP conditions</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="In wired-AND open-drain logic, 0 dominates 1. Master A sees that it attempted to output a 1 but the line remained 0, detecting arbitration loss gracefully.">In wired-AND open-drain logic, 0 dominates 1. Master A sees that it attempted to output a 1 but the line remained 0, detecting arbitration loss gracefully.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">6. What is &#x27;Clock Stretching&#x27; in the I2C protocol specification?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">A method of overclocking the bus to 10 Mbps</li><li class="mcq-option" data-correct="true">An action where a slow slave pulls SCL LOW to pause the master while it processes data</li><li class="mcq-option" data-correct="false">A technique to reduce power by lowering the master PLL clock</li><li class="mcq-option" data-correct="false">An error condition caused by missing pull-up resistors</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="If a slave cannot keep up with master clocking, it holds SCL LOW. The master senses this and waits until the slave releases SCL before continuing.">If a slave cannot keep up with master clocking, it holds SCL LOW. The master senses this and waits until the slave releases SCL before continuing.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">7. Why is using UART with DMA vastly superior to polling for sending telemetry strings?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">DMA automatically encrypts data packets</li><li class="mcq-option" data-correct="true">DMA transfers data from memory to the UART register autonomously, leaving 100% of CPU cycles free for other tasks</li><li class="mcq-option" data-correct="false">DMA doubles the baud rate of the UART transmitter</li><li class="mcq-option" data-correct="false">DMA eliminates the need for Start and Stop bits</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Polling wastes millions of CPU cycles waiting for TXE flags. DMA streams entire buffers byte-by-byte in hardware without CPU involvement.">Polling wastes millions of CPU cycles waiting for TXE flags. DMA streams entire buffers byte-by-byte in hardware without CPU involvement.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">8. Which system call function in Newlib C library must be implemented to retarget `printf()` to a UART serial port?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">_read()</li><li class="mcq-option" data-correct="true">_write()</li><li class="mcq-option" data-correct="false">_sbrk()</li><li class="mcq-option" data-correct="false">_exit()</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Standard C runtime implementations route stdout through the low-level `_write(int fd, char *buf, int len)` syscall hook.">Standard C runtime implementations route stdout through the low-level `_write(int fd, char *buf, int len)` syscall hook.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">9. What is the standard JEDEC instruction byte sent over SPI to read manufacturer and memory density information from an SPI Flash chip?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">0x06 (Write Enable)</li><li class="mcq-option" data-correct="false">0x03 (Read Data)</li><li class="mcq-option" data-correct="true">0x9F (Read JEDEC ID)</li><li class="mcq-option" data-correct="false">0xC7 (Chip Erase)</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="The JEDEC standard command 0x9F prompts all compliant SPI NOR flash devices (Winbond, Macronix, Micron) to return manufacturer, type, and capacity bytes.">The JEDEC standard command 0x9F prompts all compliant SPI NOR flash devices (Winbond, Macronix, Micron) to return manufacturer, type, and capacity bytes.</div>
+</div>
+
+
+<div class="mcq-container">
+    <div class="mcq-question">10. If an I2C slave becomes desynchronized and locks the SDA line LOW indefinitely, how can the master recover the bus?</div>
+    <ul class="mcq-options">
+        <li class="mcq-option" data-correct="false">By generating an immediate STOP condition</li><li class="mcq-option" data-correct="true">By clocking the SCL line manually 9 times to force the slave to release SDA, then issuing a STOP condition</li><li class="mcq-option" data-correct="false">By shorting VDD to ground</li><li class="mcq-option" data-correct="false">By increasing the pull-up resistor values</li>
+    </ul>
+    <button class="mcq-submit" disabled>Submit</button>
+    <div class="mcq-feedback" data-raw-explanation="Manually pulsing SCL up to 9 times gives the stuck slave enough clocks to finish sending its pending byte and release SDA.">Manually pulsing SCL up to 9 times gives the stuck slave enough clocks to finish sending its pending byte and release SDA.</div>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2 id="hands-on-assignments">Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Complete these 5 lab assignments to solidify your hands-on firmware engineering skills.</p>
+                
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Interactive UART Command-Line Shell Interpreter</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build a responsive CLI over UART at 115200 baud. Implement an input line buffer parsing commands: &#x27;led on&#x27;, &#x27;led off&#x27;, &#x27;temp&#x27;, and &#x27;status&#x27;. Handle backspaces and newline formatting gracefully.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Automatic 7-Bit I2C Bus Address Scanner</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write an I2C scanner that queries all 128 valid 7-bit addresses (0x00 to 0x7F). Check for slave ACK responses and print a formatted ASCII grid table of all detected peripherals to UART.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: SPI Flash Memory Identification and Sector Erase</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Connect a W25Q32 or similar SPI NOR flash. Write functions to read the 3-byte JEDEC ID, erase a 4 KB sector, program a 256-byte text string, and read it back to verify data retention across power cycles.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Multi-Sensor BMP280 + MPU6050 Shared I2C Bus Driver</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Interface both a BMP280 pressure sensor (0x76) and an MPU-6050 accelerometer (0x68) on the exact same I2C bus pins. Read acceleration and barometric pressure alternately every 50 ms without bus collisions.</p>
+</div>
+
+
+<div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color); border-left-width: 4px; border-left-color: var(--accent);">
+    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: UART RX DMA Circular Ring Buffer Engine</h3>
+    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement an asynchronous UART receiver using DMA in circular mode. Detect incoming line boundaries without polling using the UART Idle Line Detection (IDLE) interrupt to trigger packet parsing.</p>
+</div>
+
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- References Section -->
+                
+<div class="references-section">
+    <h2>Official References, Research Papers & Standards</h2>
+    <p class="references-intro">
+        Deepen your engineering foundations with seminal reference manuals, processor architecture standards, and industry specifications:
+    </p>
+    <div class="reference-grid">
+        
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Protocol Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">NXP Semiconductors</span>
+            </div>
+            <h4>UM10204: I2C-Bus Specification and User Manual</h4>
+            <p>The definitive international standard specification for I2C and SMBus protocols, detailing bus timings, open-drain electrical characteristics, and arbitration rules.</p>
+            <a href="https://www.nxp.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Hardware Standard</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Motorola / FreeScale</span>
+            </div>
+            <h4>SPI Block Guide V04.01</h4>
+            <p>Foundational technical paper defining the 4-wire serial peripheral interface, CPOL and CPHA clock phase definitions, and full-duplex shift register architectures.</p>
+            <a href="https://www.nxp.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+        <div class="reference-card">
+            <div class="reference-header">
+                <span class="ref-tag">Software Engineering Guide</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+            </div>
+            <h4>Retargeting C Library I/O Functions to Serial Devices</h4>
+            <p>Developer reference guide for implementing Newlib and ARM Compiler C runtime standard I/O hooks for printf redirection.</p>
+            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+        </div>
+
+    </div>
+</div>
+
+
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="day_06.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Day 6: ADC, DAC &amp; Sensors</span>
+                </a>
+                <a href="day_08.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Day 8: Capstone: Sensor Logger</span>
+                </a>
+            </footer>
+            
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

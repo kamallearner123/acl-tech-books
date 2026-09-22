@@ -633,9 +633,134 @@ class AutonomousAgent:
 
 agent_system = AutonomousAgent()
 agent_output = agent_system.run("Please search for agentic safety guidelines")
-print("Agent Final Response:
-", agent_output)
+print("Agent Final Response:\n", agent_output)
                 </code></pre>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your conceptual understanding of Python fundamentals, async concurrency, and production reliability for AI agents.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">1. Why is Pydantic v2 preferred over raw Python dictionaries for managing agent state and tool arguments?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Dictionaries cannot store string values in Python 3.</li>
+                        <li class="mcq-option" data-correct="true">Pydantic enforces strict runtime schema validation, type coercion, and fast Rust-backed serialization.</li>
+                        <li class="mcq-option" data-correct="false">Pydantic models run directly inside GPU VRAM.</li>
+                        <li class="mcq-option" data-correct="false">Dictionaries require an internet connection to instantiate.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Pydantic v2 uses a high-performance Rust core (pydantic-core) to validate incoming LLM JSON outputs at runtime, guaranteeing correct types."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">2. In asyncio, what does await asyncio.gather(*tasks) accomplish?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It deletes all background tasks to free memory.</li>
+                        <li class="mcq-option" data-correct="true">It executes multiple awaitable coroutines concurrently and returns an aggregated list of their return values.</li>
+                        <li class="mcq-option" data-correct="false">It forces the program to switch to multi-threaded CPU execution.</li>
+                        <li class="mcq-option" data-correct="false">It compiles Python code into native C++ binaries.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="asyncio.gather schedules multiple async operations simultaneously on the single-threaded event loop, resolving when all complete."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">3. Why should exponential backoff always incorporate random &quot;jitter&quot; when retrying rate-limited LLM API calls?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Jitter encrypts the API request payload against eavesdropping.</li>
+                        <li class="mcq-option" data-correct="true">To prevent the &quot;thundering herd&quot; problem where synchronized client retries repeatedly overwhelm the API provider at the exact same second.</li>
+                        <li class="mcq-option" data-correct="false">To reduce Python memory consumption during sleep.</li>
+                        <li class="mcq-option" data-correct="false">Jitter is required by the HTTP 1.1 specification.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Without jitter, all failed clients retry simultaneously at 2s, 4s, 8s, causing repetitive traffic spikes (the thundering herd effect)."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What role does asyncio.Semaphore(10) play in a high-throughput RAG document ingestion pipeline?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It limits the maximum file size of each PDF to 10 MB.</li>
+                        <li class="mcq-option" data-correct="true">It bounds concurrency to at most 10 simultaneous in-flight operations, protecting API rate limits and local system memory.</li>
+                        <li class="mcq-option" data-correct="false">It creates exactly 10 operating system threads.</li>
+                        <li class="mcq-option" data-correct="false">It repeats failed embeddings exactly 10 times.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Semaphores act as a concurrency gate, allowing only up to N tasks to hold the permit concurrently while queueing remaining requests."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">5. In modern Python 3.10+, what is the idiomatic syntax for declaring a variable that can be either an integer or None?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>val: int &amp; None</code></li>
+                        <li class="mcq-option" data-correct="true"><code>val: int | None</code></li>
+                        <li class="mcq-option" data-correct="false"><code>val: Nullable(int)</code></li>
+                        <li class="mcq-option" data-correct="false"><code>val: (int, void)</code></li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="PEP 604 introduced the union operator | for type annotations, replacing the older typing.Optional[int] syntax."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">6. Why are Python dataclasses with @dataclass(slots=True) more memory-efficient when tracking millions of agent state frames?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true"><code>slots=True</code> eliminates the dynamic <code>__dict__</code> dictionary per instance, allocating a fixed-size memory tuple.</li>
+                        <li class="mcq-option" data-correct="false">It automatically compresses all string attributes with GZIP.</li>
+                        <li class="mcq-option" data-correct="false">It deletes old class attributes after 10 minutes.</li>
+                        <li class="mcq-option" data-correct="false">It stores objects on disk instead of RAM.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="__slots__ prevents creating the overhead of a Python dictionary for every instance, cutting per-object memory usage by over 50%."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">7. What happens if an unhandled exception occurs inside a tool function invoked by an autonomous agent loop?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The LLM automatically fixes the Python source code on disk.</li>
+                        <li class="mcq-option" data-correct="true">The Python runtime terminates the process unless the tool executor catches the error and feeds the traceback back as a tool message.</li>
+                        <li class="mcq-option" data-correct="false">The operating system reboots the machine.</li>
+                        <li class="mcq-option" data-correct="false">The exception is silently converted into an empty string.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Robust agent frameworks wrap tool calls in try/except blocks so execution errors can be provided back to the model for self-correction."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">8. How does pytest enable automated testing of agent workflows without incurring live LLM API bills?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">By setting the API temperature to 0.</li>
+                        <li class="mcq-option" data-correct="true">By using mocking fixtures (like unittest.mock.patch) to intercept network calls and return deterministic recorded responses.</li>
+                        <li class="mcq-option" data-correct="false">By running tests in airplane mode.</li>
+                        <li class="mcq-option" data-correct="false">By compiling Python into WebAssembly.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Mocking network boundaries isolates unit tests from external API latency, token costs, and rate-limit quotas."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What is the fundamental operational difference between time.sleep(5) and await asyncio.sleep(5)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true"><code>time.sleep(5)</code> blocks the underlying OS thread, while <code>await asyncio.sleep(5)</code> pauses the coroutine and yields control back to the event loop.</li>
+                        <li class="mcq-option" data-correct="false"><code>time.sleep(5)</code> runs 5 times faster than <code>asyncio.sleep(5)</code>.</li>
+                        <li class="mcq-option" data-correct="false"><code>asyncio.sleep(5)</code> consumes 100% CPU core utilization while waiting.</li>
+                        <li class="mcq-option" data-correct="false">They are completely identical in every respect.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Blocking calls freeze the event loop and prevent all other concurrent coroutines from executing. Non-blocking async sleep cooperatively yields."></div>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">10. In production agent telemetry, why should structured logs be emitted in JSON format rather than unstructured plain text?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">JSON files cannot be deleted by unauthorized users.</li>
+                        <li class="mcq-option" data-correct="true">JSON logs allow observability platforms (Datadog, Grafana, CloudWatch) to index, filter, query, and alert on structured fields like token counts and latency.</li>
+                        <li class="mcq-option" data-correct="false">Plain text logs are not permitted in Linux environments.</li>
+                        <li class="mcq-option" data-correct="false">JSON logs bypass OS disk I/O buffers.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Structured key-value fields (e.g., token_cost, prompt_id, latency_ms) enable automated aggregation, dashboards, and alerting."></div>
+                </div>
 
             </article>
         </main>

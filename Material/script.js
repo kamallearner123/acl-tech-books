@@ -308,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDisabledLinks();
     initMathRendering();
     initSidebarResize();
+    initMCQInteractivity();
 });
 
 // =========================================================
@@ -430,7 +431,7 @@ function initSearchModal() {
         }
 
         resultsContainer.innerHTML = results.map((item, idx) => {
-            const isDayDisabled = item.day > 4;
+            const isDayDisabled = false;
             return `
             <a href="${item.url}" class="search-result-item ${idx === 0 ? 'selected' : ''} ${isDayDisabled ? 'disabled' : ''}" data-index="${idx}" data-disabled="${isDayDisabled}">
                 <div class="search-result-header">
@@ -511,7 +512,7 @@ function initSearchModal() {
         } else if (e.key === 'Enter') {
             e.preventDefault();
             if (currentResults[selectedIndex]) {
-                if (currentResults[selectedIndex].day > 4) {
+                if (false) {
                     closeModal();
                     showToast('Content is getting created.');
                 } else {
@@ -651,13 +652,256 @@ function setSidebarWidth(width) {
 }
 
 // Build expandable day groups with links to every lesson section.
+const COURSE_SUBTOPICS = {
+    "1": [
+        "Module 1 \u2014 Python Foundations",
+        "Module 2 \u2014 Variables, Types & Operators",
+        "Module 3 \u2014 Control Flow",
+        "Module 4 \u2014 Collections & Data Processing",
+        "Module 5 \u2014 Functions",
+        "Module 6 \u2014 Error Handling & Debugging",
+        "Module 7 \u2014 Files & Data Formats (Text, CSV, JSON, YAML)",
+        "Module 8 \u2014 Modules, Packages & Project Structure",
+        "Module 9 \u2014 Object-Oriented Python & Dataclasses",
+        "Module 10 \u2014 Database Programming (SQLite & SQL)",
+        "Module 11 \u2014 Modern Python Typing",
+        "Module 12 \u2014 Pydantic: Runtime Validation & Structured Output",
+        "Module 13 \u2014 HTTP & REST APIs",
+        "Module 14 \u2014 Environment Variables & Configuration",
+        "Module 16 \u2014 Reliability & Production Python",
+        "Module 18 \u2014 Python for AI/LLM Applications"
+    ],
+    "2": [
+        "2.1. Traditional Programming vs. Machine Learning",
+        "2.2. The Four Pillars of Machine Learning",
+        "2.3. Deep Learning & Neural Networks",
+        "2.4. The Breakthrough: Transformer Architecture",
+        "2.5. Generative AI & Large Language Models (LLMs)",
+        "2.6. Mathematical Foundations: Scaling Laws & Compute Dynamics",
+        "2.7. The Autonomy Spectrum: From Chatbots to Agent Swarms",
+        "2.8. Deep-Dive Code Implementations",
+        "2.9. Why AI Systems Fail in Production: The 5 Anti-Patterns"
+    ],
+    "3": [
+        "3.1. The Mechanical Reality: Next-Token Prediction",
+        "3.2. Tokens vs. Words: The Anatomy of Subword Tokenization",
+        "3.3. Embeddings: Giving Geometry to Meaning",
+        "3.4. Context Windows & The Attention Bottleneck",
+        "3.5. What Is Prompt Engineering?",
+        "3.6. How Prompting Works With an LLM",
+        "3.7. Anatomy of a Good Prompt \u2014 RCTNO",
+        "3.8. Writing Clear Instructions",
+        "3.9. Context, Constraints & Boundaries",
+        "3.10. Output Formatting",
+        "3.11. Zero-Shot Prompting",
+        "3.12. Few-Shot Prompting"
+    ],
+    "4": [
+        "4.1. Temperature, Logits & Softmax",
+        "4.2. Training vs. Inference",
+        "4.3. How an LLM is Trained",
+        "4.4. Hallucination & Limitations of LLMs",
+        "4.5. Hallucinations & Grounding",
+        "4.6. Reasoning-Oriented Prompting / Chain-of-Thought",
+        "4.7. Prompt Iteration & Evaluation",
+        "4.8. Prompt Engineering for AI Agents"
+    ],
+    "5": [
+        "5.1. System Prompts vs. User Prompts",
+        "5.2. The Anatomy of a Specialist Persona",
+        "5.3. Specialist Persona in Action",
+        "5.4. Persona Examples Across Different Jobs",
+        "5.5. Why \"Please Reply in JSON\" Isn't Enough",
+        "5.6. Structured Outputs: Guaranteeing the Format You Need",
+        "5.7. Structured Output Beyond JSON",
+        "5.8. How the Model Actually Guarantees the Format",
+        "5.9. Real-World Walkthrough: From Messy Input to Clean Output"
+    ],
+    "6": [
+        "6.1. The Fundamental Limit of Text Prediction",
+        "6.2. The Function Calling Lifecycle",
+        "6.3. Implementing the Tool Execution Loop in Python",
+        "6.4. Tool Error Handling & Self-Healing Retries",
+        "6.5. The Function Calling Wire Protocol & Token Overhead Mathematics",
+        "6.6. Deep-Dive Production Engineering Programs",
+        "6.7. Tool Execution Security Best Practices"
+    ],
+    "7": [
+        "7.1. The Monolithic Mega-Prompt Fallacy & Compound Reliability",
+        "7.2. Architectural Patterns for Agentic Workflows",
+        "7.3. Program 1: Sequential Prompt Chain with Validation Gates & Self-Correction",
+        "7.4. Program 2: Parallel Fan-Out / Fan-In Async Aggregator",
+        "7.5. Program 3: Resilient State Machine with Checkpointing & Audit Trail",
+        "7.6. Production Failure Modes & Engineering Gotchas",
+        "7.7. Monolithic Mega-Prompt vs. Chained Pipeline Comparison"
+    ],
+    "8": [
+        "8.1. Problem Solver Cognitive Architecture",
+        "8.2. Program 1: The Core Autonomous Problem Solver Engine",
+        "8.3. Program 2: Interactive Terminal UI with Rich & Human-in-the-Loop (HITL)",
+        "8.4. Program 3: Sandboxed Code Runner with Self-Healing Error Loop",
+        "8.5. Production Failure Modes & Hardening Playbooks"
+    ],
+    "9": [
+        "9.1. The Spectrum of AI Autonomy: Assistant vs. Workflow vs. Agent",
+        "9.2. Mathematical Formalization: The Agent as a Markov Decision Process (MDP)",
+        "9.3. Program 1: Production Bounded ReAct Agent Loop with Token Telemetry",
+        "9.4. Program 2: The Reflexion Architecture (Self-Critique & Memory)",
+        "9.5. Program 3: Multi-Path Tool Selection with Dynamic Fallback",
+        "9.6. Production Failure Modes & Engineering Gotchas",
+        "9.7. Assistant vs. Workflow vs. Agent Architectural Matrix"
+    ],
+    "10": [
+        "10.1. The Mechanics of Dynamic Tool Selection",
+        "10.2. Theory: Two-Stage Semantic Tool Retrieval for Large Catalogs",
+        "10.3. Program 1: Dynamic Multi-Tool Registry with Pydantic v2 Introspection",
+        "10.4. Program 2: Two-Stage Semantic Tool Retrieval Engine",
+        "10.5. Program 3: Resilient Tool Dispatcher with Auto-Coercion & Error Healing",
+        "10.6. Production Failure Modes & Engineering Gotchas",
+        "10.7. Tool Description Engineering Guidelines"
+    ],
+    "11": [
+        "11.1. The RAG Paradigm: Open-Book Grounding",
+        "11.2. Mathematical Foundation: Vector Geometry & HNSW Graph Indexing",
+        "11.3. Program 1: Production ChromaDB RAG Pipeline with Metadata Filtering",
+        "11.4. Program 2: Pure Python Recursive Semantic Chunking Engine",
+        "11.5. Program 3: NumPy Vector Search Engine (Cosine Similarity from Scratch)",
+        "11.6. Production Failure Modes & Engineering Gotchas",
+        "11.7. Chunking Strategy Comparison Matrix"
+    ],
+    "12": [
+        "12.1. The Bi-Encoder Bottleneck & Semantic Drift",
+        "12.2. Mathematical Formulations: BM25, RRF & Cross-Encoders",
+        "12.3. Program 1: Pure Python BM25 Inverted Index & Scoring Engine",
+        "12.4. Program 2: Complete Hybrid Search & Reciprocal Rank Fusion (RRF)",
+        "12.5. Program 3: Cross-Encoder Re-Ranking & Contextual Compression",
+        "12.6. Production Failure Modes & Engineering Gotchas",
+        "12.7. Retrieval Architecture Comparison Matrix"
+    ],
+    "13": [
+        "13.1. The Evolution of LangChain: From Black-Box Chains to LCEL",
+        "13.2. Mathematical Formalization: The Runnable Protocol & Monadic Composition",
+        "13.3. Program 1: Declarative RAG Pipeline with Streaming Token Iteration",
+        "13.4. Program 2: Multi-Branch Dynamic Router with Pydantic Schema Validation",
+        "13.5. Program 3: Resilient Chains with Model Fallbacks & Automatic Retries",
+        "13.6. Production Failure Modes & Engineering Gotchas",
+        "13.7. Raw Python API vs. Modern LCEL Comparison Matrix"
+    ],
+    "14": [
+        "14.1. The Hybrid AI Architecture: Code-First Models + Low-Code Mesh",
+        "14.2. Cryptographic Webhook Security: HMAC-SHA256 & Replay Protection",
+        "14.3. Program 1: Declarative n8n AI Agent Workflow Specification (JSON)",
+        "14.4. Program 2: Production Python FastAPI Webhook Receiver with HMAC Security",
+        "14.5. Program 3: Resilient Python-to-n8n Bridge with Dead-Letter Queue (DLQ)",
+        "14.6. Production Failure Modes & Engineering Gotchas",
+        "14.7. Code-First vs. Visual Low-Code (n8n) Comparison Matrix"
+    ],
+    "15": [
+        "15.1. The Paradigm Shift: From Fixed Pipeline to Agentic Routing",
+        "15.2. Theory: Self-RAG Reflection & Adaptive Routing Mathematics",
+        "15.3. Program 1: Production Multi-Silo Agentic RAG (Vector + SQLite + Math)",
+        "15.4. Program 2: Self-Reflective Retrieval with Automatic Query Rewriting",
+        "15.5. Program 3: Multi-Hop Document Reasoning Agent",
+        "15.6. Production Failure Modes & Engineering Gotchas",
+        "15.7. Traditional RAG vs. Agentic RAG Comparison Matrix"
+    ],
+    "16": [
+        "16.1. System Architecture: Multi-Tier Knowledge Mesh",
+        "16.2. Theory: Groundedness & Faithfulness Verification Metrics",
+        "16.3. Program 1: The Complete Company Knowledge Agent Core Engine",
+        "16.4. Program 2: Automated Faithfulness & Citation Validator",
+        "16.5. Program 3: Multi-Turn Interactive CLI with Session Memory",
+        "16.6. Production Failure Modes & Hardening Playbooks"
+    ],
+    "17": [
+        "17.1. Theoretical Foundations: State Machines vs. Directed Acyclic Graphs",
+        "17.2. Architecture Blueprint: The LangGraph Runtime Engine",
+        "17.4. Complete Python Implementation 1: StateGraph with Reducers & Message History",
+        "17.5. Complete Python Implementation 2: Cyclic Self-Refining Code Generator with Bounded Loop",
+        "17.6. Complete Python Implementation 3: Multi-Branch Routing Graph with State Inspection",
+        "17.7. Production Failure Modes & Anti-Patterns",
+        "17.8. Interactive Knowledge Verification: 10 Examination Questions",
+        "17.9. Hands-On Engineering Assignments"
+    ],
+    "18": [
+        "18.1. Mathematical Formalization of Checkpoint Storage & Recovery",
+        "18.2. Architecture Blueprint: The Checkpointer Storage Subsystem",
+        "18.3. Production Checkpointer Storage Matrix",
+        "18.4. Complete Python Implementation 1: SqliteSaver with Crash Simulation & Recovery",
+        "18.5. Complete Python Implementation 2: Time-Travel Debugging & State Forking",
+        "18.6. Complete Python Implementation 3: Multi-Tenant Concurrency & Thread Isolation",
+        "18.7. Production Failure Modes & Operational Gotchas",
+        "18.8. Interactive Knowledge Verification: 10 Examination Questions",
+        "18.9. Hands-On Engineering Assignments"
+    ],
+    "19": [
+        "19.1. Formal Foundations: Multi-Agent Decision Processes & Attention Capacity",
+        "19.2. Architecture Blueprint: Hierarchical Supervisor vs. Peer-to-Peer Swarms",
+        "19.3. Complete Python Implementation 1: Deterministic Hierarchical Supervisor Pattern",
+        "19.4. Complete Python Implementation 2: Subgraph Composition & Hierarchical Delegation",
+        "19.5. Complete Python Implementation 3: Peer-to-Peer Swarm with Deadlock Prevention",
+        "19.6. Production Failure Modes & Architectural Anti-Patterns",
+        "19.7. Interactive Knowledge Verification: 10 Examination Questions",
+        "19.8. Hands-On Engineering Assignments"
+    ],
+    "20": [
+        "20.1. Formal Threat Modeling: The Agent Attack Surface (OWASP Top 10 for LLMs)",
+        "20.2. Architecture Blueprint: The 4-Tier Defense-in-Depth Model",
+        "20.3. Complete Python Implementation 1: Ingestion Guardrail Engine",
+        "20.4. Complete Python Implementation 2: Automated PII & Secret Redactor",
+        "20.5. Complete Python Implementation 3: LangGraph Human-in-the-Loop Approval Gate",
+        "20.6. Production Failure Modes & Real-World CVEs",
+        "20.7. Interactive Knowledge Verification: 10 Examination Questions",
+        "20.8. Hands-On Engineering Assignments"
+    ],
+    "21": [
+        "21.1. Formal Mechanics of Real-Time Agent Streaming: SSE Protocol & Latency Dynamics",
+        "21.2. Architecture Blueprint: The 4-Tier Enterprise Agent Stack",
+        "21.3. Complete Python Implementation 1: Production FastAPI Backend with SSE Token Streaming",
+        "21.4. Complete Python Implementation 2: Streamlit Studio with Thought Accordions & HITL Gate",
+        "21.5. Complete Python Implementation 3: SSE Streaming Client with Disconnect Handling",
+        "21.6. Production Failure Modes & Operational Gotchas",
+        "21.7. Interactive Knowledge Verification: 10 Examination Questions",
+        "21.8. Hands-On Engineering Assignments"
+    ],
+    "22": [
+        "22.1. Formal SRE Metrics for Autonomous Agents",
+        "22.2. Architecture Blueprint: The SRE Observability & Containerization Lifecycle",
+        "22.3. Complete Python Implementation 1: End-to-End Hardened Enterprise Agent",
+        "22.4. Complete Python Implementation 2: Automated PyTest Regression Harness",
+        "22.5. Production Multi-Stage Dockerfile & GitHub Actions CI/CD",
+        "22.6. Production Failure Modes & Operational Gotchas",
+        "22.7. Interactive Knowledge Verification: 10 Examination Questions",
+        "22.8. Hands-On Engineering Assignments"
+    ],
+    "23": [
+        "23.1. Formal Foundations: The Saga Pattern & State Recovery Guarantees",
+        "23.2. Architecture Blueprint: The Recoverable System Topology",
+        "23.3. Complete Python Implementation 1: The Resilient Backend Engine",
+        "23.4. Complete Python Implementation 2: Streamlit Human Approval Cockpit UI",
+        "23.5. Complete Python Implementation 3: Crash-Injection & Automated Recovery Benchmark",
+        "23.6. Production Failure Modes & Mitigation Strategies",
+        "23.7. Interactive Knowledge Verification: 10 Examination Questions",
+        "23.8. Hands-On Engineering Assignments"
+    ],
+    "24": [
+        "24.1. Formal Foundations: Cyber-Physical Automotive Protocols & ISO 26262 ASIL Risk",
+        "24.2. Architecture Blueprint: The End-to-End Automotive Diagnostics Pipeline",
+        "24.3. Complete Python Implementation 1: The Automotive Diagnostics Engine",
+        "24.4. Complete Python Implementation 2: Synthetic CAN Bus Telemetry Streamer",
+        "24.5. Complete Python Implementation 3: Streamlit Automotive Cockpit UI",
+        "24.6. Production Failure Modes & Automotive Gotchas",
+        "24.7. Interactive Knowledge Verification: 10 Final Capstone Questions",
+        "24.8. Hands-On Capstone Certification Assignments"
+    ]
+};
+
 function initSubtopicNavigation() {
     const article = document.querySelector('article.book-page');
     const dayLinks = Array.from(document.querySelectorAll('.toc > li > a[href^="day_"]'));
     if (!dayLinks.length) return;
 
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const currentHeadings = article ? getLessonHeadings(article) : [];
 
     dayLinks.forEach((dayLink) => {
         const dayItem = dayLink.parentElement;
@@ -667,63 +911,56 @@ function initSubtopicNavigation() {
         const dayNumber = Number.parseInt(dayMatch[1], 10);
         const dayPage = dayLink.getAttribute('href');
 
-        // Enable Day 01, 02, 03, and 04 ONLY
-        const isEnabled = dayNumber >= 1 && dayNumber <= 4;
-
-        if (!isEnabled) {
-            dayItem.classList.add('disabled');
-            dayLink.classList.add('disabled');
-            dayLink.setAttribute('aria-disabled', 'true');
-            dayLink.setAttribute('title', 'Content is getting created.');
-            dayLink.setAttribute('tabindex', '-1');
-
-            // Add subtle "Coming soon" pill badge if not present
-            if (!dayLink.querySelector('.toc-status-badge')) {
-                const badge = document.createElement('span');
-                badge.className = 'toc-status-badge';
-                badge.textContent = 'Coming soon';
-                dayLink.appendChild(badge);
-            }
-
-            // Clicking disabled vertical tab item prevents navigation & prevents opening details
-            const handleDisabledClick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                showToast('Content is getting created.');
-            };
-
-            dayLink.addEventListener('click', handleDisabledClick);
-            dayItem.addEventListener('click', handleDisabledClick);
-            return;
-        }
-
         if (dayItem.querySelector('details')) return;
 
         const details = document.createElement('details');
         details.className = 'day-toc-group';
-        details.open = dayPage === currentPage;
+        details.open = (dayPage === currentPage);
 
         const summary = document.createElement('summary');
         summary.appendChild(dayLink.cloneNode(true));
         details.appendChild(summary);
         dayItem.replaceChildren(details);
 
-        if (dayPage === currentPage) {
-            addSubtopicLinks(details, dayNumber, currentHeadings, '');
-            scrollToRequestedTopic();
-            return;
-        }
+        // Load pre-defined subtopics
+        const topics = COURSE_SUBTOPICS[dayNumber] || [];
+        if (topics.length) {
+            const subtopics = document.createElement('ul');
+            subtopics.className = 'toc-subtopics';
+            subtopics.setAttribute('aria-label', `Day ${dayNumber} subtopics`);
 
-        fetch(dayPage)
-            .then(response => response.text())
-            .then(html => {
-                const page = new DOMParser().parseFromString(html, 'text/html');
-                addSubtopicLinks(details, dayNumber, getLessonHeadings(page), dayPage);
-            })
-            .catch(() => {
-                // Keep the day link usable when lesson pages are opened from file://.
+            topics.forEach((topicText, index) => {
+                const topicId = `day-${String(dayNumber).padStart(2, '0')}-topic-${index + 1}`;
+                const item = document.createElement('li');
+                const link = document.createElement('a');
+                link.href = (dayPage === currentPage) ? `#${topicId}` : `${dayPage}#${topicId}`;
+                link.textContent = topicText;
+                item.appendChild(link);
+                subtopics.appendChild(item);
             });
+            details.appendChild(subtopics);
+        }
     });
+
+    // Subtopic click smooth scrolling
+    document.querySelectorAll('.toc-subtopics a').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+            const isCurrentPageAnchor = href.startsWith('#') || href.startsWith(currentPage + '#');
+            if (isCurrentPageAnchor) {
+                const targetId = href.split('#')[1];
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    e.preventDefault();
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    history.pushState(null, '', '#' + targetId);
+                }
+            }
+        });
+    });
+
+    scrollToRequestedTopic();
 }
 
 function getLessonHeadings(root) {
@@ -871,31 +1108,77 @@ function showToast(message = 'Content is getting created.') {
 // Intercept Other Lesson Links pointing to Day 05-24
 // =========================================================
 function initDisabledLinks() {
-    document.querySelectorAll('a[href^="day_"]').forEach(link => {
-        // Skip sidebar TOC links (already handled by initSubtopicNavigation)
-        if (link.closest('.toc')) return;
+    // All 24 days are fully enabled
+}
 
-        const m = link.getAttribute('href').match(/day_(\d+)/);
-        if (!m) return;
-        const dayNumber = Number.parseInt(m[1], 10);
+// =========================================================
+// Interactive Multiple Choice Questions (MCQ) Handler
+// =========================================================
+function initMCQInteractivity() {
+    document.addEventListener('click', (e) => {
+        const option = e.target.closest('.mcq-option');
+        if (option) {
+            const container = option.closest('.mcq-container');
+            if (!container) return;
 
-        if (dayNumber > 4) {
-            link.classList.add('disabled-nav');
-            link.setAttribute('title', 'Content is getting created.');
-            link.setAttribute('aria-disabled', 'true');
+            container.querySelectorAll('.mcq-option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+                opt.style.background = '';
+            });
 
-            // Handle reference cards on index.html
-            const refCard = link.closest('.reference-card');
-            if (refCard) {
-                refCard.style.opacity = '0.55';
+            option.classList.add('selected');
+
+            const submitBtn = container.querySelector('.mcq-submit');
+            if (submitBtn) {
+                submitBtn.disabled = false;
             }
 
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                showToast('Content is getting created.');
-            });
+            const feedback = container.querySelector('.mcq-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+                feedback.classList.remove('correct', 'incorrect');
+            }
+            return;
+        }
+
+        const submitBtn = e.target.closest('.mcq-submit');
+        if (submitBtn) {
+            const container = submitBtn.closest('.mcq-container');
+            if (!container) return;
+
+            const selected = container.querySelector('.mcq-option.selected');
+            const feedback = container.querySelector('.mcq-feedback');
+            if (!selected || !feedback) return;
+
+            const isCorrect = selected.getAttribute('data-correct') === 'true';
+
+            if (!feedback.getAttribute('data-raw-explanation')) {
+                const cleanedText = feedback.textContent.replace(/^[✓✗]\s*(Correct answer!?|Incorrect\.?|Correct!?)\s*/i, '').trim();
+                feedback.setAttribute('data-raw-explanation', cleanedText);
+            }
+            const explanation = feedback.getAttribute('data-raw-explanation') || '';
+
+            container.querySelectorAll('.mcq-option').forEach(opt => opt.classList.remove('correct', 'incorrect'));
+            feedback.classList.remove('correct', 'incorrect');
+
+            if (isCorrect) {
+                selected.classList.add('correct');
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<strong>✓ Correct!</strong> ${explanation || 'Great job mastering this concept!'}`;
+            } else {
+                selected.classList.add('incorrect');
+                const correctOption = container.querySelector('.mcq-option[data-correct="true"]');
+                if (correctOption) {
+                    correctOption.classList.add('correct');
+                }
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<strong>✗ Incorrect.</strong> ${explanation || 'Review the lesson above and try again!'}`;
+            }
+
+            feedback.style.display = 'block';
+            return;
         }
     });
 }
+
 
