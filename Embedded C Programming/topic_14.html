@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Non-Blocking Firmware Design</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_14.html">Non-Blocking Firmware</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 14</span><h1>Non-Blocking Firmware Design</h1><p>Blocking delays hide the CPU from other work. Non-blocking code stores a deadline or state, returns control to the loop, and resumes when the required event arrives.</p><pre><code>void application_step(uint32_t now)
+{
+    if ((int32_t)(now - next_deadline) &gt;= 0) {
+        next_deadline = now + PERIOD_TICKS;
+        request_sample();
+    }
+    service_communication();
+}</code></pre><p>Bound each step, define tick wraparound behavior, and use events or queues for slow work.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_13.html">Callbacks &amp; Timers</a><a class="nav-button next" href="topic_15.html">Naming</a></footer></main></div><script src="script.js"></script></body></html>

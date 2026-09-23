@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Polling vs Interrupts</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_12.html">Polling vs Interrupts</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 12</span><h1>Polling vs Interrupts</h1><p>Polling repeatedly checks conditions and is simple to trace. Interrupts let hardware signal asynchronous activity and can reduce response latency.</p><pre><code>while (1) {
+    check_button();
+    check_sensor();
+    check_timer();
+}
+
+void UART_IRQHandler(void)
+{
+    queue_push_from_isr(UART_DATA);
+}</code></pre><p>Keep interrupt handlers short: acknowledge, capture, signal, and return. Defer parsing and slow work.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_11.html">Events</a><a class="nav-button next" href="topic_13.html">Callbacks &amp; Timers</a></footer></main></div><script src="script.js"></script></body></html>

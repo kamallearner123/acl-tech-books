@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Make and CMake Basics</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_09.html">Make &amp; CMake Basics</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 9</span><h1>Make and CMake Basics</h1><p>Make expresses file dependencies and rebuilds only what changed. CMake describes targets and generates a native build system.</p><pre><code>CC=gcc
+CFLAGS=-std=c11 -Wall -Wextra
+app: main.o gpio.o
+	$(CC) $(CFLAGS) $^ -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c $&lt; -o $@
+clean:
+	rm -f *.o app</code></pre><pre><code>cmake_minimum_required(VERSION 3.16)
+project(app C)
+add_executable(app main.c gpio.c)
+target_compile_options(app PRIVATE -Wall -Wextra)</code></pre></article><footer class="page-navigation"><a class="nav-button prev" href="topic_08.html">Inspection Tools</a><a class="nav-button next" href="topic_10.html">Git</a></footer></main></div><script src="script.js"></script></body></html>

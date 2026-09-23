@@ -1,0 +1,6 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Git Workflow</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_10.html">Git Workflow</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 10</span><h1>Git Workflow</h1><p>Git records the evolution of firmware and makes changes reviewable and reversible.</p><pre><code>git status
+git diff
+git switch -c feature/gpio-driver
+git add gpio.c gpio.h tests/
+git commit -m "Add bounded GPIO driver API"
+git log --oneline</code></pre><p>Keep commits focused, include build/test evidence, and never commit generated binaries or unexplained configuration changes.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_09.html">Make &amp; CMake</a><a class="nav-button next" href="topic_11.html">Events</a></footer></main></div><script src="script.js"></script></body></html>
