@@ -75,6 +75,8 @@
                     <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
                     <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
                     <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #38bdf8; letter-spacing: 0.05em;">Interactive Lab</li>
+                    <li><a href="stm32-firmware-journey.html">⚡ Visualize Execution (STM32)</a></li>
                 </ul>
             </div>
         </nav>
@@ -121,6 +123,15 @@
 
                 <!-- Section 6.1 -->
                 <h2>6.1 The Four Stages of the C Compilation Pipeline</h2>
+                
+                <div class="info-callout" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%); border-left: 4px solid var(--accent); padding: 1.25rem 1.5rem; border-radius: 8px; margin: 1.5rem 0 2rem 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--accent); font-size: 1.05rem; display: block; margin-bottom: 0.25rem;">⚡ Interactive Companion Simulation Available</strong>
+                        <span style="font-size: 0.9rem; color: var(--text-muted);">Step through the complete 10-stage compilation, linking, power-on reset, and peripheral execution journey in real-time.</span>
+                    </div>
+                    <a href="stm32-firmware-journey.html" style="background: var(--accent); color: #000; font-weight: 700; font-size: 0.85rem; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; white-space: nowrap;">Launch Simulation &rarr;</a>
+                </div>
+
                 <p>
                     Every C source file undergoes a sequential transformation pipeline before being flashed into microcontroller Flash memory:
                 </p>
