@@ -1007,6 +1007,223 @@
         .tree-map .branch { color: var(--blue); font-weight: 700; }
         .tree-map .leaf { color: var(--green); }
 
+        /* Hardware Anatomy & Execution Visualizer */
+        .hw-mode-toolbar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            background: var(--bg-input);
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .hw-mode-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .hw-mode-btn:hover {
+            border-color: var(--blue);
+            color: var(--text-main);
+        }
+        .hw-mode-btn.active-anatomy {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--blue);
+            color: var(--blue);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+        .hw-mode-btn.active-load {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: var(--amber);
+            color: var(--amber);
+            box-shadow: 0 0 12px var(--amber-glow);
+        }
+        .hw-mode-btn.active-run {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--green);
+            color: var(--green);
+            box-shadow: 0 0 12px var(--green-glow);
+        }
+
+        .hw-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) {
+            .hw-grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hw-photo-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+        .hw-photo-card:hover {
+            border-color: var(--blue);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .hw-photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .hw-photo-caption {
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .hw-photo-caption strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        /* Highlight overlays and pulse states */
+        .highlight-box {
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+        }
+        .highlight-box.highlight-load {
+            border-color: var(--amber) !important;
+            background: rgba(245, 158, 11, 0.08) !important;
+            box-shadow: 0 0 18px var(--amber-glow);
+            animation: pulse-border-load 2s infinite ease-in-out;
+        }
+        .highlight-box.highlight-run {
+            border-color: var(--green) !important;
+            background: rgba(16, 185, 129, 0.08) !important;
+            box-shadow: 0 0 18px var(--green-glow);
+            animation: pulse-border-run 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-border-load {
+            0%, 100% { border-color: var(--amber); box-shadow: 0 0 12px var(--amber-glow); }
+            50% { border-color: #fbbf24; box-shadow: 0 0 24px rgba(251, 191, 36, 0.5); }
+        }
+        @keyframes pulse-border-run {
+            0%, 100% { border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+            50% { border-color: #34d399; box-shadow: 0 0 24px rgba(52, 211, 153, 0.5); }
+        }
+
+        .hw-parts-accordion {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .hw-part-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .hw-part-item:hover {
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+        .hw-part-item.active {
+            border-color: var(--blue);
+            background: var(--bg-card-hover);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+        .hw-part-num {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--blue);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .hw-part-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+        .hw-part-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .hw-part-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            margin-top: 0.4rem;
+        }
+        .tag-load { background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid var(--amber); }
+        .tag-run { background: rgba(16, 185, 129, 0.2); color: var(--green); border: 1px solid var(--green); }
+        .tag-both { background: rgba(168, 85, 247, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+
+        .phase-flow-card {
+            background: #060b14;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .flow-step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+        .flow-step-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        .flow-step-num {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            font-size: 0.8rem;
+            min-width: 1.8rem;
+            padding: 0.15rem 0.3rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .flow-step-item.load-highlight {
+            border-color: var(--amber);
+            background: rgba(245, 158, 11, 0.07);
+        }
+        .flow-step-item.run-highlight {
+            border-color: var(--green);
+            background: rgba(16, 185, 129, 0.07);
+        }
+
         /* Footer */
         .page-footer {
             border-top: 1px solid var(--border-color);
@@ -1046,7 +1263,8 @@
             </div>
             <h3>20 Scenario Explorer</h3>
             <ul class="scenario-list">
-                <li class="scenario-item active"><a href="#scenario-1"><span class="badge">01</span> Complete Journey Pipeline</a></li>
+                <li class="scenario-item active"><a href="#hardware-anatomy" style="color:var(--blue);font-weight:600;"><span class="badge" style="color:var(--blue);">🔬</span> Hardware &amp; Load/Run Engine</a></li>
+                <li class="scenario-item"><a href="#scenario-1"><span class="badge">01</span> Complete Journey Pipeline</a></li>
                 <li class="scenario-item"><a href="#scenario-2"><span class="badge">02</span> The LED Blink Program</a></li>
                 <li class="scenario-item"><a href="#scenario-3"><span class="badge">03</span> Preprocessing Secrets</a></li>
                 <li class="scenario-item"><a href="#scenario-4"><span class="badge">04</span> Compilation &amp; Assembly</a></li>
@@ -1088,6 +1306,341 @@
                     <span class="meta-pill">Format: <strong>Self-Contained Offline Lab</strong></span>
                 </div>
             </header>
+
+            <!-- HARDWARE ANATOMY & EXECUTION ENGINE -->
+            <section class="scenario-card" id="hardware-anatomy" style="border: 2px solid var(--blue); box-shadow: 0 0 25px var(--blue-glow);">
+                <div class="scenario-header">
+                    <div class="scenario-title-area">
+                        <h2>🔬 Hardware Anatomy &amp; Execution Engine: STM32F4 / STM32L4</h2>
+                        <div class="scenario-goal">Interactive Exploration: Discover each physical silicon component, then trace what happens <strong>When We LOAD the Program</strong> vs. <strong>When We RUN the Program</strong> with real-time highlights.</div>
+                    </div>
+                    <span class="scenario-num" style="background:var(--blue); color:#000;">SILICON LAB</span>
+                </div>
+
+                <!-- Interactive Mode Switcher Toolbar -->
+                <div class="hw-mode-toolbar">
+                    <button class="hw-mode-btn active-anatomy" id="btn-mode-anatomy" onclick="setHardwareMode('anatomy')">
+                        <span>🔍 1. Hardware Parts Anatomy</span>
+                    </button>
+                    <button class="hw-mode-btn" id="btn-mode-load" onclick="setHardwareMode('load')">
+                        <span>⚡ 2. When We LOAD the Program (Flashing &amp; SWD)</span>
+                    </button>
+                    <button class="hw-mode-btn" id="btn-mode-run" onclick="setHardwareMode('run')">
+                        <span>🚀 3. When We RUN the Program (Execution &amp; Peripherals)</span>
+                    </button>
+                </div>
+
+                <!-- Dynamic Mode Status Callout -->
+                <div class="highlight-box" id="hw-status-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+                        <strong style="font-size:1.05rem;" id="hw-mode-title">Mode: Physical Hardware &amp; Component Breakdown</strong>
+                        <span class="meta-pill" id="hw-active-tag">Active State: <strong>Board Inspection</strong></span>
+                    </div>
+                    <p style="margin:0; font-size:0.9rem; color:var(--text-muted);" id="hw-mode-desc">
+                        Explore the high-resolution photography below showing the STM32 Nucleo board, the ARM Cortex-M4 microcontroller chip, and the real-world bench wiring. Click any component card to learn its electrical purpose.
+                    </p>
+                </div>
+
+                <!-- Photo Gallery Grid -->
+                <div class="hw-grid-layout">
+                    <!-- Photo 1: STM32 Nucleo-64 Board -->
+                    <div class="hw-photo-card" id="card-photo-board">
+                        <img src="images/stm32f4_nucleo_board.jpg" alt="STM32 Nucleo-64 Development Board (NUCLEO-F401RE / L476RG)" loading="lazy">
+                        <div class="hw-photo-caption">
+                            <strong>Figure A: STM32 Nucleo-64 Development Board (NUCLEO-F401RE)</strong>
+                            Integrated ST-LINK/V2-1 debugger (top), STM32F401 MCU in 64-pin LQFP package (center), User LED LD2, User Button B1 (Blue), Reset Button B2 (Black), and Arduino/Morpho headers.
+                        </div>
+                    </div>
+
+                    <!-- Photo 2: Close-up Macro of STM32F4 / L4 MCU IC -->
+                    <div class="hw-photo-card" id="card-photo-chip">
+                        <img src="images/stm32f4_mcu_chip.jpg" alt="STM32F4 Microcontroller Chip Macro Photography" loading="lazy">
+                        <div class="hw-photo-caption">
+                            <strong>Figure B: ARM Cortex-M4 Silicon IC (STM32F401RET6)</strong>
+                            High-density 64-pin LQFP package with laser-etched markings, 8MHz external crystal oscillator (bottom right), decoupling capacitors (left), and high-frequency clock copper traces.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo 3: Full Bench Setup with PIR and LED -->
+                <div class="hw-photo-card" id="card-photo-bench" style="margin-bottom:2rem;">
+                    <img src="images/stm32f4_pir_lab_setup.jpg" alt="Complete Lab Workbench: STM32 connected to PIR Sensor and Breadboard LED" loading="lazy" style="max-height:420px;">
+                    <div class="hw-photo-caption">
+                        <strong>Figure C: Real-World Lab Workbench: Motion Sensor &amp; LED Telemetry</strong>
+                        The STM32 Nucleo board powered via USB, wired via color-coded jumper wires to an external breadboard with green LED (PA5 output) and HC-SR501 PIR sensor (PB0 input) on an anti-static electronics mat.
+                    </div>
+                </div>
+
+                <!-- VIEW 1: PARTS ANATOMY BREAKDOWN -->
+                <div id="view-anatomy">
+                    <h3 style="font-size:1.25rem; color:var(--text-main); margin-bottom:0.75rem;">📋 The 10 Essential Parts of the STM32 Hardware Architecture</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Every embedded board combines programming interfaces, power conditioning, silicon processing cores, clock sources, and physical I/O pins. Click any part to inspect:</p>
+
+                    <div class="hw-parts-accordion" id="hw-parts-list">
+                        <!-- Part 1 -->
+                        <div class="hw-part-item active" onclick="highlightPart(1, this)">
+                            <div class="hw-part-num">PART 01 &bull; PROGRAMMER</div>
+                            <div class="hw-part-name">ST-LINK/V2-1 Debugger Section</div>
+                            <div class="hw-part-desc">The top perforated PCB section hosts an STM32F103 dedicated co-processor acting as a USB-to-SWD hardware bridge. Eliminates the need for costly external JTAG probes.</div>
+                            <span class="hw-part-tag tag-load">⚡ Used When Loading</span>
+                        </div>
+
+                        <!-- Part 2 -->
+                        <div class="hw-part-item" onclick="highlightPart(2, this)">
+                            <div class="hw-part-num">PART 02 &bull; SILICON ENGINE</div>
+                            <div class="hw-part-name">STM32F401RET6 / L476RG Microcontroller</div>
+                            <div class="hw-part-desc">32-bit ARM Cortex-M4 core with hardware Single-Precision FPU, 512 KB Flash, 96 KB SRAM, running at up to 84 MHz (F4) or ultra-low-power 80 MHz (L4).</div>
+                            <span class="hw-part-tag tag-both">⚡ Load &amp; 🚀 Run</span>
+                        </div>
+
+                        <!-- Part 3 -->
+                        <div class="hw-part-item" onclick="highlightPart(3, this)">
+                            <div class="hw-part-num">PART 03 &bull; POWER SYSTEM</div>
+                            <div class="hw-part-name">5V to 3.3V LDO Voltage Regulator</div>
+                            <div class="hw-part-desc">Steps down 5V USB power to clean, low-noise 3.3V VDD for the MCU core and analog peripherals. Monitored by the green 'PWR' indicator LED.</div>
+                            <span class="hw-part-tag tag-both">Power Rail</span>
+                        </div>
+
+                        <!-- Part 4 -->
+                        <div class="hw-part-item" onclick="highlightPart(4, this)">
+                            <div class="hw-part-num">PART 04 &bull; USER INPUT</div>
+                            <div class="hw-part-name">Blue Push-Button (B1 / USER)</div>
+                            <div class="hw-part-desc">Hardwired to pin PC13. When pressed, pulls the pin to GND, ideal for testing external interrupts (EXTI13) or triggering test routines in firmware.</div>
+                            <span class="hw-part-tag tag-run">🚀 Used When Running</span>
+                        </div>
+
+                        <!-- Part 5 -->
+                        <div class="hw-part-item" onclick="highlightPart(5, this)">
+                            <div class="hw-part-num">PART 05 &bull; SYSTEM RESET</div>
+                            <div class="hw-part-name">Black Reset Button (B2 / RESET)</div>
+                            <div class="hw-part-desc">Connected directly to the active-LOW NRST pin with an RC debounce circuit. Pressing it restarts the CPU from vector table address 0x08000000.</div>
+                            <span class="hw-part-tag tag-both">Hardware Reset</span>
+                        </div>
+
+                        <!-- Part 6 -->
+                        <div class="hw-part-item" onclick="highlightPart(6, this)">
+                            <div class="hw-part-num">PART 06 &bull; USER OUTPUT</div>
+                            <div class="hw-part-name">User Status LED (LD2 / Green)</div>
+                            <div class="hw-part-desc">Connected to GPIO pin PA5 (active-HIGH). Sinks current through a 510-ohm resistor when the MCU drives PA5 HIGH (3.3V).</div>
+                            <span class="hw-part-tag tag-run">🚀 Used When Running</span>
+                        </div>
+
+                        <!-- Part 7 -->
+                        <div class="hw-part-item" onclick="highlightPart(7, this)">
+                            <div class="hw-part-num">PART 07 &bull; CLOCK GENERATORS</div>
+                            <div class="hw-part-name">HSE (8 MHz) &amp; LSE (32.768 kHz) Crystals</div>
+                            <div class="hw-part-desc">High-Speed External (HSE) quartz crystal feeds the PLL multiplier to generate 84 MHz HCLK. Low-Speed External (LSE) crystal powers the Real-Time Clock (RTC).</div>
+                            <span class="hw-part-tag tag-run">🚀 Used When Running</span>
+                        </div>
+
+                        <!-- Part 8 -->
+                        <div class="hw-part-item" onclick="highlightPart(8, this)">
+                            <div class="hw-part-num">PART 08 &bull; SHIELD INTERFACE</div>
+                            <div class="hw-part-name">Arduino Uno R3 Headers (CN5, CN6, CN8, CN9)</div>
+                            <div class="hw-part-desc">Inner female headers providing standardized pinout compatible with thousands of commercial Arduino shields (I2C on D14/D15, SPI on D11-D13, UART on D0/D1).</div>
+                            <span class="hw-part-tag tag-run">🚀 Used When Running</span>
+                        </div>
+
+                        <!-- Part 9 -->
+                        <div class="hw-part-item" onclick="highlightPart(9, this)">
+                            <div class="hw-part-num">PART 09 &bull; FULL PINOUT</div>
+                            <div class="hw-part-name">ST Morpho Extension Headers (CN7, CN10)</div>
+                            <div class="hw-part-desc">Outer dual-row male headers exposing every single pin (all 64 pins) of the STM32 package for laboratory wiring (e.g., connecting PIR to PB0).</div>
+                            <span class="hw-part-tag tag-run">🚀 Used When Running</span>
+                        </div>
+
+                        <!-- Part 10 -->
+                        <div class="hw-part-item" onclick="highlightPart(10, this)">
+                            <div class="hw-part-num">PART 10 &bull; BOOT SELECTION</div>
+                            <div class="hw-part-name">BOOT0 Jumper &amp; Pull-Down</div>
+                            <div class="hw-part-desc">Sets the boot source on reset. When BOOT0=0 (default jumper to GND), boots from main Flash (0x08000000). When BOOT0=1, enters factory ROM bootloader.</div>
+                            <span class="hw-part-tag tag-both">Boot Config</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: WHEN WE LOAD THE PROGRAM -->
+                <div id="view-load" style="display:none;">
+                    <div class="phase-flow-card" style="border-color:var(--amber);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(245,158,11,0.25); padding-bottom:0.75rem;">
+                            <h3 style="color:var(--amber); font-size:1.3rem; margin:0;">⚡ Exactly What Happens When We LOAD the Program (Flashing Phase)</h3>
+                            <span class="meta-pill" style="border-color:var(--amber); color:var(--amber);">Target: Flash Array @ 0x08000000</span>
+                        </div>
+
+                        <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6;">
+                            When you click <strong>"Run"</strong> or <strong>"Flash"</strong> in your toolchain (or execute <code>STM32_Programmer_CLI</code>), the computer does not execute your C code. Instead, the binary is converted into electrical programming pulses to write non-volatile memory bits:
+                        </p>
+
+                        <div class="flow-step-list">
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">01</div>
+                                <div>
+                                    <strong style="color:var(--amber);">Host PC Sends Firmware Packets over USB</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        The PC flashing utility reads <code>firmware.bin</code> or extracts loadable sections from <code>firmware.elf</code>, packaging 64-byte USB packets to the on-board ST-LINK MCU.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">02</div>
+                                <div>
+                                    <strong style="color:var(--amber);">ST-LINK Halts the Cortex-M4 CPU Core via SWD</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        ST-LINK asserts the <strong>NRST</strong> pin or writes to the Debug Halting Control and Status Register (DHCSR) over the 2-wire Serial Wire Debug lines (<strong>SWDIO</strong> and <strong>SWCLK</strong>). The CPU freezes immediately.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">03</div>
+                                <div>
+                                    <strong style="color:var(--amber);">Flash Memory Controller Unlocks Security Registers</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        To prevent accidental erasure from runaway code, the STM32 Flash control register (<code>FLASH_CR</code>) is locked by default. ST-LINK writes unlock keys <code>KEY1 = 0x45670123</code> and <code>KEY2 = 0xCDEF89AB</code> into <code>FLASH_KEYR</code>.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">04</div>
+                                <div>
+                                    <strong style="color:var(--amber);">Internal Charge Pump Erases Target Flash Sectors</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Flash memory cannot overwrite a <code>0</code> with a <code>1</code>; it must first be erased to all <code>0xFF</code> bytes. An internal charge pump steps up voltage to ~12V to tunnel electrons out of the floating gates of sectors 0 through 3.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">05</div>
+                                <div>
+                                    <strong style="color:var(--amber);">32-Bit Words Burned Row-by-Row into Flash starting at 0x08000000</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Machine instructions are clocked into the Flash Programming Data Register 32 bits at a time. The first two 32-bit words written are the <strong>Initial Stack Pointer (_estack)</strong> and the <strong>Reset_Handler Address</strong>!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">06</div>
+                                <div>
+                                    <strong style="color:var(--amber);">Verification Checksum Read-Back</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        ST-LINK reads back all programmed flash memory locations and computes a CRC-32 hash to guarantee that zero bit-flip errors occurred during burning.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item load-highlight">
+                                <div class="flow-step-num" style="background:var(--amber); color:#000;">07</div>
+                                <div>
+                                    <strong style="color:var(--amber);">Hardware Reset Pulse Releases MCU to Run</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        The programmer pulls NRST LOW for 20ms and then releases it HIGH, handing control over to the ARM Cortex-M silicon core. The COM LED stops blinking red and turns solid green.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: WHEN WE RUN THE PROGRAM -->
+                <div id="view-run" style="display:none;">
+                    <div class="phase-flow-card" style="border-color:var(--green);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(16,185,129,0.25); padding-bottom:0.75rem;">
+                            <h3 style="color:var(--green); font-size:1.3rem; margin:0;">🚀 Exactly What Happens When We RUN the Program (Execution Phase)</h3>
+                            <span class="meta-pill" style="border-color:var(--green); color:var(--green);">Target: CPU Core &bull; SRAM &bull; Peripherals</span>
+                        </div>
+
+                        <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6;">
+                            Once reset is released, the physical semiconductor takes over autonomously at 84 million cycles per second. Notice how execution flows from hardware vector registers into memory initialization, and finally into GPIO, PIR, and UART peripherals:
+                        </p>
+
+                        <div class="flow-step-list">
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">01</div>
+                                <div>
+                                    <strong style="color:var(--green);">Power Stabilizes &amp; Hardware Loads Vector Table Words</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Internal Power-On Reset (POR) comparator detects VDD &gt; 1.7V. CPU reads address <code>0x08000000</code> and loads it into <strong>MSP (R13)</strong>. Then reads <code>0x08000004</code> and loads it into <strong>PC (R15)</strong>.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">02</div>
+                                <div>
+                                    <strong style="color:var(--green);">Reset_Handler Copies .data from Flash to RAM &amp; Zeros .bss</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Before your C code starts, a tight assembly loop copies initial variable values from Flash (LMA) into volatile SRAM (VMA at <code>0x20000000</code>), and fills the <code>.bss</code> section with zeros.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">03</div>
+                                <div>
+                                    <strong style="color:var(--green);">SystemInit() Synthesizes 84 MHz System Clock (PLL)</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Switches the CPU clock from the uncalibrated 16 MHz internal RC oscillator (HSI) to the high-accuracy 8 MHz quartz crystal (HSE). The Phase-Locked Loop (PLL) multiplies this to 84 MHz HCLK and sets Flash wait states to 2.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">04</div>
+                                <div>
+                                    <strong style="color:var(--green);">main() is Reached: HAL_Init() Configures SysTick (1 ms)</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        The application entry point begins! <code>HAL_Init()</code> sets NVIC interrupt priority grouping and configures the 24-bit SysTick hardware countdown timer to generate an interrupt every 1.0 millisecond for <code>HAL_Delay()</code>.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">05</div>
+                                <div>
+                                    <strong style="color:var(--green);">RCC Clock Gating Powers GPIOA, GPIOB, and USART2 Buses</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        The MCU enables bits in <code>RCC->AHB1ENR</code> and <code>RCC->APB1ENR</code>. Without this step, writing to GPIO or UART registers would cause a bus fault because peripheral clocks are gated off to conserve battery power!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">06</div>
+                                <div>
+                                    <strong style="color:var(--green);">GPIO Driver Sinks Current &rarr; Green LED LD2 Emits Light</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        Firmware writes to <code>GPIOA->BSRR</code> bit 5. The silicon P-MOSFET turns ON, driving physical pin PA5 to 3.3V. 8 milliamperes of current flow through the 510-ohm resistor into LED LD2, exciting photons!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">07</div>
+                                <div>
+                                    <strong style="color:var(--green);">PIR Motion Sensor Drives PB0 HIGH &rarr; Schmitt Trigger Latches</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        When someone walks in front of the pyroelectric lens, the PIR module drives pin PB0 to 3.3V. The internal Schmitt trigger cleans up noise and sets bit 0 of <code>GPIOB->IDR</code>, which firmware reads or detects via EXTI0.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flow-step-item run-highlight">
+                                <div class="flow-step-num" style="background:var(--green); color:#000;">08</div>
+                                <div>
+                                    <strong style="color:var(--green);">USART2 Serializes ASCII Bytes onto PA2 TX Wire @ 115,200 Baud</strong>
+                                    <div style="color:var(--text-muted); font-size:0.82rem; margin-top:0.2rem;">
+                                        <code>HAL_UART_Transmit()</code> writes byte <code>'M'</code> into <code>USART2->DR</code>. The hardware shift register shifts out 1 Start bit, 8 data bits, and 1 Stop bit at 8.68 &micro;s per bit, streaming text to the ST-LINK USB Virtual COM Port!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- SCENARIO 1 -->
             <article class="scenario-card" id="scenario-1">
@@ -3763,6 +4316,90 @@ void jump_to_application(void)
                 updateThemeButton(saved);
             }
         })();
+
+        // -------------------------------------------------------------------
+        // Hardware Anatomy & Load/Run Engine
+        // -------------------------------------------------------------------
+        function setHardwareMode(mode) {
+            const btnAnatomy = document.getElementById('btn-mode-anatomy');
+            const btnLoad = document.getElementById('btn-mode-load');
+            const btnRun = document.getElementById('btn-mode-run');
+
+            const viewAnatomy = document.getElementById('view-anatomy');
+            const viewLoad = document.getElementById('view-load');
+            const viewRun = document.getElementById('view-run');
+
+            const statusBox = document.getElementById('hw-status-box');
+            const modeTitle = document.getElementById('hw-mode-title');
+            const activeTag = document.getElementById('hw-active-tag');
+            const modeDesc = document.getElementById('hw-mode-desc');
+
+            const cardBoard = document.getElementById('card-photo-board');
+            const cardChip = document.getElementById('card-photo-chip');
+            const cardBench = document.getElementById('card-photo-bench');
+
+            // Reset buttons
+            btnAnatomy.className = 'hw-mode-btn';
+            btnLoad.className = 'hw-mode-btn';
+            btnRun.className = 'hw-mode-btn';
+
+            // Reset views
+            viewAnatomy.style.display = 'none';
+            viewLoad.style.display = 'none';
+            viewRun.style.display = 'none';
+
+            // Reset highlights
+            statusBox.className = 'highlight-box';
+            if (cardBoard) { cardBoard.style.border = '1px solid var(--border-color)'; cardBoard.style.boxShadow = 'none'; }
+            if (cardChip) { cardChip.style.border = '1px solid var(--border-color)'; cardChip.style.boxShadow = 'none'; }
+            if (cardBench) { cardBench.style.border = '1px solid var(--border-color)'; cardBench.style.boxShadow = 'none'; }
+
+            if (mode === 'anatomy') {
+                btnAnatomy.classList.add('active-anatomy');
+                viewAnatomy.style.display = 'block';
+                modeTitle.textContent = 'Mode: Physical Hardware & Component Breakdown';
+                modeTitle.style.color = 'var(--text-main)';
+                activeTag.innerHTML = 'Active State: <strong>Board Inspection</strong>';
+                activeTag.style.color = 'var(--text-muted)';
+                activeTag.style.borderColor = 'var(--border-color)';
+                modeDesc.textContent = 'Explore the high-resolution photography showing the STM32 Nucleo board, the ARM Cortex-M4 microcontroller chip, and the real-world bench wiring. Click any component card to learn its electrical purpose.';
+            } else if (mode === 'load') {
+                btnLoad.classList.add('active-load');
+                viewLoad.style.display = 'block';
+                statusBox.classList.add('highlight-load');
+                if (cardBoard) {
+                    cardBoard.style.border = '2px solid var(--amber)';
+                    cardBoard.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.45)';
+                }
+                modeTitle.textContent = '⚡ Active Phase: When We LOAD the Program (Flashing Flash Array)';
+                modeTitle.style.color = 'var(--amber)';
+                activeTag.innerHTML = 'Active State: <strong style="color:var(--amber);">SWD Flashing (0x08000000)</strong>';
+                activeTag.style.borderColor = 'var(--amber)';
+                modeDesc.innerHTML = '<strong style="color:var(--amber);">Hardware Focus:</strong> ST-LINK/V2-1 Debugger (top of board), USB connection, SWD lines (SWDIO/SWCLK), NRST line, and Flash Memory Controller are highlighted in gold/amber. The CPU core is held in reset while bytes are burned into Flash!';
+            } else if (mode === 'run') {
+                btnRun.classList.add('active-run');
+                viewRun.style.display = 'block';
+                statusBox.classList.add('highlight-run');
+                if (cardChip) {
+                    cardChip.style.border = '2px solid var(--green)';
+                    cardChip.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.45)';
+                }
+                if (cardBench) {
+                    cardBench.style.border = '2px solid var(--green)';
+                    cardBench.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.45)';
+                }
+                modeTitle.textContent = '🚀 Active Phase: When We RUN the Program (Execution & Peripherals)';
+                modeTitle.style.color = 'var(--green)';
+                activeTag.innerHTML = 'Active State: <strong style="color:var(--green);">Autonomous Execution (84 MHz)</strong>';
+                activeTag.style.borderColor = 'var(--green)';
+                modeDesc.innerHTML = '<strong style="color:var(--green);">Hardware Focus:</strong> ARM Cortex-M4 Core, 8MHz HSE Crystal & PLL, SRAM (.data/.bss), GPIOA (PA5 Green LED), GPIOB (PB0 PIR Sensor), and USART2 TX are highlighted in vivid green. The MCU executes machine instructions autonomously at 84 million cycles per second!';
+            }
+        }
+
+        function highlightPart(partNum, element) {
+            document.querySelectorAll('#hw-parts-list .hw-part-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
 
         // -------------------------------------------------------------------
         // 2. Scenario 1: Pipeline Interactive Inspector
