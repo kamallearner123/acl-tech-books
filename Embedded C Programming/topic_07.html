@@ -1,2 +1,507 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GCC and Cross-Compilers</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_07.html">GCC &amp; Cross-Compilers</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 7</span><h1>GCC and Cross-Compilers</h1><p>Host GCC builds code for the development computer. A cross-compiler such as <code>arm-none-eabi-gcc</code> emits code for a target MCU and uses target CPU, ABI, runtime, and linker settings.</p><pre><code>gcc -std=c11 -Wall -Wextra main.c -o main
-arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -c main.c -o main.o</code></pre></article><footer class="page-navigation"><a class="nav-button prev" href="topic_06.html">Build Pipeline</a><a class="nav-button next" href="topic_08.html">Inspection Tools</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 7: GCC &amp; Cross-Compilers - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li class="active"><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 7</span>
+                <h1>GCC &amp; Cross-Compilers</h1>
+
+                <p>
+                    In desktop application development, developers frequently rely on default compiler settings. In embedded systems, every compiler flag directly influences hardware register operations, Flash consumption, SRAM layout, execution speed, and Floating-Point Unit (FPU) machine instruction generation.
+                </p>
+
+                <p>
+                    A professional embedded engineer must master cross-compiler target triplets (e.g. <code>arm-none-eabi</code>), understand the critical trade-offs between optimization levels (<code>-O0</code> through <code>-Os</code>), enforce zero-tolerance warning policies (<code>-Wall -Wextra -Werror -Wpedantic</code>), and configure hardware floating-point ABIs to avoid catastrophic software emulation bloat.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 7.1 -->
+                <h2>7.1 Anatomy of a Target Triplet</h2>
+                <p>
+                    Cross-compiler binaries are named according to a canonical <strong>target triplet</strong> format:
+                    <br><code>[arch]-[vendor]-[os]-[abi]</code>
+                </p>
+
+                <!-- Table 7.1 -->
+                <div style="overflow-x: auto; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; border: 1px solid var(--border-color);">
+                        <thead>
+                            <tr style="background-color: var(--accent); color: #ffffff;">
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Triplet Component</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Example Value</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Technical Meaning in Embedded Firmware</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Architecture</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">arm</code> / <code class="keyword-hl">riscv32</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Target CPU instruction set (ARM Cortex-M, RISC-V RV32IMC, Xtensa).</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Vendor / OS</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">none</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Indicates bare-metal execution with no underlying Linux, Windows, or POSIX OS kernel.</td>
+                            </tr>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Application Binary Interface</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">eabi</code> / <code class="keyword-hl">eabihf</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Embedded ABI. <code class="keyword-hl">hf</code> (hard-float) passes floating-point arguments directly in hardware FPU registers (s0-s15).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 7.2 -->
+                <h2>7.2 Optimization Levels Demystified (-O0 to -Os)</h2>
+                <p>
+                    GCC provides several optimization tiers that fundamentally alter emitted machine code:
+                </p>
+                <ul>
+                    <li><code>-O0</code> (No Optimization): Emits literal 1:1 translations of C code. All variables live on the stack. Crucial for step-by-step debugger stepping, but produces bloated binaries and slow execution.</li>
+                    <li><code>-O2</code> (Balanced Speed): Aggressive inlining, loop unrolling, and register allocation. Standard for high-speed signal processing.</li>
+                    <li><code>-O3</code> (Aggressive Speed): Highest performance; may increase binary size via excessive loop unrolling and function duplication.</li>
+                    <li><code>-Os</code> (Optimize for Size): <strong>The industry standard for embedded production.</strong> Enables all -O2 optimizations that do not increase code size. Strives to minimize Flash footprint.</li>
+                    <li><code>-Og</code> (Optimize for Debugging): Enables reasonable optimizations while preserving stack variables and line mappings for smooth GDB debugging.</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 7.3 -->
+                <h2>7.3 Hardware Floating-Point Flags (-mfloat-abi)</h2>
+                <p>
+                    On ARM Cortex-M4F, M7, and RISC-V with FPU, misunderstanding floating-point flags can cause software math libraries to be silently linked, increasing Flash consumption by 20 KB:
+                </p>
+                <ul>
+                    <li><code>-mfloat-abi=soft</code>: Emulates all float operations in software using integer instructions. Slowest performance.</li>
+                    <li><code>-mfloat-abi=softfp</code>: Uses hardware FPU instructions, but passes arguments via integer core registers (R0-R3), incurring packing/unpacking overhead.</li>
+                    <li><code>-mfloat-abi=hard</code>: Full hardware acceleration. Floating-point numbers are passed directly inside FPU hardware registers (S0-S15).</li>
+                </ul>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px;">
+                    <strong>Critical GCC Flag:</strong> In C, floating-point literals without an <code>f</code> suffix (e.g. <code>float y = x * 1.5;</code>) are treated as <strong>64-bit double</strong> precision by the standard! If the MCU only has a 32-bit single-precision FPU, GCC will link heavy software 64-bit emulation libraries. Always pass <code>-fsingle-precision-constant</code> to force literals to 32-bit single precision.
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 7.4 Code Implementations -->
+                <h2>7.4 Hands-On Code Implementations</h2>
+                <p>
+                    The following complete C module illustrates how to write code that verifies active compiler flags, architecture defines, and FPU capabilities at compile time:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 7.1: Cross-Compiler Feature &amp; FPU Hardware Verification
+ * File: compiler_diag.c
+ * Target: ARM Cortex-M4F / ARM GCC
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+
+/* Verify ARM architecture target */
+#if !defined(__arm__)
+    #warning "Compiling for non-ARM target architecture!"
+#endif
+
+/* Check for hardware FPU single-precision support */
+#if defined(__ARM_FP) &amp;&amp; (__ARM_FP &amp; 0x04)
+    #define HAS_HARDWARE_FPU 1
+#else
+    #define HAS_HARDWARE_FPU 0
+#endif
+
+/* Check active optimization level */
+#if defined(__OPTIMIZE_SIZE__)
+    const char *BUILD_OPT_LEVEL = "Optimized for Size (-Os)";
+#elif defined(__OPTIMIZE__)
+    const char *BUILD_OPT_LEVEL = "Optimized for Speed (-O2 / -O3)";
+#else
+    const char *BUILD_OPT_LEVEL = "No Optimization (-O0 / Debug)";
+#endif
+
+void print_compiler_diagnostics(void) {
+    printf("=== Cross-Compiler Build Configuration ===\n");
+    printf("Compiler: GCC %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+    printf("Optimization: %s\n", BUILD_OPT_LEVEL);
+    printf("Hardware FPU: %s\n", HAS_HARDWARE_FPU ? "Enabled (Hard-Float)" : "Disabled (Software Emulated)");
+
+#if defined(__ARM_ARCH_7EM__)
+    printf("Target Core: ARMv7E-M (Cortex-M4/M7)\n");
+#elif defined(__ARM_ARCH_6M__)
+    printf("Target Core: ARMv6-M (Cortex-M0/M0+)\n");
+#endif
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 7.1: Cross-Compiler Feature and FPU Verification</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>7.5 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Writing floating-point code without recognizing implicit promotion to <code>double</code> results in massive Flash consumption and instruction stalls.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        Notice the literal <code>0.05</code> lacks an <code>f</code> suffix. The compiler promotes <code>raw_adc</code> to 64-bit double, executes software double multiplication, and converts back to float:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY: Unintended 64-bit double promotion on Cortex-M4 single-precision FPU */
+float convert_adc_volts(float raw_adc) {
+    /* 0.05 is double precision! Pulls in software double-precision runtime library */
+    return raw_adc * 0.05 + 1.2; 
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 7.2-A: Unintended Double Precision Promotion</div>
+                </details>
+
+                <p>
+                    Adding explicit <code>f</code> suffixes or compiling with <code>-fsingle-precision-constant</code> generates single-cycle hardware <code>VMUL.F32</code> and <code>VADD.F32</code> instructions:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / FAST: Explicit single-precision float literals */
+float convert_adc_volts_fast(const float raw_adc) {
+    /* Pure single-precision float arithmetic executed directly in hardware FPU */
+    return (raw_adc * 0.05f) + 1.2f;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 7.2-B: Optimized Single-Precision Hardware Float Implementation</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your understanding of cross-compiler toolchains, flags, and architecture targets.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. In the target triplet 'arm-none-eabi-gcc', what does 'none' represent?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">No C compiler is used.</li>
+                        <li class="mcq-option" data-correct="true">The target is bare-metal with no operating system kernel.</li>
+                        <li class="mcq-option" data-correct="false">No optimizations are enabled.</li>
+                        <li class="mcq-option" data-correct="false">Zero warnings are reported.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The 'none' field designates the target operating system vendor; 'none' signifies bare-metal execution without Linux or POSIX.">The 'none' field designates the target operating system vendor; 'none' signifies bare-metal execution without Linux or POSIX.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. Which GCC optimization level is considered standard for production embedded firmware to minimize Flash footprint?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-O0</li>
+                        <li class="mcq-option" data-correct="false">-O3</li>
+                        <li class="mcq-option" data-correct="true">-Os</li>
+                        <li class="mcq-option" data-correct="false">-Ofast</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-Os applies all size-reducing optimizations from -O2 while avoiding optimizations like aggressive loop unrolling that bloat Flash memory.">-Os applies all size-reducing optimizations from -O2 while avoiding optimizations like aggressive loop unrolling that bloat Flash memory.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is the difference between '-mfloat-abi=softfp' and '-mfloat-abi=hard'?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">softfp operates without clock signals.</li>
+                        <li class="mcq-option" data-correct="true">softfp emits FPU hardware instructions but passes parameters via integer registers; hard passes parameters directly in FPU registers (s0-s15).</li>
+                        <li class="mcq-option" data-correct="false">hard float requires an external math coprocessor chip.</li>
+                        <li class="mcq-option" data-correct="false">softfp is only supported on 64-bit CPUs.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-mfloat-abi=hard achieves the highest efficiency by passing arguments directly in hardware floating-point registers without conversion.">-mfloat-abi=hard achieves the highest efficiency by passing arguments directly in hardware floating-point registers without conversion.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. Why should embedded developers use the '--specs=nano.specs' linker flag?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It enables Bluetooth.</li>
+                        <li class="mcq-option" data-correct="true">It links against Newlib-Nano, a stripped-down C standard library that significantly reduces Flash and RAM consumption.</li>
+                        <li class="mcq-option" data-correct="false">It disables interrupts.</li>
+                        <li class="mcq-option" data-correct="false">It prevents the board from overheating.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Newlib-Nano replaces standard Newlib with lightweight formatted I/O and memory functions, typically saving 20 KB to 40 KB of Flash space.">Newlib-Nano replaces standard Newlib with lightweight formatted I/O and memory functions, typically saving 20 KB to 40 KB of Flash space.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. Which GCC warning flag alerts developers when an implicit conversion may alter an integer value (e.g. assigning uint32_t to uint8_t)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-Wall</li>
+                        <li class="mcq-option" data-correct="false">-Wextra</li>
+                        <li class="mcq-option" data-correct="true">-Wconversion</li>
+                        <li class="mcq-option" data-correct="false">-Wpedantic</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-Wconversion is not enabled by default in -Wall; it must be specified explicitly to catch implicit truncation and sign changes.">-Wconversion is not enabled by default in -Wall; it must be specified explicitly to catch implicit truncation and sign changes.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What happens if you compile a Cortex-M3 target with '-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard'?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The program runs 2x faster.</li>
+                        <li class="mcq-option" data-correct="true">Execution triggers an Undefined Instruction UsageFault because Cortex-M3 lacks physical hardware FPU instructions.</li>
+                        <li class="mcq-option" data-correct="false">The compiler automatically simulates the FPU.</li>
+                        <li class="mcq-option" data-correct="false">The board fails to power up.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Cortex-M3 hardware lacks an FPU. Emitting hardware VFP instructions will cause the Cortex-M3 core to throw a hardware UsageFault exception.">Cortex-M3 hardware lacks an FPU. Emitting hardware VFP instructions will cause the Cortex-M3 core to throw a hardware UsageFault exception.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. What is the effect of the GCC flag '-fsingle-precision-constant'?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It disables all floating-point math.</li>
+                        <li class="mcq-option" data-correct="true">It treats floating-point literals without an 'f' suffix (e.g. 1.23) as single-precision float rather than double precision.</li>
+                        <li class="mcq-option" data-correct="false">It rounds all numbers to the nearest integer.</li>
+                        <li class="mcq-option" data-correct="false">It enables double-precision hardware emulation.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="It prevents implicit promotion of float constants to 64-bit double, keeping calculations inside the 32-bit hardware FPU.">It prevents implicit promotion of float constants to 64-bit double, keeping calculations inside the 32-bit hardware FPU.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. Which GCC flag warns when a local variable shadows a global variable or another variable in an outer scope?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-Werror</li>
+                        <li class="mcq-option" data-correct="true">-Wshadow</li>
+                        <li class="mcq-option" data-correct="false">-Winline</li>
+                        <li class="mcq-option" data-correct="false">-Wformat</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-Wshadow warns when a local variable hides an identically-named outer variable, preventing accidental assignments to the wrong variable.">-Wshadow warns when a local variable hides an identically-named outer variable, preventing accidental assignments to the wrong variable.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What instruction set flag is mandatory for ARM Cortex-M processors, which do not support the legacy 32-bit ARM instruction set?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-marm</li>
+                        <li class="mcq-option" data-correct="true">-mthumb</li>
+                        <li class="mcq-option" data-correct="false">-mriscv</li>
+                        <li class="mcq-option" data-correct="false">-mx86</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Cortex-M microcontrollers exclusively execute Thumb and Thumb-2 instructions; compiling with -marm will fail or trigger immediate fault exceptions.">Cortex-M microcontrollers exclusively execute Thumb and Thumb-2 instructions; compiling with -marm will fail or trigger immediate fault exceptions.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. What does the '-nostdlib' flag instruct the linker to do?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It disables all C libraries and startup files, requiring the developer to provide raw startup and runtime primitives.</li>
+                        <li class="mcq-option" data-correct="true">Do not use standard system startup files or libraries when linking.</li>
+                        <li class="mcq-option" data-correct="false">It forces the linker to use Linux libraries.</li>
+                        <li class="mcq-option" data-correct="false">It compresses the binary by 50%.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-nostdlib prevents linking of standard C runtime libraries and default CRT startup files, commonly used in custom bootloaders.">-nostdlib prevents linking of standard C runtime libraries and default CRT startup files, commonly used in custom bootloaders.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master compiler tuning and toolchain diagnostics.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Optimization Benchmark Matrix</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take a mathematical sensor filtering algorithm. Compile it using 4 optimization flags: <code class="keyword-hl">-O0</code>, <code class="keyword-hl">-O1</code>, <code class="keyword-hl">-O2</code>, and <code class="keyword-hl">-Os</code>. For each build, measure: (1) Flash consumption (<code class="keyword-hl">.text</code> size via <code class="keyword-hl">size</code>) and (2) execution cycle count via DWT timer. Create a comparative matrix.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: FPU Disassembly Inspection</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a float multiplication loop. Compile with <code class="keyword-hl">-mfloat-abi=soft</code>, then recompile with <code class="keyword-hl">-mfloat-abi=hard -mfpu=fpv4-sp-d16</code>. Run <code class="keyword-hl">objdump -d</code> on both binaries. Identify the software helper function call (<code class="keyword-hl">__aeabi_fmul</code>) in the soft build versus the native hardware instruction (<code class="keyword-hl">vmul.f32</code>) in the hard build.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Newlib vs. Newlib-Nano Footprint Comparison</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a program that calls <code class="keyword-hl">sprintf()</code> with floating-point formatting. Link first using standard Newlib, and then re-link with <code class="keyword-hl">--specs=nano.specs -u _printf_float</code>. Compare the Flash memory size delta and document the savings.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Zero-Tolerance Strict Warning Enforcement</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure your build flags to include: <code class="keyword-hl">-Wall -Wextra -Werror -Wpedantic -Wconversion -Wshadow -Wdouble-promotion</code>. Write small test cases that violate each warning and observe the compiler error. Refactor the code until it builds with zero warnings.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Dead Code Stripping via Garbage Collection</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write 10 uncalled helper functions across 3 files. Build first without section flags. Then build with <code class="keyword-hl">-ffunction-sections -fdata-sections -Wl,--gc-sections</code>. Verify in the linker map file that the unused functions are eliminated from the final binary.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">ARM Architecture Spec</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+                            </div>
+                            <h4>Procedure Call Standard for the ARM Architecture (AAPCS)</h4>
+                            <p>Defines register conventions, argument passing, stack alignment, and the Hard-Float calling standard for ARM processors.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">GNU Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Free Software Foundation</span>
+                            </div>
+                            <h4>GCC ARM Architecture-Dependent Options</h4>
+                            <p>Complete documentation for -mcpu, -mthumb, -mfpu, and -mfloat-abi compiler switches.</p>
+                            <a href="https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Standard Library</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Red Hat / Newlib</span>
+                            </div>
+                            <h4>The Newlib Embedded C Library Specification</h4>
+                            <p>Technical reference for Newlib and Newlib-Nano, system call stubs, and lightweight formatted I/O options.</p>
+                            <a href="https://sourceware.org/newlib/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_06.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 6: The Build Pipeline</span>
+                </a>
+                <a href="topic_08.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 8: objdump, size, nm &amp; GDB</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

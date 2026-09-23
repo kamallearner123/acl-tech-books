@@ -1,10 +1,561 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Polling vs Interrupts</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_12.html">Polling vs Interrupts</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 12</span><h1>Polling vs Interrupts</h1><p>Polling repeatedly checks conditions and is simple to trace. Interrupts let hardware signal asynchronous activity and can reduce response latency.</p><pre><code>while (1) {
-    check_button();
-    check_sensor();
-    check_timer();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 12: Polling vs Interrupts - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li class="active"><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 12</span>
+                <h1>Polling vs Interrupts</h1>
+
+                <p>
+                    Every embedded peripheral interaction boils down to a fundamental architectural choice: should the processor repeatedly query the hardware status register (<strong>Polling</strong>), or should the hardware alert the processor asynchronously when an event occurs (<strong>Interrupts</strong>)?
+                </p>
+
+                <p>
+                    While polling is conceptually simple and requires zero vector table configuration, it wastes millions of CPU cycles in busy-wait loops and burns battery power. Interrupts unlock high CPU utilization and microsecond reaction times, but introduce the hazards of asynchronous preemption: race conditions, shared memory corruption, priority inversion, and stack blowouts.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 12.1 -->
+                <h2>12.1 Comparative Analysis Matrix</h2>
+                <p>
+                    Selecting between polling and interrupts requires evaluating latency, throughput, power consumption, and code complexity:
+                </p>
+
+                <!-- Table 12.1 -->
+                <div style="overflow-x: auto; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; border: 1px solid var(--border-color);">
+                        <thead>
+                            <tr style="background-color: var(--accent); color: #ffffff;">
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Evaluation Metric</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Polling (Busy-Wait)</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Interrupt-Driven Architecture</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">CPU Utilization</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">100% busy-wait during transactions; wastes CPU cycles.</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: #10b981;">Near 0% idle; CPU computes background tasks or sleeps.</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Response Latency</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Variable and high; depends on main loop execution period.</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: #10b981;">Deterministic and immediate (~12 clock cycles on ARM Cortex-M).</td>
+                            </tr>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Power Consumption</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">High; core runs active clock cycles continuously.</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: #10b981;">Ultra-low; CPU sleeps in WFI until an interrupt awakens it.</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Software Complexity</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: #10b981;">Trivial; linear code execution, no race conditions.</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Higher; requires volatile qualifiers, critical sections, and NVIC tuning.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 12.2 -->
+                <h2>12.2 Hardware Interrupt Mechanics &amp; NVIC</h2>
+                <p>
+                    On ARM Cortex-M microcontrollers, interrupt handling is governed by the <strong>Nested Vectored Interrupt Controller (NVIC)</strong>. When a hardware peripheral asserts an interrupt line:
+                </p>
+                <ol style="margin-left: 1.5rem; line-height: 1.8;">
+                    <li><strong>Hardware Stacking:</strong> The processor automatically pushes 8 core registers onto the active stack: <code>R0, R1, R2, R3, R12, LR, PC, xPSR</code> in just 12 CPU clock cycles.</li>
+                    <li><strong>Vector Fetch:</strong> Simultaneously, the NVIC reads the 32-bit ISR function address directly from the <strong>Vector Table</strong> in Flash memory.</li>
+                    <li><strong>Execution:</strong> The CPU jumps directly to the C ISR function.</li>
+                    <li><strong>Unstacking:</strong> Upon executing the special return code in LR (<code>EXC_RETURN</code>), hardware automatically pops the registers and restores the interrupted code.</li>
+                </ol>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 12.3 -->
+                <h2>12.3 Critical Sections &amp; Atomic Access</h2>
+                <p>
+                    Whenever a variable wider than the CPU data bus (e.g. a 64-bit millisecond counter on a 32-bit ARM, or a 16-bit int on an 8-bit AVR) or a multi-field structure is shared between the main loop and an ISR, a <strong>critical section</strong> is mandatory.
+                </p>
+
+                <!-- Figure 12.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 280" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-preempt" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+                            </marker>
+                            <marker id="arrow-return" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Left Column: Main Thread -->
+                        <rect x="30" y="20" width="360" height="175" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="210" y="45" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">MAIN SUPERLOOP (Low Priority)</text>
+
+                        <rect x="45" y="60" width="330" height="34" rx="4" fill="#0f172a" stroke="#475569"/>
+                        <text x="55" y="81" fill="#f8fafc" font-size="10.5">1. Read lower 32 bits: <tspan fill="#fde68a" font-family="monospace">0xFFFFFFFF</tspan></text>
+
+                        <!-- Interrupt Warning Badge -->
+                        <rect x="45" y="102" width="330" height="36" rx="4" fill="#450a0a" stroke="#ef4444" stroke-width="1.5"/>
+                        <text x="210" y="124" fill="#fca5a5" font-size="10.5" font-weight="700" text-anchor="middle">&#9888; PREEMPTION: Timer ISR Fires Here!</text>
+
+                        <rect x="45" y="146" width="330" height="34" rx="4" fill="#0f172a" stroke="#475569"/>
+                        <text x="55" y="167" fill="#f8fafc" font-size="10.5">2. Read upper 32 bits: <tspan fill="#fde68a" font-family="monospace">0x00000001</tspan></text>
+
+                        <!-- Right Column: Timer ISR -->
+                        <rect x="430" y="20" width="360" height="175" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="610" y="45" fill="#fca5a5" font-size="12" font-weight="700" text-anchor="middle">TIMER ISR (Hardware Preemption)</text>
+
+                        <!-- Interrupt Arrow -->
+                        <path d="M 375 120 L 420 120" fill="none" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-preempt)"/>
+
+                        <rect x="445" y="65" width="330" height="70" rx="4" fill="#0f172a" stroke="#ef4444"/>
+                        <text x="460" y="88" fill="#fca5a5" font-size="10" font-weight="600">Increments 64-bit tick variable:</text>
+                        <text x="460" y="106" fill="#cbd5e1" font-size="9.5" font-family="monospace">0x00000000_FFFFFFFF &rarr;</text>
+                        <text x="460" y="122" fill="#a7f3d0" font-size="9.5" font-family="monospace">0x00000001_00000000</text>
+
+                        <!-- Return Arrow -->
+                        <path d="M 445 155 L 385 155" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-return)"/>
+                        <text x="610" y="170" fill="#94a3b8" font-size="9.5" text-anchor="middle">ISR exits &bull; Processor un-stacks context</text>
+
+                        <!-- Bottom Fatal Result Banner -->
+                        <rect x="30" y="208" width="760" height="60" rx="8" fill="#1e1e2e" stroke="#ef4444" stroke-width="1.5"/>
+                        <text x="50" y="232" fill="#ef4444" font-size="11" font-weight="800">CATASTROPHIC READ RESULT: <tspan font-family="monospace">0x00000001_FFFFFFFF</tspan></text>
+                        <text x="50" y="252" fill="#cbd5e1" font-size="10">Software reads timestamp that jumped into the future by 4.29 billion ms (~49.7 days) due to lack of a critical section!</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 12.1: Non-Atomic Multi-Word Read Corruption Hazard</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 12.4 Code Implementations -->
+                <h2>12.4 Hands-On Code Implementations</h2>
+                <p>
+                    The following C implementation demonstrates atomic reading of a 64-bit shared timestamp counter using ARM assembly critical section primitives:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 12.1: Atomic 64-Bit Timekeeper with Nested Interrupt Protection
+ * File: atomic_timer.c
+ */
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* 64-bit system tick counter updated asynchronously in SysTick ISR */
+static volatile uint64_t s_system_uptime_ticks = 0ULL;
+
+/**
+ * @brief Enter Critical Section: saves previous interrupt mask state and disables IRQs.
+ */
+static inline uint32_t enter_critical_section(void) {
+    uint32_t primask;
+    /* Read active PRIMASK interrupt state */
+    __asm volatile ("mrs %0, primask" : "=r" (primask));
+    /* Disable interrupts */
+    __asm volatile ("cpsid i" : : : "memory");
+    return primask;
 }
 
-void UART_IRQHandler(void)
-{
-    queue_push_from_isr(UART_DATA);
-}</code></pre><p>Keep interrupt handlers short: acknowledge, capture, signal, and return. Defer parsing and slow work.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_11.html">Events</a><a class="nav-button next" href="topic_13.html">Callbacks &amp; Timers</a></footer></main></div><script src="script.js"></script></body></html>
+/**
+ * @brief Exit Critical Section: restores previous interrupt mask state.
+ */
+static inline void exit_critical_section(uint32_t primask) {
+    /* Restore saved PRIMASK */
+    __asm volatile ("msr primask, %0" : : "r" (primask) : "memory");
+}
+
+/**
+ * @brief Thread-safe atomic read of 64-bit uptime counter.
+ * @return uint64_t Snapshot of uptime in ticks
+ */
+uint64_t get_system_uptime_atomic(void) {
+    uint32_t mask = enter_critical_section();
+    /* Atomic 64-bit copy: completely immune to ISR interleaving */
+    uint64_t snapshot = s_system_uptime_ticks;
+    exit_critical_section(mask);
+    return snapshot;
+}
+
+/**
+ * @brief 1 kHz Hardware SysTick Timer Interrupt Handler.
+ */
+void SysTick_Handler(void) {
+    /* Incremented asynchronously every 1 millisecond */
+    s_system_uptime_ticks++;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 12.1: Atomic 64-Bit Timekeeper with Nested Interrupt Protection in C</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>12.5 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Directly disabling interrupts globally using <code>__enable_irq()</code> breaks nested calls if an outer function had intentionally disabled interrupts.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        Calling <code>__enable_irq()</code> unconditionally re-enables interrupts even if the outer calling function was inside its own critical section:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY: Unconditionally enables interrupts, breaking outer critical sections */
+void write_shared_data(uint32_t val) {
+    __disable_irq();
+    g_shared_reg = val;
+    __enable_irq(); /* DANGER: Re-enables interrupts even if caller disabled them! */
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 12.2-A: Broken Unconditional Interrupt Re-Enable</div>
+                </details>
+
+                <p>
+                    The modern pattern captures and restores the original <code>PRIMASK</code> register, cleanly supporting arbitrary critical section nesting:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: Nestable PRIMASK state capture */
+void write_shared_data_safe(uint32_t val) {
+    uint32_t primask = enter_critical_section();
+    g_shared_reg = val;
+    exit_critical_section(primask); /* Restores previous state cleanly */
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 12.2-B: Nestable Critical Section Implementation</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your understanding of polling limitations, interrupt mechanics, and critical sections.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. What is the primary drawback of using busy-wait polling to wait for a UART character to arrive?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">UART baud rates drift.</li>
+                        <li class="mcq-option" data-correct="true">The CPU is 100% tied up executing tight loops, burning battery power and preventing other tasks from executing.</li>
+                        <li class="mcq-option" data-correct="false">The compiler emits an error on polling loops.</li>
+                        <li class="mcq-option" data-correct="false">It disables SRAM memory reads.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Polling monopolizes the processor in unproductive spin-loops, preventing sleep modes and wasting power.">Polling monopolizes the processor in unproductive spin-loops, preventing sleep modes and wasting power.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. On an ARM Cortex-M processor, how many core registers are automatically pushed onto the stack by hardware upon interrupt entry?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">4 registers</li>
+                        <li class="mcq-option" data-correct="true">8 registers (R0, R1, R2, R3, R12, LR, PC, xPSR)</li>
+                        <li class="mcq-option" data-correct="false">16 registers</li>
+                        <li class="mcq-option" data-correct="false">0 (all stacking is done by software)</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Hardware automatically pushes the 8 caller-saved registers in 12 clock cycles, enabling standard C functions to act directly as ISRs without assembly wrappers.">Hardware automatically pushes the 8 caller-saved registers in 12 clock cycles, enabling standard C functions to act directly as ISRs without assembly wrappers.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What does the Nested Vectored Interrupt Controller (NVIC) enable on ARM Cortex-M processors?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Direct execution of Python scripts.</li>
+                        <li class="mcq-option" data-correct="true">Hardware-managed interrupt prioritization, dynamic preemption of lower-priority ISRs, and tail-chaining.</li>
+                        <li class="mcq-option" data-correct="false">Automatic Flash memory wear leveling.</li>
+                        <li class="mcq-option" data-correct="false">Wireless communication over Wi-Fi.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The NVIC handles prioritized preemption and tail-chaining optimization in hardware without software overhead.">The NVIC handles prioritized preemption and tail-chaining optimization in hardware without software overhead.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What is 'tail-chaining' in the ARM Cortex-M interrupt architecture?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Daisy chaining multiple microcontroller chips over SPI.</li>
+                        <li class="mcq-option" data-correct="true">An optimization where the processor transitions directly to a pending interrupt without restoring and re-stacking registers, saving 24 clock cycles.</li>
+                        <li class="mcq-option" data-correct="false">A software algorithm for linking lists.</li>
+                        <li class="mcq-option" data-correct="false">A compiler warning.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Tail-chaining avoids redundant unstacking and re-stacking when another interrupt is pending as an ISR finishes, reducing switch latency to just 6 cycles.">Tail-chaining avoids redundant unstacking and re-stacking when another interrupt is pending as an ISR finishes, reducing switch latency to just 6 cycles.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. Why is an atomic read required when reading a 64-bit variable on a 32-bit ARM Cortex-M processor?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">64-bit integers are illegal in C99.</li>
+                        <li class="mcq-option" data-correct="true">The CPU requires two separate 32-bit load instructions; an interrupt can fire between the two instructions, resulting in corrupted data.</li>
+                        <li class="mcq-option" data-correct="false">Flash cannot store 64-bit variables.</li>
+                        <li class="mcq-option" data-correct="false">The compiler forces a hard fault.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="A 32-bit CPU cannot read 64 bits in a single cycle. An ISR interleaving between the lower and upper word reads reads desynchronized halves.">A 32-bit CPU cannot read 64 bits in a single cycle. An ISR interleaving between the lower and upper word reads reads desynchronized halves.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What is the role of the PRIMASK register in ARM Cortex-M CPUs?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It stores the processor serial number.</li>
+                        <li class="mcq-option" data-correct="true">A 1-bit register that masks all configurable interrupts when set to 1 (except HardFault and NMI).</li>
+                        <li class="mcq-option" data-correct="false">It controls the PLL clock multiplier.</li>
+                        <li class="mcq-option" data-correct="false">It holds the baud rate divider.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Setting PRIMASK via 'cpsid i' disables all interrupts with configurable priority, creating an atomic critical section.">Setting PRIMASK via 'cpsid i' disables all interrupts with configurable priority, creating an atomic critical section.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. What is 'Interrupt Jitter'?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Physical vibration of the PCB.</li>
+                        <li class="mcq-option" data-correct="true">The timing variation between when a hardware interrupt request is asserted and when the first instruction of the ISR actually executes.</li>
+                        <li class="mcq-option" data-correct="false">A bug in the linker script.</li>
+                        <li class="mcq-option" data-correct="false">Fluctuation in supply voltage.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Jitter is caused by critical sections holding interrupts disabled or higher-priority ISRs executing when the event occurs.">Jitter is caused by critical sections holding interrupts disabled or higher-priority ISRs executing when the event occurs.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What happens if an ISR does not clear its peripheral's hardware interrupt pending flag before exiting?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The peripheral is permanently powered off.</li>
+                        <li class="mcq-option" data-correct="true">The interrupt controller immediately re-triggers the ISR upon exit, locking the CPU in an infinite interrupt loop and starving the main loop.</li>
+                        <li class="mcq-option" data-correct="false">The compiler reports a warning.</li>
+                        <li class="mcq-option" data-correct="false">The vector table is erased.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="If the hardware status bit remains high, the NVIC observes an active interrupt condition and re-invokes the ISR endlessly.">If the hardware status bit remains high, the NVIC observes an active interrupt condition and re-invokes the ISR endlessly.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What special return value placed in the Link Register (LR) by ARM hardware signals an exception return?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">0x00000000</li>
+                        <li class="mcq-option" data-correct="true">EXC_RETURN (e.g. 0xFFFFFFFD or 0xFFFFFFF9)</li>
+                        <li class="mcq-option" data-correct="false">0xDEADBEEF</li>
+                        <li class="mcq-option" data-correct="false">0x08000000</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="When the CPU branches to an EXC_RETURN value (0xFFFFFFFx), hardware automatically initiates exception unstacking and mode restoration.">When the CPU branches to an EXC_RETURN value (0xFFFFFFFx), hardware automatically initiates exception unstacking and mode restoration.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. What is priority grouping in the ARM Cortex-M NVIC?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Grouping multiple C source files into an archive.</li>
+                        <li class="mcq-option" data-correct="true">Splitting the 8-bit priority register into 'Preemption Priority' (which determines who preempts whom) and 'Subpriority' (which resolves simultaneous pending requests).</li>
+                        <li class="mcq-option" data-correct="false">Sorting variables in SRAM.</li>
+                        <li class="mcq-option" data-correct="false">A feature exclusive to Linux.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Priority grouping allows system architects to partition priority bits between preemption levels and tie-breaker subpriorities.">Priority grouping allows system architects to partition priority bits between preemption levels and tie-breaker subpriorities.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master interrupt control, latency analysis, and atomic protection.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Interrupt Response Latency Benchmarking</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure a GPIO input interrupt. In the ISR, set an output pin high as the very first line of code. Using an oscilloscope or logic analyzer, measure the time elapsed from the input pin rising edge to the output pin rising edge. Calculate the total latency in nanoseconds and CPU cycles.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Nestable Critical Section Implementation</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement the nestable critical section functions <code class="keyword-hl">enter_critical_section()</code> and <code class="keyword-hl">exit_critical_section()</code> using inline assembly to save and restore <code class="keyword-hl">PRIMASK</code>. Write a test case with nested function calls and verify that interrupts remain disabled until the outermost function exits.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: NVIC Priority Preemption Experiment</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure two hardware timers: Timer 2 with priority 2 and Timer 3 with priority 1. In Timer 2's ISR, toggle a pin and enter a delay loop. Trigger Timer 3 during this delay. Using an oscilloscope, demonstrate that Timer 3 immediately preempts Timer 2 mid-execution.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Polling vs. Interrupt CPU Utilization Audit</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a UART receive driver in polling mode. Count how many iterations of a background compute loop execute per second while receiving 100 bytes/sec. Then refactor to an interrupt-driven circular buffer and measure the 10x increase in background iterations.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Infinite Interrupt Lockup Reproduction</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure an external GPIO interrupt. In the ISR, deliberately omit the code line that clears the pending flag in <code class="keyword-hl">EXTI-&gt;PR</code>. Run the program and observe in GDB how the processor becomes permanently trapped in the ISR, starving the main loop.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">ARM Architecture Spec</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+                            </div>
+                            <h4>ARMv7-M Architecture Reference Manual (NVIC Chapter)</h4>
+                            <p>Complete specification of NVIC priority grouping, tail-chaining, exception entry stacking, and PRIMASK/FAULTMASK registers.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Technical Book</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Joseph Yiu</span>
+                            </div>
+                            <h4>The Definitive Guide to ARM Cortex-M3 and Cortex-M4</h4>
+                            <p>Authoritative hardware reference explaining interrupt latency measurements, fault escalation, and low-power WFI wakeups.</p>
+                            <a href="https://www.elsevier.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Practice</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Barr Group</span>
+                            </div>
+                            <h4>Interrupt Latency and Jitter Optimization</h4>
+                            <p>Engineering methodologies for minimizing critical section durations and avoiding race conditions in real-time firmware.</p>
+                            <a href="https://barrgroup.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_11.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 11: Events &amp; Event Handling</span>
+                </a>
+                <a href="topic_13.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 13: Callbacks &amp; Timers</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

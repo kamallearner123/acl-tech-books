@@ -1,6 +1,558 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Git Workflow</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_10.html">Git Workflow</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 10</span><h1>Git Workflow</h1><p>Git records the evolution of firmware and makes changes reviewable and reversible.</p><pre><code>git status
-git diff
-git switch -c feature/gpio-driver
-git add gpio.c gpio.h tests/
-git commit -m "Add bounded GPIO driver API"
-git log --oneline</code></pre><p>Keep commits focused, include build/test evidence, and never commit generated binaries or unexplained configuration changes.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_09.html">Make &amp; CMake</a><a class="nav-button next" href="topic_11.html">Events</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 10: Git Workflow for Firmware - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li class="active"><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 10</span>
+                <h1>Git Workflow for Firmware</h1>
+
+                <p>
+                    Version control for embedded systems presents unique challenges that rarely occur in pure software web or desktop development. A firmware repository must manage not only C source files and unit tests, but also external vendor Hardware Abstraction Layers (ST HAL, NXP MCUXpresso, ESP-IDF), silicon errata patches, hardware board revision branches (e.g. PCB Rev A vs Rev B pin mappings), and binary calibration data.
+                </p>
+
+                <p>
+                    Adopting a disciplined <strong>Git workflow</strong> ensures that every single device flashed on a production manufacturing line can be traced to an exact Git commit SHA, that third-party code is cleanly isolated using <code>git submodule</code> or <code>git subtree</code>, and that build artifact pollution is eliminated with robust <code>.gitignore</code> templates.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 10.1 -->
+                <h2>10.1 Repository Layout &amp; .gitignore Hygiene</h2>
+                <p>
+                    A clean firmware repository strictly separates application logic, board support packages, and vendor silicon libraries:
+                </p>
+
+                <!-- Figure 10.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 280" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <!-- Root Folder Header -->
+                        <rect x="30" y="15" width="760" height="42" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="50" y="41" fill="#93c5fd" font-size="13" font-weight="700">project-root/ (Industrial Embedded Repository Layout)</text>
+                        <text x="770" y="41" fill="#64748b" font-size="11" text-anchor="end">Git Managed Architecture</text>
+
+                        <!-- Tree Branches & Cards Grid -->
+                        <!-- Column 1: Config & Core Modules -->
+                        <g transform="translate(45, 70)">
+                            <!-- app/ -->
+                            <rect x="0" y="0" width="350" height="42" rx="6" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+                            <text x="15" y="26" fill="#6ee7b7" font-size="12" font-weight="700">app/</text>
+                            <text x="60" y="26" fill="#cbd5e1" font-size="10.5">Application logic &bull; 100% Host-Testable C</text>
+
+                            <!-- bsp/ -->
+                            <rect x="0" y="50" width="350" height="42" rx="6" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="15" y="76" fill="#93c5fd" font-size="12" font-weight="700">bsp/</text>
+                            <text x="60" y="76" fill="#cbd5e1" font-size="10.5">Board Support Package &bull; Pinmux &amp; Clocks</text>
+
+                            <!-- drivers/ -->
+                            <rect x="0" y="100" width="350" height="42" rx="6" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.5"/>
+                            <text x="15" y="126" fill="#c4b5fd" font-size="12" font-weight="700">drivers/</text>
+                            <text x="75" y="126" fill="#cbd5e1" font-size="10.5">Hardware Abstraction &bull; UART, SPI, I2C</text>
+
+                            <!-- tests/ -->
+                            <rect x="0" y="150" width="350" height="42" rx="6" fill="#0f172a" stroke="#ec4899" stroke-width="1.5"/>
+                            <text x="15" y="176" fill="#f472b6" font-size="12" font-weight="700">tests/</text>
+                            <text x="65" y="176" fill="#cbd5e1" font-size="10.5">Host test harness &bull; Unity unit test suites</text>
+                        </g>
+
+                        <!-- Column 2: Build, Submodules, Tooling -->
+                        <g transform="translate(425, 70)">
+                            <!-- lib/ -->
+                            <rect x="0" y="0" width="350" height="42" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="15" y="26" fill="#fde68a" font-size="12" font-weight="700">lib/</text>
+                            <text x="50" y="26" fill="#cbd5e1" font-size="10.5">Git Submodules: CMSIS-Core, FreeRTOS</text>
+
+                            <!-- .gitignore -->
+                            <rect x="0" y="50" width="350" height="42" rx="6" fill="#0f172a" stroke="#ef4444" stroke-width="1.5"/>
+                            <text x="15" y="76" fill="#fca5a5" font-size="12" font-weight="700">.gitignore</text>
+                            <text x="85" y="76" fill="#cbd5e1" font-size="10.5">Excludes build/, *.o, *.elf, *.bin, *.hex</text>
+
+                            <!-- CMake / Make -->
+                            <rect x="0" y="100" width="350" height="42" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+                            <text x="15" y="126" fill="#94a3b8" font-size="12" font-weight="700">CMakeLists.txt</text>
+                            <text x="125" y="126" fill="#cbd5e1" font-size="10.5">Automated cross-compilation pipeline</text>
+
+                            <!-- docs / ci -->
+                            <rect x="0" y="150" width="350" height="42" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.5"/>
+                            <text x="15" y="176" fill="#94a3b8" font-size="12" font-weight="700">.github/workflows/</text>
+                            <text x="155" y="176" fill="#cbd5e1" font-size="10.5">CI unit tests, MISRA-C &amp; clang-tidy</text>
+                        </g>
+                    </svg>
+                    <div class="diagram-caption">Figure 10.1: Standard Industrial Firmware Repository Architecture</div>
+                </div>
+
+                <p>
+                    Committed binaries (<code>.o</code>, <code>.elf</code>, <code>.bin</code>) cause repository bloat because Git stores entire binary diffs for every single build. A strict <code>.gitignore</code> is mandatory:
+                </p>
+                <pre><code class="language-bash"># Standard Embedded .gitignore
+build/
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+*.gcda
+*.gcno
+
+# IDE metadata
+.vscode/
+.idea/
+*.launch
+.metadata/</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 10.1: Essential Embedded .gitignore Rules</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 10.2 -->
+                <h2>10.2 Managing Third-Party Vendor Code via Git Submodules</h2>
+                <p>
+                    Silicon vendors frequently release hundreds of megabytes of HAL and middleware code. Copying this code directly into your repository creates maintenance nightmares. Using <strong>Git submodules</strong> locks vendor code to a specific external commit hash:
+                </p>
+                <pre><code class="language-bash"># Add official FreeRTOS kernel as a submodule
+git submodule add https://github.com/FreeRTOS/FreeRTOS-Kernel.git lib/FreeRTOS
+
+# When cloning a repository with submodules:
+git clone --recurse-submodules https://github.com/my-org/my-firmware.git
+
+# Updating submodules:
+git submodule update --init --recursive</code></pre>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 10.3 -->
+                <h2>10.3 Automated Build Metadata Injection into C Firmware</h2>
+                <p>
+                    In manufacturing, customer field units report firmware versions over serial or CAN bus. Hardcoding version numbers in C source code is prone to human error.
+                </p>
+
+                <p>
+                    The professional approach uses the build system to query Git directly and inject the exact commit hash, build timestamp, and dirty flag into the C compiler as preprocessor defines:
+                </p>
+
+                <pre><code class="language-makefile"># In Makefile:
+GIT_VERSION := $(shell git describe --tags --always --dirty)
+GIT_COMMIT  := $(shell git rev-parse --short HEAD)
+
+CFLAGS += -DGIT_VERSION=\"$(GIT_VERSION)\" -DGIT_COMMIT=\"$(GIT_COMMIT)\"</code></pre>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 10.4 Code Implementations -->
+                <h2>10.4 Hands-On Code Implementations</h2>
+                <p>
+                    Here is a C version information service that reports the injected Git commit and dirty status over the device's diagnostic serial port:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 10.2: Automated Version &amp; Git Traceability Module
+ * File: version_info.c
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+
+#if !defined(GIT_VERSION)
+    #define GIT_VERSION "UNKNOWN_DEV"
+#endif
+
+#if !defined(GIT_COMMIT)
+    #define GIT_COMMIT "0000000"
+#endif
+
+typedef struct {
+    const char *firmware_version;
+    const char *git_commit_sha;
+    const char *build_date;
+    const char *build_time;
+} VersionMetadata_t;
+
+static const VersionMetadata_t s_firmware_version = {
+    .firmware_version = GIT_VERSION,
+    .git_commit_sha  = GIT_COMMIT,
+    .build_date      = __DATE__,
+    .build_time      = __TIME__
+};
+
+void print_system_boot_banner(void) {
+    printf("\n==================================================\n");
+    printf("  Industrial Gateway Controller Firmware\n");
+    printf("  Version     : %s\n", s_firmware_version.firmware_version);
+    printf("  Git Commit  : %s\n", s_firmware_version.git_commit_sha);
+    printf("  Build Stamp : %s %s\n", s_firmware_version.build_date, s_firmware_version.build_time);
+    printf("==================================================\n\n");
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 10.2: Automated Version and Git Traceability Module in C</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>10.5 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Hardcoded version strings frequently diverge from actual Git release tags, making post-mortem crash analysis in the field nearly impossible.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        This snippet hardcodes version strings in C. Developers forget to increment it, so 5 different firmware builds all report "v1.0.0":
+                    </p>
+                    <pre><code class="language-c">/* BUGGY: Manually hardcoded version; desynchronizes with Git tags */
+#define FIRMWARE_VERSION "v1.0.0"
+
+void print_version(void) {
+    /* Developers ship 12 bugfixes but forget to edit this string! */
+    printf("Version: %s\n", FIRMWARE_VERSION);
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 10.3-A: Hardcoded Untraceable Version String</div>
+                </details>
+
+                <p>
+                    Automated injection guarantees that every flashed device unambiguously identifies its exact Git commit hash:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: Compiler-injected Git commit hash */
+#ifndef GIT_COMMIT_HASH
+    #error "Build system must pass -DGIT_COMMIT_HASH=\"$(git rev-parse --short HEAD)\""
+#endif
+
+void print_version_safe(void) {
+    /* Guaranteed traceability: 100% matched to exact Git commit in repository */
+    printf("Firmware SHA: %s\n", GIT_COMMIT_HASH);
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 10.3-B: Compiler-Injected Git Traceability</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your knowledge of version control, submodules, and firmware release workflows.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. Why should intermediate build artifacts (.o, .elf, .bin, .map) be excluded from Git repositories?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Git cannot store binary files.</li>
+                        <li class="mcq-option" data-correct="true">Binary files cause severe repository bloat and merge conflicts because Git must store full object copies for every single build.</li>
+                        <li class="mcq-option" data-correct="false">Compilers refuse to build if .elf files are tracked.</li>
+                        <li class="mcq-option" data-correct="false">The linker script breaks.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Binaries cannot be text-diffed; committing build artifacts balloons repository size and causes endless merge conflicts across team members.">Binaries cannot be text-diffed; committing build artifacts balloons repository size and causes endless merge conflicts across team members.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. What command clones a Git repository along with all of its nested third-party submodules?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">git clone --all</li>
+                        <li class="mcq-option" data-correct="true">git clone --recurse-submodules</li>
+                        <li class="mcq-option" data-correct="false">git clone --submodules-only</li>
+                        <li class="mcq-option" data-correct="false">git clone -f</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="--recurse-submodules initializes and fetches all registered submodules in a single command during repository cloning.">--recurse-submodules initializes and fetches all registered submodules in a single command during repository cloning.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is the benefit of injecting 'git describe --tags --always --dirty' into C firmware at compile time?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It compresses the binary.</li>
+                        <li class="mcq-option" data-correct="true">It allows field devices to report their exact release tag, commit hash, and whether uncommitted local changes were present during compilation.</li>
+                        <li class="mcq-option" data-correct="false">It disables all breakpoints in GDB.</li>
+                        <li class="mcq-option" data-correct="false">It enables hardware watchdog timers.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The --dirty flag immediately flags whether firmware was compiled from uncommitted modifications, preventing untraceable rogue test builds.">The --dirty flag immediately flags whether firmware was compiled from uncommitted modifications, preventing untraceable rogue test builds.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What Git feature allows large binary files (like factory test datasets, FPGA bitstreams, and bootloader images) to be versioned without bloating the core repository?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Git Submodule</li>
+                        <li class="mcq-option" data-correct="true">Git LFS (Large File Storage)</li>
+                        <li class="mcq-option" data-correct="false">Git Rebase</li>
+                        <li class="mcq-option" data-correct="false">Git Stash</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Git LFS replaces large binary assets with text pointer files, storing actual data blobs on an external remote storage server.">Git LFS replaces large binary assets with text pointer files, storing actual data blobs on an external remote storage server.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What file records the URLs and local paths of external Git submodules within a repository?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">.gitignore</li>
+                        <li class="mcq-option" data-correct="true">.gitmodules</li>
+                        <li class="mcq-option" data-correct="false">.gitconfig</li>
+                        <li class="mcq-option" data-correct="false">Makefile</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation=".gitmodules is a tracked text file in the repository root mapping submodule paths to remote repository URLs.">.gitmodules is a tracked text file in the repository root mapping submodule paths to remote repository URLs.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. How should hardware PCB revisions (e.g. Rev A using PA5 for an LED vs Rev B using PB3) be managed in firmware architecture?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Maintain two completely separate Git repositories.</li>
+                        <li class="mcq-option" data-correct="true">Use a common codebase with Board Support Package (BSP) abstraction layers selected via build flags or runtime GPIO hardware revision strapping pins.</li>
+                        <li class="mcq-option" data-correct="false">Rewrite the application logic from scratch.</li>
+                        <li class="mcq-option" data-correct="false">Manually edit pin numbers before every flash.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Hardware abstraction layers and runtime board revision strapping pins allow a single firmware codebase to support multiple PCB hardware revisions.">Hardware abstraction layers and runtime board revision strapping pins allow a single firmware codebase to support multiple PCB hardware revisions.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. What is the command to initialize and update submodules in a repository that was cloned without the --recurse-submodules flag?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">git pull --all</li>
+                        <li class="mcq-option" data-correct="true">git submodule update --init --recursive</li>
+                        <li class="mcq-option" data-correct="false">git checkout submodules</li>
+                        <li class="mcq-option" data-correct="false">git reset --submodule</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="git submodule update --init --recursive registers and fetches all nested submodules listed in .gitmodules.">`git submodule update --init --recursive` registers and fetches all nested submodules listed in .gitmodules.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is a 'semantic versioning' tag format recommended for release firmware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">vYYYY-MM-DD</li>
+                        <li class="mcq-option" data-correct="true">vMAJOR.MINOR.PATCH (e.g. v2.1.4)</li>
+                        <li class="mcq-option" data-correct="false">commit_number</li>
+                        <li class="mcq-option" data-correct="false">build_1, build_2</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="SemVer (Major.Minor.Patch) clearly conveys breaking API changes, backward-compatible feature additions, and bugfixes.">SemVer (Major.Minor.Patch) clearly conveys breaking API changes, backward-compatible feature additions, and bugfixes.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What does 'git status' display if a submodule has uncommitted changes inside its directory?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It ignores the submodule completely.</li>
+                        <li class="mcq-option" data-correct="true">It reports that the submodule has modified content or a new commits pointer.</li>
+                        <li class="mcq-option" data-correct="false">It deletes the submodule.</li>
+                        <li class="mcq-option" data-correct="false">It triggers a merge conflict.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Git tracks submodules as a specific commit SHA; local modifications within a submodule are flagged in git status as modified content.">Git tracks submodules as a specific commit SHA; local modifications within a submodule are flagged in git status as modified content.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why is a Continuous Integration (CI) build server configured to compile firmware on every push to main?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To flash every developer's desk board over Wi-Fi.</li>
+                        <li class="mcq-option" data-correct="true">To ensure the codebase always compiles cleanly from scratch, unit tests pass, and binary size limits are enforced on a clean environment.</li>
+                        <li class="mcq-option" data-correct="false">To rewrite Git history.</li>
+                        <li class="mcq-option" data-correct="false">To delete unused branches automatically.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="CI verifies that changes compile cleanly in an isolated environment without relying on hidden local machine dependencies or untracked files.">CI verifies that changes compile cleanly in an isolated environment without relying on hidden local machine dependencies or untracked files.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master professional firmware version control workflows.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Git-Driven Version Injection in C</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure your Makefile or CMakeLists.txt to pass <code class="keyword-hl">-DGIT_COMMIT=\"$(shell git rev-parse --short HEAD)\"</code>. Create a C function that prints this string over serial. Make a commit, rebuild, and verify that the printed string automatically reflects the new commit hash.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Git Submodule Integration</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Add the official Unity test framework as a submodule in <code class="keyword-hl">tests/unity</code>. Link Unity into your host unit test build. Verify that <code class="keyword-hl">.gitmodules</code> is properly created and committed to your repository.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Embedded .gitignore Hardening</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build your complete firmware project. Run <code class="keyword-hl">git status</code>. Ensure that not a single object file (<code class="keyword-hl">.o</code>), dependency file (<code class="keyword-hl">.d</code>), map file (<code class="keyword-hl">.map</code>), or binary image appears in the untracked files list.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Semantic Tagging and Release Archival</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create an annotated Git tag for a stable milestone: <code class="keyword-hl">git tag -a v1.0.0 -m "Release v1.0.0 stable production firmware"</code>. Write a script that archives the exact source tree and compiled binary into a zip release asset using <code class="keyword-hl">git archive</code>.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Dirty Build Warning Trap</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Modify your build script to check if uncommitted Git changes exist (<code class="keyword-hl">git diff --quiet || echo "-DIRTY"</code>). If dirty changes exist when running <code class="keyword-hl">make release</code>, emit a bright warning to the developer: <code class="keyword-hl">"WARNING: Building release binary from uncommitted workspace!"</code>.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Git Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Scott Chacon &amp; Ben Straub</span>
+                            </div>
+                            <h4>Pro Git (2nd Edition)</h4>
+                            <p>The definitive guide to Git internals, branching models, submodule management, and automated continuous integration workflows.</p>
+                            <a href="https://git-scm.com/book/en/v2" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Tom Preston-Werner</span>
+                            </div>
+                            <h4>Semantic Versioning 2.0.0 (SemVer)</h4>
+                            <p>Standardized specification for software version numbers, breaking change notifications, and patch releases.</p>
+                            <a href="https://semver.org/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Embedded Practice</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Memfault</span>
+                            </div>
+                            <h4>Embedded Firmware Versioning &amp; Release Best Practices</h4>
+                            <p>Industry guide on software bill of materials (SBOM), firmware OTA version traceability, and Git commit embedding.</p>
+                            <a href="https://interrupt.memfault.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_09.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 9: Make &amp; CMake Basics</span>
+                </a>
+                <a href="project_02.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Project 2: Module 2 Milestone</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

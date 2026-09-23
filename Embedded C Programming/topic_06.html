@@ -1,1 +1,591 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preprocessor Compiler Assembler Linker Executable</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_06.html">Build Pipeline</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 6</span><h1>Preprocessor → Compiler → Assembler → Linker → Executable</h1><ol><li>Preprocessor expands includes, macros, and conditional compilation.</li><li>Compiler checks C and produces assembly or object representation.</li><li>Assembler creates relocatable object files.</li><li>Linker resolves symbols and places sections according to memory rules.</li><li>The executable or firmware image is loaded or programmed onto the target.</li></ol><p>Inspect intermediate artifacts to understand where a failure was introduced.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_05.html">Unit Testing</a><a class="nav-button next" href="topic_07.html">GCC</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 6: The Build Pipeline - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li class="active"><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 6</span>
+                <h1>The Build Pipeline</h1>
+
+                <p>
+                    When an engineer invokes <code>gcc main.c -o firmware.elf</code>, GCC acts as a compiler driver, coordinating four distinct low-level translation tools behind the scenes: the <strong>Preprocessor (cpp)</strong>, the <strong>Compiler Proper (cc1)</strong>, the <strong>Assembler (as)</strong>, and the <strong>Linker (ld)</strong>.
+                </p>
+
+                <p>
+                    In embedded firmware engineering, understanding the mechanics of each build stage is vital. When a build runs out of Flash memory, throws a symbol collision, or emits an unexpected machine instruction, the engineer must isolate exactly which stage of the pipeline failed and inspect intermediate output artifacts (<code class="keyword-hl">.i</code>, <code class="keyword-hl">.s</code>, <code class="keyword-hl">.o</code>, <code class="keyword-hl">.map</code>).
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 6.1 -->
+                <h2>6.1 The Four Stages of the C Compilation Pipeline</h2>
+                <p>
+                    Every C source file undergoes a sequential transformation pipeline before being flashed into microcontroller Flash memory:
+                </p>
+
+                <!-- Figure 6.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 260" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-pipe" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                            <marker id="arrow-elf" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Step 1: Preprocessor -->
+                        <rect x="20" y="30" width="135" height="110" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+                        <text x="87" y="52" fill="#93c5fd" font-size="11" font-weight="700" text-anchor="middle">1. PREPROCESSOR</text>
+                        <text x="87" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">Tool: cpp</text>
+                        <rect x="30" y="80" width="115" height="26" rx="4" fill="#0f172a"/>
+                        <text x="87" y="97" fill="#f8fafc" font-size="9" text-anchor="middle">source.c &rarr; file.i</text>
+                        <text x="87" y="125" fill="#60a5fa" font-size="9" font-family="monospace" text-anchor="middle">gcc -E</text>
+
+                        <!-- Arrow 1 -> 2 -->
+                        <line x1="155" y1="85" x2="185" y2="85" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-pipe)"/>
+
+                        <!-- Step 2: Compiler -->
+                        <rect x="185" y="30" width="135" height="110" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+                        <text x="252" y="52" fill="#c4b5fd" font-size="11" font-weight="700" text-anchor="middle">2. COMPILER</text>
+                        <text x="252" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">Tool: cc1</text>
+                        <rect x="195" y="80" width="115" height="26" rx="4" fill="#0f172a"/>
+                        <text x="252" y="97" fill="#f8fafc" font-size="9" text-anchor="middle">file.i &rarr; file.s</text>
+                        <text x="252" y="125" fill="#a78bfa" font-size="9" font-family="monospace" text-anchor="middle">gcc -S</text>
+
+                        <!-- Arrow 2 -> 3 -->
+                        <line x1="320" y1="85" x2="350" y2="85" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-pipe)"/>
+
+                        <!-- Step 3: Assembler -->
+                        <rect x="350" y="30" width="135" height="110" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="417" y="52" fill="#fde68a" font-size="11" font-weight="700" text-anchor="middle">3. ASSEMBLER</text>
+                        <text x="417" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">Tool: as</text>
+                        <rect x="360" y="80" width="115" height="26" rx="4" fill="#0f172a"/>
+                        <text x="417" y="97" fill="#f8fafc" font-size="9" text-anchor="middle">file.s &rarr; file.o</text>
+                        <text x="417" y="125" fill="#fbbf24" font-size="9" font-family="monospace" text-anchor="middle">gcc -c</text>
+
+                        <!-- Arrow 3 -> 4 -->
+                        <line x1="485" y1="85" x2="515" y2="85" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-pipe)"/>
+
+                        <!-- Step 4: Linker -->
+                        <rect x="515" y="30" width="145" height="110" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="1.5"/>
+                        <text x="587" y="52" fill="#fca5a5" font-size="11" font-weight="700" text-anchor="middle">4. LINKER</text>
+                        <text x="587" y="68" fill="#cbd5e1" font-size="10" text-anchor="middle">Tool: ld</text>
+                        <rect x="525" y="80" width="125" height="26" rx="4" fill="#0f172a"/>
+                        <text x="587" y="97" fill="#f8fafc" font-size="9" text-anchor="middle">file.o + libs &rarr; elf</text>
+                        <text x="587" y="125" fill="#f87171" font-size="9" font-family="monospace" text-anchor="middle">gcc -Wl,-T</text>
+
+                        <!-- Arrow 4 -> Final -->
+                        <line x1="660" y1="85" x2="690" y2="85" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-elf)"/>
+
+                        <!-- Final Target Output -->
+                        <rect x="690" y="30" width="110" height="110" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="745" y="55" fill="#6ee7b7" font-size="12" font-weight="700" text-anchor="middle">FIRMWARE</text>
+                        <text x="745" y="78" fill="#f8fafc" font-size="10" text-anchor="middle">firmware.elf</text>
+                        <text x="745" y="98" fill="#94a3b8" font-size="10" text-anchor="middle">firmware.bin</text>
+                        <text x="745" y="118" fill="#a7f3d0" font-size="9" font-weight="600" text-anchor="middle">Flash Ready</text>
+
+                        <!-- Bottom Support Bar (Linker Inputs & Transformations) -->
+                        <rect x="20" y="165" width="780" height="70" rx="8" fill="#0f172a" stroke="#334155"/>
+                        <text x="40" y="190" fill="#94a3b8" font-size="10" font-weight="700">LINKER INPUTS &amp; SCRIPT CONSTRAINTS:</text>
+                        <text x="40" y="212" fill="#cbd5e1" font-size="10">&bull; <tspan font-weight="600" fill="#f8fafc">memory.ld</tspan>: Defines physical Flash (0x08000000) and SRAM (0x20000000) memory origins &amp; lengths</text>
+                        <text x="40" y="226" fill="#cbd5e1" font-size="10">&bull; <tspan font-weight="600" fill="#f8fafc">crt0.s / startup.s</tspan>: Configures initial stack pointer, copies .data, zeroes .bss, branches to main()</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 6.1: The Four-Stage C Build Pipeline Architecture</div>
+                </div>
+
+                <div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    <strong>Pipeline Stages Detailed:</strong>
+                    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+                        <li><strong>1. Preprocessor (cpp):</strong> Resolves directives starting with <code class="keyword-hl">#</code> (<code class="keyword-hl">#include</code>, <code class="keyword-hl">#define</code>, <code class="keyword-hl">#ifdef</code>). Strips comments. Emits a clean translation unit.</li>
+                        <li><strong>2. Compiler Proper (cc1):</strong> Parses C grammar into an Abstract Syntax Tree (AST), performs dead-code elimination and register allocation, and outputs assembly instructions (<code class="keyword-hl">.s</code>).</li>
+                        <li><strong>3. Assembler (as):</strong> Translates human-readable mnemonic assembly into binary machine code, generating symbol tables and relocations in an object file (<code class="keyword-hl">.o</code>).</li>
+                        <li><strong>4. Linker (ld):</strong> Glues multiple <code class="keyword-hl">.o</code> files together, resolves cross-module function calls, and maps sections into physical Flash and RAM based on the <strong>Linker Script</strong>.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 6.2 -->
+                <h2>6.2 Stage 1: The Preprocessor in Detail</h2>
+                <p>
+                    The preprocessor operates purely as a text-substitution engine before syntactic analysis occurs. Directives include:
+                </p>
+                <ul>
+                    <li><code>#include &lt;header.h&gt;</code>: Literally replaces the line with the complete text of the included file.</li>
+                    <li><code>#define NAME VALUE</code>: Replaces every token matching NAME with VALUE throughout the translation unit.</li>
+                    <li><code>#ifdef / #ifndef / #endif</code>: Conditionally includes or excludes blocks of code based on preprocessor flags (e.g. <code>#ifdef DEBUG</code>).</li>
+                </ul>
+
+                <p>
+                    Inspect preprocessor output directly using the <code>-E</code> GCC flag:
+                    <br><code>arm-none-eabi-gcc -E -dD main.c -o main.i</code>
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 6.3 -->
+                <h2>6.3 Stage 2 &amp; 3: Compilation &amp; Assembly</h2>
+                <p>
+                    During compilation, GCC translates the preprocessed C code into assembly. You can inspect the emitted assembly code by stopping compilation with the <code>-S</code> flag:
+                    <br><code>arm-none-eabi-gcc -S -O2 -mcpu=cortex-m4 main.c -o main.s</code>
+                </p>
+                <p>
+                    The assembler then turns <code>main.s</code> into an object file containing machine code instructions:
+                    <br><code>arm-none-eabi-as -mcpu=cortex-m4 main.s -o main.o</code>
+                    <br>At this stage, memory addresses for external functions (like <code>printf</code> or <code>SystemInit</code>) are left as zero or placeholder offsets in a <em>relocation table</em>.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 6.4 -->
+                <h2>6.4 Stage 4: Linking and Linker Scripts</h2>
+                <p>
+                    The Linker resolves all external symbols and places code and variables into physical memory as dictated by a <strong>Linker Script</strong> (<code class="keyword-hl">.ld</code>). The linker script defines memory regions and places sections:
+                </p>
+
+                <pre><code class="language-c">/* Minimal Linker Script Architecture */
+MEMORY
+{
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 128K
+    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 32K
+}
+
+SECTIONS
+{
+    .text : {
+        *(.isr_vector)  /* Startup Vector Table at 0x08000000 */
+        *(.text*)       /* Program machine code */
+        *(.rodata*)     /* Constants and strings */
+    } &gt; FLASH
+
+    .data : {
+        _sdata = .;     /* Start of initialized data in RAM */
+        *(.data*)
+        _edata = .;     /* End of initialized data */
+    } &gt; RAM AT &gt; FLASH  /* Loaded in Flash, copied to RAM at boot */
+
+    .bss : {
+        _sbss = .;      /* Zero-initialized RAM variables */
+        *(.bss*)
+        _ebss = .;
+    } &gt; RAM
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.1: Anatomy of an Embedded ARM Cortex-M Linker Script</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 6.5 Code Implementations -->
+                <h2>6.5 Hands-On Code Implementations</h2>
+                <p>
+                    Here is a complete C program demonstrating how preprocessor symbols and memory section attributes (<code class="keyword-hl">__attribute__((section(...)))</code>) interact with the linker:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 6.2: Build Pipeline Section Placement &amp; Startup Initialization
+ * File: pipeline_demo.c
+ */
+
+#include &lt;stdint.h&gt;
+
+/* 1. Placed in .rodata (Flash memory) */
+const uint32_t FIRMWARE_VERSION = 0x00010203UL;
+
+/* 2. Placed in .data (Flash initial values copied to SRAM by Reset_Handler) */
+uint32_t g_heartbeat_counter = 100UL;
+
+/* 3. Placed in .bss (Zero-initialized in SRAM by Reset_Handler) */
+uint8_t g_rx_buffer[64];
+
+/* 4. Placed in custom section .fastcode (Copied from Flash to RAM for 0-wait-state speed) */
+__attribute__((section(".fastcode")))
+void critical_motor_commutate(void) {
+    /* High-speed motor commutation algorithm executing directly from SRAM */
+    g_heartbeat_counter++;
+}
+
+int main(void) {
+    critical_motor_commutate();
+    return (int)g_heartbeat_counter;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.2: Section Placement and Linker Mapping in Embedded C</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>6.6 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    A classic preprocessor hazard is creating multi-statement macros without the standard <code>do { ... } while(0)</code> idiom, leading to silent syntax truncation when used inside <code>if/else</code> statements.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        This multi-statement macro breaks if/else blocks because the semicolon after the macro call causes the compiler to treat the else as an orphan:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY MACRO: Fails in if/else blocks */
+#define SET_PINS_HIGH() \
+    PORTA |= 0x01; \
+    PORTB |= 0x02
+
+/* Usage: */
+if (condition)
+    SET_PINS_HIGH(); /* Semicolon terminates if statement! */
+else                 /* COMPILE ERROR: 'else' without a previous 'if' */
+    PORTA &amp;= ~0x01;</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.3-A: Broken Multi-Statement Macro</div>
+                </details>
+
+                <p>
+                    The correct pattern wraps multi-statement macros in <code>do { ... } while (0)</code>, or better, uses a static inline C function:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: do-while(0) wrapper or static inline */
+#define SET_PINS_HIGH() \
+    do { \
+        PORTA |= 0x01U; \
+        PORTB |= 0x02U; \
+    } while (0)
+
+/* Even better: C99 static inline function */
+static inline void set_pins_high(void) {
+    PORTA |= 0x01U;
+    PORTB |= 0x02U;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.3-B: Safe Macro and Static Inline Function Equivalents</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your understanding of preprocessor behavior, compilation stages, assembly, and linking.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. Which stage of the GCC build pipeline translates preprocessed C code (.i) into assembly language (.s)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The Preprocessor (cpp)</li>
+                        <li class="mcq-option" data-correct="true">The Compiler Proper (cc1)</li>
+                        <li class="mcq-option" data-correct="false">The Assembler (as)</li>
+                        <li class="mcq-option" data-correct="false">The Linker (ld)</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="cc1 is the actual compiler component in the GCC toolchain that converts C code into target assembly instructions.">cc1 is the actual compiler component in the GCC toolchain that converts C code into target assembly instructions.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. Which GCC flag stops compilation after the preprocessing stage, outputting the expanded source code?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-S</li>
+                        <li class="mcq-option" data-correct="false">-c</li>
+                        <li class="mcq-option" data-correct="true">-E</li>
+                        <li class="mcq-option" data-correct="false">-O2</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-E halts the toolchain after the preprocessor runs, displaying all expanded macros and included header contents.">-E halts the toolchain after the preprocessor runs, displaying all expanded macros and included header contents.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is the fundamental difference between an object file (.o) and an executable ELF binary (.elf)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">An object file contains ASCII text; an ELF file contains binary.</li>
+                        <li class="mcq-option" data-correct="true">An object file contains relocatable code with unresolved external addresses; an ELF binary has all addresses resolved and mapped to physical memory.</li>
+                        <li class="mcq-option" data-correct="false">Object files are generated by Make; ELF files are generated by CMake.</li>
+                        <li class="mcq-option" data-correct="false">ELF files only run on Intel x86.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Object files are relocatable chunks of machine code; the linker maps them to absolute physical addresses in Flash and RAM to produce the final executable.">Object files are relocatable chunks of machine code; the linker maps them to absolute physical addresses in Flash and RAM to produce the final executable.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. Where are initialized global variables (e.g. int counter = 42;) stored at runtime and at power-off?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">In Flash at runtime; in SRAM at power-off.</li>
+                        <li class="mcq-option" data-correct="true">Stored in Flash at power-off (load address), and copied to SRAM (.data section) by the startup code at boot (runtime address).</li>
+                        <li class="mcq-option" data-correct="false">Stored entirely on the CPU stack.</li>
+                        <li class="mcq-option" data-correct="false">In the .bss section.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Initialized data must persist across power-cycles in Flash, but must be mutable at runtime, so startup code copies initial values into SRAM.">Initialized data must persist across power-cycles in Flash, but must be mutable at runtime, so startup code copies initial values into SRAM.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What does the .bss memory section contain in an embedded C program?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Executable machine instructions.</li>
+                        <li class="mcq-option" data-correct="false">Constant strings and calibration tables.</li>
+                        <li class="mcq-option" data-correct="true">Uninitialized or zero-initialized global and static variables that are cleared to 0 by the startup Reset_Handler.</li>
+                        <li class="mcq-option" data-correct="false">Interrupt vector tables.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation=".bss holds zero-initialized global/static variables. Because they are 0, they consume zero Flash space; the startup code zeroes their RAM footprint.">.bss holds zero-initialized global/static variables. Because they are 0, they consume zero Flash space; the startup code zeroes their RAM footprint.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. Which command-line flag stops GCC after assembly, generating an object file (.o) without invoking the linker?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-S</li>
+                        <li class="mcq-option" data-correct="true">-c</li>
+                        <li class="mcq-option" data-correct="false">-E</li>
+                        <li class="mcq-option" data-correct="false">-o</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-c compiles and assembles the source file into an object file (.o) but skips linking.">-c compiles and assembles the source file into an object file (.o) but skips linking.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Why do C developers use the 'do { ... } while (0)' construct inside multi-statement macros?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To force the loop to repeat twice.</li>
+                        <li class="mcq-option" data-correct="true">To ensure the macro behaves as a single compound statement that integrates safely into if/else structures with trailing semicolons.</li>
+                        <li class="mcq-option" data-correct="false">To allocate variables on the heap.</li>
+                        <li class="mcq-option" data-correct="false">To enable compiler optimization flags.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="do { ... } while(0) syntactically encapsulates multiple lines into a single statement that safely takes a trailing semicolon in if/else clauses.">do { ... } while(0) syntactically encapsulates multiple lines into a single statement that safely takes a trailing semicolon in if/else clauses.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is a Linker Map file (-Wl,-Map=output.map)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A geographic map of the silicon manufacturing foundry.</li>
+                        <li class="mcq-option" data-correct="true">A comprehensive text document generated by the linker detailing the exact physical memory address, size, and source file of every symbol and section.</li>
+                        <li class="mcq-option" data-correct="false">A bitmap image of the microcontroller.</li>
+                        <li class="mcq-option" data-correct="false">A schematic of the PCB traces.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The map file is an indispensable diagnostic document showing precisely where every function, variable, and section is placed in memory.">The map file is an indispensable diagnostic document showing precisely where every function, variable, and section is placed in memory.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What GCC attribute instructs the compiler to place a specific function or variable into a custom linker section (e.g. .fastcode)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">__attribute__((aligned(4)))</li>
+                        <li class="mcq-option" data-correct="false">__attribute__((naked))</li>
+                        <li class="mcq-option" data-correct="true">__attribute__((section(".section_name")))</li>
+                        <li class="mcq-option" data-correct="false">__attribute__((pure))</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="__attribute__((section(...))) allows developers to override default section placement, routing time-critical code into SRAM or DMA buffers into specific RAM banks.">__attribute__((section(...))) allows developers to override default section placement, routing time-critical code into SRAM or DMA buffers into specific RAM banks.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why is the startup code's Reset_Handler responsible for copying the .data section from Flash to RAM before calling main()?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Flash memory cannot be read by the CPU.</li>
+                        <li class="mcq-option" data-correct="true">SRAM loses its contents on power-down, so initialized global variables must be re-populated from non-volatile Flash on every boot.</li>
+                        <li class="mcq-option" data-correct="false">The linker forbids running code in Flash.</li>
+                        <li class="mcq-option" data-correct="false">It compresses the binary image.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Volatile SRAM powers up with random garbage; the Reset_Handler must copy initial variable values from non-volatile Flash into SRAM before main() begins.">Volatile SRAM powers up with random garbage; the Reset_Handler must copy initial variable values from non-volatile Flash into SRAM before main() begins.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to inspect every transformation stage of the build pipeline.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Step-by-Step Manual Compilation</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take a C source file containing includes and macros. Compile it manually in 4 separate commands: (1) <code class="keyword-hl">gcc -E main.c -o main.i</code>, (2) <code class="keyword-hl">gcc -S main.i -o main.s</code>, (3) <code class="keyword-hl">as main.s -o main.o</code>, and (4) <code class="keyword-hl">gcc main.o -o main</code>. Inspect the contents of <code class="keyword-hl">main.i</code> and <code class="keyword-hl">main.s</code> with a text editor.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Dissecting the Linker Map File</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Compile an embedded project with flag <code class="keyword-hl">-Wl,-Map=firmware.map</code>. Open <code class="keyword-hl">firmware.map</code> and locate: (1) the address of your <code class="keyword-hl">main()</code> function, (2) the exact Flash addresses allocated to <code class="keyword-hl">.rodata</code> strings, and (3) the amount of unused padding bytes inserted between structures.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Custom RAM Section Execution (.fastcode)</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Modify a linker script to define a <code class="keyword-hl">.fastcode</code> section that loads from Flash into RAM. Tag a compute-heavy math function with <code class="keyword-hl">__attribute__((section(".fastcode")))</code>. Write the startup copy loop in C to populate this RAM region and verify via disassembly that calls jump to the RAM address.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Macro Stringification and Token Pasting</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write preprocessor macros utilizing stringification (<code class="keyword-hl">#</code>) and token pasting (<code class="keyword-hl">##</code>) operators to automatically generate pin configuration functions (e.g. <code class="keyword-hl">DEFINE_PIN(LED, A, 5)</code> expanding to <code class="keyword-hl">GPIOA_PIN_5</code>). Generate preprocessed output (<code class="keyword-hl">-E</code>) to verify correct token expansion.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Linker Garbage Collection Optimization</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Add unused functions to a C file. Compile first without special flags and note the binary size. Then recompile with <code class="keyword-hl">-ffunction-sections -fdata-sections</code> and link with <code class="keyword-hl">-Wl,--gc-sections</code>. Run <code class="keyword-hl">size</code> to quantify how many bytes of unused dead code the linker stripped.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">GNU Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Free Software Foundation</span>
+                            </div>
+                            <h4>Using the GNU Compiler Collection (GCC)</h4>
+                            <p>The authoritative reference for GCC command-line options, preprocessor directives, and machine-dependent optimization flags.</p>
+                            <a href="https://gcc.gnu.org/onlinedocs/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Linker Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">GNU Binutils</span>
+                            </div>
+                            <h4>The GNU Linker (ld) Command Language Specification</h4>
+                            <p>Comprehensive guide to writing memory descriptions, section placement rules, and symbol mapping scripts.</p>
+                            <a href="https://sourceware.org/binutils/docs/ld/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Technical Book</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">John R. Levine</span>
+                            </div>
+                            <h4>Linkers and Loaders</h4>
+                            <p>The definitive computer architecture textbook explaining symbol relocation, object file formats, and physical memory allocation.</p>
+                            <a href="https://www.iecc.com/linker/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="project_01.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Project 1: Module 1 Milestone</span>
+                </a>
+                <a href="topic_07.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 7: GCC &amp; Cross-Compilers</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

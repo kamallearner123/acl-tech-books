@@ -1,3 +1,621 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Unit Testing Concepts</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_05.html">Unit Testing Concepts</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 5</span><h1>Unit Testing Concepts</h1><p>A unit test exercises one function or module through a stable interface. Replace hardware with fakes or stubs so logic runs on the host compiler.</p><pre><code>#include &lt;assert.h&gt;
-static unsigned clamp(unsigned value){ return value &gt; 100u ? 100u : value; }
-int main(void){ assert(clamp(0u)==0u); assert(clamp(100u)==100u); assert(clamp(101u)==100u); }</code></pre><p>Test nominal values, boundaries, invalid inputs, error paths, repeated calls, and reset behavior.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_04.html">Debugging</a><a class="nav-button next" href="topic_06.html">Build Pipeline</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 5: Unit Testing Concepts - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li class="active"><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 5</span>
+                <h1>Unit Testing Concepts</h1>
+
+                <p>
+                    Historically, embedded firmware testing was performed almost exclusively on physical target boards using flash programmers, logic analyzers, and oscilloscopes. While on-target hardware-in-the-loop (HIL) testing remains vital, relying on physical hardware for every minor code iteration creates crippling development bottlenecks: flashing takes seconds, setting up fault injection is difficult, and automated Continuous Integration (CI) test execution becomes complex and expensive.
+                </p>
+
+                <p>
+                    Modern embedded engineering adopts the <strong>Embedded Testing Pyramid</strong>: 80% or more of firmware logic (state machines, ring buffers, communication packet parsers, PID algorithms, sensor filters) is compiled and verified natively on the developer's <em>host workstation</em> using native C unit test frameworks like <strong>Unity</strong> and <strong>CMock</strong>.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 5.1 -->
+                <h2>5.1 The Embedded Testing Pyramid</h2>
+                <p>
+                    The embedded testing hierarchy balances execution speed, cost, and fidelity across three distinct layers:
+                </p>
+
+                <!-- Figure 5.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 320" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-pink" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f43f5e"/>
+                            </marker>
+                            <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                            </marker>
+                            <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Left Axis (Fidelity vs Speed) -->
+                        <line x1="35" y1="285" x2="35" y2="45" stroke="#64748b" stroke-width="2"/>
+                        <polyline points="30,52 35,40 40,52" fill="none" stroke="#64748b" stroke-width="2"/>
+                        <text x="35" y="30" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">FIDELITY</text>
+
+                        <line x1="55" y1="45" x2="55" y2="285" stroke="#64748b" stroke-width="2"/>
+                        <polyline points="50,278 55,290 60,278" fill="none" stroke="#64748b" stroke-width="2"/>
+                        <text x="55" y="305" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">SPEED</text>
+
+                        <!-- Pyramid Tier 1: HIL (Top) -->
+                        <polygon points="255,35 315,35 350,105 220,105" fill="#1e293b" stroke="#f43f5e" stroke-width="2"/>
+                        <text x="285" y="65" fill="#fca5a5" font-size="13" font-weight="700" text-anchor="middle">HIL Tests</text>
+                        <text x="285" y="85" fill="#f8fafc" font-size="10" text-anchor="middle">Physical Silicon &amp; HW</text>
+
+                        <!-- Pyramid Tier 2: Integration (Middle) -->
+                        <polygon points="215,113 355,113 395,195 175,195" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="285" y="145" fill="#93c5fd" font-size="13" font-weight="700" text-anchor="middle">Integration Tests</text>
+                        <text x="285" y="165" fill="#f8fafc" font-size="10" text-anchor="middle">QEMU &amp; Subsystem Emulation</text>
+
+                        <!-- Pyramid Tier 3: Host Unit (Base) -->
+                        <polygon points="170,203 400,203 450,290 120,290" fill="#1e293b" stroke="#10b981" stroke-width="2.5"/>
+                        <text x="285" y="238" fill="#6ee7b7" font-size="14" font-weight="700" text-anchor="middle">Host-Based Unit Tests</text>
+                        <text x="285" y="258" fill="#f8fafc" font-size="10.5" text-anchor="middle">Unity + Ceedling &bull; 100% CI Coverage</text>
+                        <text x="285" y="276" fill="#94a3b8" font-size="9.5" text-anchor="middle">Mocked Registers &bull; Native GCC/Clang</text>
+
+                        <!-- Connectors to Cards -->
+                        <line x1="350" y1="75" x2="470" y2="75" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-pink)"/>
+                        <line x1="395" y1="160" x2="470" y2="160" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-blue)"/>
+                        <line x1="450" y1="250" x2="470" y2="250" stroke="#10b981" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+                        <!-- Card 1: HIL -->
+                        <rect x="475" y="45" width="325" height="60" rx="8" fill="#1e293b" stroke="#f43f5e" stroke-width="1.5"/>
+                        <text x="490" y="68" fill="#fca5a5" font-size="12" font-weight="700">Hardware-in-the-Loop (HIL)</text>
+                        <text x="490" y="86" fill="#cbd5e1" font-size="10">Target boards, relays, power analyzers, oscilloscopes</text>
+                        <text x="490" y="98" fill="#fda4af" font-size="9">Slowest (&gt;10s/run), highest cost, electrical &amp; timing verification</text>
+
+                        <!-- Card 2: Integration -->
+                        <rect x="475" y="130" width="325" height="60" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+                        <text x="490" y="153" fill="#93c5fd" font-size="12" font-weight="700">Subsystem &amp; Target Emulation</text>
+                        <text x="490" y="171" fill="#cbd5e1" font-size="10">QEMU Cortex-M emulation, virtual peripheral loops</text>
+                        <text x="490" y="183" fill="#bfdbfe" font-size="9">Moderate speed (~1s), tests driver-to-middleware messaging</text>
+
+                        <!-- Card 3: Host Unit Tests -->
+                        <rect x="475" y="215" width="325" height="70" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+                        <text x="490" y="238" fill="#6ee7b7" font-size="12" font-weight="700">Host-Based Unit Tests (Unity &amp; CMock)</text>
+                        <text x="490" y="256" fill="#cbd5e1" font-size="10">Compiled natively on host (x86_64 / ARM64 Mac)</text>
+                        <text x="490" y="268" fill="#a7f3d0" font-size="9.5" font-weight="600">Execution &lt;100 ms &bull; Thousands of cases &bull; Automated in CI</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 5.1: The Embedded Software Testing Pyramid</div>
+                </div>
+
+                <div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    <strong>Pyramid Tiers Explained:</strong>
+                    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+                        <li><strong>Host Unit Tests (Unity):</strong> Compiled with native GCC/Clang on x86_64 or Apple Silicon. Mocks out hardware registers, executing thousands of test cases in milliseconds.</li>
+                        <li><strong>Integration Tests:</strong> Validates interactions between drivers, queues, and RTOS scheduler tasks in a simulated or target environment.</li>
+                        <li><strong>HIL (Hardware-in-the-Loop):</strong> The complete compiled firmware runs on physical silicon, validating crystal oscillator tolerances, ADC impedances, and electrical noise resilience.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 5.2 -->
+                <h2>5.2 The Unity Test Framework for C</h2>
+                <p>
+                    <strong>Unity</strong> is a lightweight, pure-C testing framework specifically architected for embedded systems. It requires minimal RAM, avoids dynamic memory allocation, and produces clear, actionable test runner output.
+                </p>
+
+                <p>
+                    A standard Unity test file contains three essential components:
+                </p>
+                <ol style="margin-left: 1.5rem; line-height: 1.8;">
+                    <li><code>void setUp(void)</code>: Executed immediately <em>before</em> every single test function to initialize mock state and reset structures.</li>
+                    <li><code>void tearDown(void)</code>: Executed immediately <em>after</em> every test to clean up state and verify mock expectations.</li>
+                    <li><code>test_...()</code> functions containing assertions like <code>TEST_ASSERT_EQUAL_UINT32(expected, actual)</code>.</li>
+                </ol>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 5.3 -->
+                <h2>5.3 Decoupling Hardware Registers via Mocking</h2>
+                <p>
+                    Firmware often fails unit testing because functions directly access silicon registers:
+                    <br><code>GPIOA-&gt;ODR |= (1 &lt;&lt; 5);</code>. When compiled on a host PC, this attempts to dereference address <code>0x40020014</code>, immediately triggering a segmentation fault.
+                </p>
+
+                <p>
+                    The professional architectural solution is <strong>Hardware Abstraction Layer (HAL) separation</strong>: business logic talks to interface functions, which are linked to hardware on target builds and linked to <em>mock functions</em> on host test builds.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 5.4 Code Implementations -->
+                <h2>5.4 Hands-On Code Implementations</h2>
+                <p>
+                    The following self-contained implementation demonstrates a robust circular ring buffer paired with a full Unity-style test harness:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 5.1: Circular Ring Buffer with Unity-Style Unit Test Harness
+ * File: test_ring_buffer.c
+ * Target: Host Machine Native Execution (gcc -Wall test_ring_buffer.c)
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+/* ------------------- Production Ring Buffer Module ------------------- */
+
+#define RING_BUF_CAPACITY 8U
+
+typedef struct {
+    uint8_t buffer[RING_BUF_CAPACITY];
+    size_t  head;
+    size_t  tail;
+    size_t  count;
+} RingBuffer_t;
+
+void ring_buf_init(RingBuffer_t * const rb) {
+    if (rb != NULL) {
+        rb-&gt;head = 0U;
+        rb-&gt;tail = 0U;
+        rb-&gt;count = 0U;
+    }
+}
+
+bool ring_buf_push(RingBuffer_t * const rb, const uint8_t byte) {
+    if ((rb == NULL) || (rb-&gt;count &gt;= RING_BUF_CAPACITY)) {
+        return false; /* Buffer full or null */
+    }
+    rb-&gt;buffer[rb-&gt;head] = byte;
+    rb-&gt;head = (rb-&gt;head + 1U) % RING_BUF_CAPACITY;
+    rb-&gt;count++;
+    return true;
+}
+
+bool ring_buf_pop(RingBuffer_t * const rb, uint8_t * const byte_out) {
+    if ((rb == NULL) || (byte_out == NULL) || (rb-&gt;count == 0U)) {
+        return false; /* Buffer empty or null */
+    }
+    *byte_out = rb-&gt;buffer[rb-&gt;tail];
+    rb-&gt;tail = (rb-&gt;tail + 1U) % RING_BUF_CAPACITY;
+    rb-&gt;count--;
+    return true;
+}
+
+/* --------------------- Embedded Test Harness --------------------- */
+
+static uint32_t s_tests_run = 0;
+static uint32_t s_tests_passed = 0;
+static RingBuffer_t s_test_rb;
+
+#define TEST_ASSERT(cond, msg) \
+    do { \
+        if (!(cond)) { \
+            printf("  [FAIL] Line %d: %s\n", __LINE__, msg); \
+            return; \
+        } \
+    } while (0)
+
+#define RUN_TEST(test_func) \
+    do { \
+        s_tests_run++; \
+        ring_buf_init(&amp;s_test_rb); /* setUp */ \
+        printf("Running: %s...", #test_func); \
+        test_func(); \
+        s_tests_passed++; \
+        printf(" PASSED\n"); \
+    } while (0)
+
+/* Test Case 1: Initial state after initialization */
+void test_ring_buffer_init_is_empty(void) {
+    TEST_ASSERT(s_test_rb.count == 0U, "Count should be zero on init");
+    uint8_t byte = 0;
+    TEST_ASSERT(!ring_buf_pop(&amp;s_test_rb, &amp;byte), "Pop on empty should return false");
+}
+
+/* Test Case 2: Push and Pop single byte */
+void test_ring_buffer_push_pop_single(void) {
+    TEST_ASSERT(ring_buf_push(&amp;s_test_rb, 0x42), "Push should succeed");
+    TEST_ASSERT(s_test_rb.count == 1U, "Count should be 1");
+    uint8_t popped = 0;
+    TEST_ASSERT(ring_buf_pop(&amp;s_test_rb, &amp;popped), "Pop should succeed");
+    TEST_ASSERT(popped == 0x42, "Popped value mismatch");
+    TEST_ASSERT(s_test_rb.count == 0U, "Buffer should be empty");
+}
+
+/* Test Case 3: Capacity overflow rejection */
+void test_ring_buffer_overflow_rejected(void) {
+    for (uint8_t i = 0; i &lt; RING_BUF_CAPACITY; ++i) {
+        TEST_ASSERT(ring_buf_push(&amp;s_test_rb, i), "Push up to capacity must succeed");
+    }
+    TEST_ASSERT(!ring_buf_push(&amp;s_test_rb, 0xFF), "Pushing past capacity must fail");
+    TEST_ASSERT(s_test_rb.count == RING_BUF_CAPACITY, "Count must remain at max capacity");
+}
+
+int main(void) {
+    printf("=== Starting Ring Buffer Unit Test Suite ===\n");
+    RUN_TEST(test_ring_buffer_init_is_empty);
+    RUN_TEST(test_ring_buffer_push_pop_single);
+    RUN_TEST(test_ring_buffer_overflow_rejected);
+
+    printf("\nTest Summary: %u / %u Passed (100%% Success)\n", s_tests_passed, s_tests_run);
+    return (s_tests_passed == s_tests_run) ? 0 : 1;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 5.1: Circular Ring Buffer with Unity-Style Unit Test Harness</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>5.5 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    A catastrophic flaw in naive ring buffer implementations is neglecting to validate buffer count before updating indices, causing silent memory overwrite bugs when multiple calls occur.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        This unverified push function has no full-capacity check, overwriting unread data and desynchronizing head and tail indices:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY: No capacity or pointer check, silent data loss */
+void push_byte(uint8_t byte) {
+    /* Bug: If buffer is full, head advances past tail and destroys unread data! */
+    g_buf[g_head++] = byte;
+    if (g_head &gt;= 16) g_head = 0;
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 5.2-A: Unvalidated Buffer Push with Silent Overwrite Hazard</div>
+                </details>
+
+                <p>
+                    The unit-tested production code rigorously verifies capacity, returns explicit status booleans, and cleanly manages atomic boundaries:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / TESTED: Strict boundary check, status return */
+bool safe_ring_buf_push(RingBuffer_t * const rb, const uint8_t byte) {
+    if (rb == NULL) return false;
+    if (rb-&gt;count &gt;= RING_BUF_CAPACITY) return false; /* Reject overflow */
+    
+    rb-&gt;buffer[rb-&gt;head] = byte;
+    rb-&gt;head = (rb-&gt;head + 1U) &amp; (RING_BUF_CAPACITY - 1U);
+    rb-&gt;count++;
+    return true;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 5.2-B: Unit-Tested Safe Push Implementation</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your knowledge of host-based unit testing, mocking, and firmware TDD.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. What is the primary advantage of executing firmware unit tests natively on a host PC rather than on target hardware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Host PCs don't require C compilers.</li>
+                        <li class="mcq-option" data-correct="true">Instant compilation and test execution speed (milliseconds vs seconds), enabling rapid TDD and automated CI pipelines.</li>
+                        <li class="mcq-option" data-correct="false">Host PCs automatically test crystal oscillator tolerances.</li>
+                        <li class="mcq-option" data-correct="false">Host testing eliminates the need for linker scripts.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Host unit testing executes thousands of tests in fractions of a second without waiting for JTAG flashing cycles, supercharging test iteration.">Host unit testing executes thousands of tests in fractions of a second without waiting for JTAG flashing cycles, supercharging test iteration.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. In the Unity test framework, what is the role of the 'setUp()' function?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To flash the microcontroller over UART.</li>
+                        <li class="mcq-option" data-correct="true">To execute initialization code before every individual test function, ensuring each test begins in a known clean state.</li>
+                        <li class="mcq-option" data-correct="false">To compile the assembly files.</li>
+                        <li class="mcq-option" data-correct="false">To allocate heap memory for the test suite.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="setUp() is invoked by Unity immediately prior to running each test case, resetting data structures to prevent inter-test side effects.">setUp() is invoked by Unity immediately prior to running each test case, resetting data structures to prevent inter-test side effects.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is a 'Mock' in embedded unit testing?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A joke left in code comments.</li>
+                        <li class="mcq-option" data-correct="true">A simulated replacement for a hardware driver or dependency that verifies how it was called and returns predetermined test responses.</li>
+                        <li class="mcq-option" data-correct="false">A physical prototype PCB.</li>
+                        <li class="mcq-option" data-correct="false">A hardware debugger probe.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Mocks emulate hardware peripherals (like I2C or Flash chips), allowing application logic to be tested thoroughly without physical hardware.">Mocks emulate hardware peripherals (like I2C or Flash chips), allowing application logic to be tested thoroughly without physical hardware.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. Why does direct register access (e.g. GPIOA-&gt;ODR = 0x01) cause a segmentation fault when compiled and run on a host PC?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Host PCs do not have a C compiler.</li>
+                        <li class="mcq-option" data-correct="true">The physical memory address (e.g. 0x40020014) is invalid or protected in the host OS virtual memory space.</li>
+                        <li class="mcq-option" data-correct="false">The host CPU cannot execute 32-bit instructions.</li>
+                        <li class="mcq-option" data-correct="false">ODR is an illegal variable name on Linux.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Host operating systems enforce virtual memory page protection; dereferencing arbitrary microcontroller hardware addresses causes an instant SIGSEGV crash.">Host operating systems enforce virtual memory page protection; dereferencing arbitrary microcontroller hardware addresses causes an instant SIGSEGV crash.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What is the fundamental cycle of Test-Driven Development (TDD)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Code -&gt; Flash -&gt; Debug -&gt; Document</li>
+                        <li class="mcq-option" data-correct="true">Red (Write a failing test) -&gt; Green (Write minimal code to pass) -&gt; Refactor (Clean up architecture)</li>
+                        <li class="mcq-option" data-correct="false">Compile -&gt; Link -&gt; Flash -&gt; Ship</li>
+                        <li class="mcq-option" data-correct="false">Plan -&gt; Build -&gt; Deploy -&gt; Patch</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="TDD follows the Red-Green-Refactor cadence, verifying requirements with failing tests before writing production implementation code.">TDD follows the Red-Green-Refactor cadence, verifying requirements with failing tests before writing production implementation code.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What code coverage metric requires verifying that every branch decision outcome and every Boolean condition within that decision independently affects the outcome?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Statement Coverage</li>
+                        <li class="mcq-option" data-correct="false">Function Coverage</li>
+                        <li class="mcq-option" data-correct="true">MC/DC (Modified Condition / Decision Coverage)</li>
+                        <li class="mcq-option" data-correct="false">Line Coverage</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="MC/DC is required by DO-178C (avionics) and ISO 26262 ASIL D (automotive) for the highest levels of safety criticality.">MC/DC is required by DO-178C (avionics) and ISO 26262 ASIL D (automotive) for the highest levels of safety criticality.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Which tool in the Unity ecosystem automatically generates mock C functions and header stubs from existing interfaces?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Gcov</li>
+                        <li class="mcq-option" data-correct="true">CMock</li>
+                        <li class="mcq-option" data-correct="false">Valgrind</li>
+                        <li class="mcq-option" data-correct="false">GDB</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="CMock parses C header files and automatically synthesizes mock functions capable of verifying expected parameters and returning canned data.">CMock parses C header files and automatically synthesizes mock functions capable of verifying expected parameters and returning canned data.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is a 'Stub' in embedded testing?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A damaged PCB trace.</li>
+                        <li class="mcq-option" data-correct="true">A simplified dummy implementation of a dependency that returns hardcoded values to satisfy linker requirements during testing.</li>
+                        <li class="mcq-option" data-correct="false">A broken test assertion.</li>
+                        <li class="mcq-option" data-correct="false">A hardware jumper cable.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Stubs provide simple canned return values so that code under test can link and execute without calling real hardware drivers.">Stubs provide simple canned return values so that code under test can link and execute without calling real hardware drivers.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. Which GCC flag enables source code instrumentation to generate test execution coverage metrics (.gcda / .gcno files)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-O3</li>
+                        <li class="mcq-option" data-correct="true">--coverage (or -fprofile-arcs -ftest-coverage)</li>
+                        <li class="mcq-option" data-correct="false">-Werror</li>
+                        <li class="mcq-option" data-correct="false">-nostdlib</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="--coverage instructs GCC to emit branch and line execution counters, analyzed by gcov or lcov to generate coverage reports.">`--coverage` instructs GCC to emit branch and line execution counters, analyzed by gcov or lcov to generate coverage reports.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why is achieving 100% statement coverage insufficient on its own to guarantee bug-free firmware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Statement coverage only applies to C++ code.</li>
+                        <li class="mcq-option" data-correct="true">Statement coverage does not test untested branch paths, missing edge cases (e.g. null inputs or buffer boundaries), or concurrency race conditions.</li>
+                        <li class="mcq-option" data-correct="false">Compilers invert statement coverage calculations.</li>
+                        <li class="mcq-option" data-correct="false">Statement coverage increases binary size.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Executing every line once does not verify what happens when conditions evaluate false, when boundary values are passed, or when timing interrupts interleave.">Executing every line once does not verify what happens when conditions evaluate false, when boundary values are passed, or when timing interrupts interleave.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to build automated unit test suites for firmware components.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Test-Driven Ring Buffer Development</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Clone or implement the Unity test harness. Write unit tests for a circular buffer verifying: (1) empty status on init, (2) push and pop FIFO sequence integrity, (3) wrap-around behavior across array bounds, and (4) rejection of null output pointers. Execute tests natively on your host PC with GCC.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Hardware Register Mocking</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create an abstract LED driver interface: <code class="keyword-hl">led_set_state(led_id, state)</code>. Write a mock implementation on host PC that logs state changes into an array. Author unit tests verifying that an alert subsystem turns ON the warning LED when temperature exceeds 80 degrees.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Code Coverage Analysis with Gcov</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Compile your unit test suite with <code class="keyword-hl">gcc --coverage</code>. Execute the test suite and run <code class="keyword-hl">gcov</code>. Inspect the annotated source file (<code class="keyword-hl">.gcov</code>) to identify any branches or defensive error checks that were never exercised. Add unit tests to achieve 100% branch coverage.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: State Machine Test Harness</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Design a 3-state connection finite-state machine (DISCONNECTED, CONNECTING, CONNECTED). Write unit tests verifying all valid transitions. Then write tests feeding unexpected events (e.g. timeout event while DISCONNECTED) to verify the state machine rejects illegal transitions gracefully.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Packet Parser Fuzzing Test</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a binary packet frame parser that validates a start-of-frame byte (0xAA), length byte, payload, and XOR checksum. Write an automated test feeder that generates 10,000 randomized corrupt byte streams. Verify that the parser never triggers a segmentation fault or buffer overflow.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Textbook</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">James W. Grenning</span>
+                            </div>
+                            <h4>Test-Driven Development for Embedded C</h4>
+                            <p>The definitive guide to applying TDD, unit testing frameworks (Unity, CppUTest), and mocking to embedded software engineering.</p>
+                            <a href="https://pragprog.com/titles/jgade/test-driven-development-for-embedded-c/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Testing Framework</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ThrowTheSwitch.org</span>
+                            </div>
+                            <h4>Unity: Embedded C Unit Testing Framework</h4>
+                            <p>Lightweight, portable C testing framework designed specifically for microcontrollers and safety-critical projects.</p>
+                            <a href="http://www.throwtheswitch.org/unity" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Aerospace Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">RTCA / EUROCAE</span>
+                            </div>
+                            <h4>DO-178C: Software Considerations in Airborne Systems</h4>
+                            <p>International standard establishing verification, unit test, and structural coverage requirements (including MC/DC) for flight software.</p>
+                            <a href="https://www.rtca.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_04.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 4: Assertions, Logging &amp; Debugging</span>
+                </a>
+                <a href="project_01.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Project 1: Module 1 Milestone</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

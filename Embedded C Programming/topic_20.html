@@ -1,1 +1,663 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>State Tables and Finite State Machines</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_20.html">State Tables &amp; FSMs</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 20</span><h1>State Tables and Finite-State Machines</h1><table style="width:100%;border-collapse:collapse"><tr><th>State</th><th>TIMER</th><th>FAULT</th><th>RESET</th></tr><tr><td>RED</td><td>GREEN</td><td>SAFE</td><td>RED</td></tr><tr><td>GREEN</td><td>YELLOW</td><td>SAFE</td><td>RED</td></tr><tr><td>YELLOW</td><td>RED</td><td>SAFE</td><td>RED</td></tr><tr><td>SAFE</td><td>SAFE</td><td>SAFE</td><td>RED</td></tr></table><p>Every cell is a test case. A default or invalid state should enter a defined safe state rather than silently continuing.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_19.html">States &amp; Events</a><a class="nav-button next" href="topic_21.html">Modular C</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 20: State Tables &amp; FSMs - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li class="active"><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 20</span>
+                <h1>State Tables &amp; Finite-State Machines</h1>
+
+                <p>
+                    While the nested <code>switch-case</code> pattern examined in Topic 19 is ideal for simple state machines with 3 to 6 states, it degrades rapidly as system requirements scale. A complex medical ventilator or automotive battery management system (BMS) with 15 states and 20 distinct events produces a massive, monolithic function spanning thousands of lines. The <strong>cyclomatic complexity</strong> skyrockets, violating software engineering standards and creating severe maintenance hazards.
+                </p>
+
+                <p>
+                    The architectural solution is the <strong>Table-Driven Finite-State Machine</strong>. By decoupling state machine topology (the state transition matrix) from state action execution logic, transitions become static data structures stored directly in Flash ROM. State lookups execute in guaranteed <strong>$O(1)$ constant time</strong>, and adding a new state or event requires zero modifications to the core dispatch engine.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 20.1 -->
+                <h2>20.1 The 2D State Table Architecture</h2>
+                <p>
+                    In a two-dimensional state table, the current state indexes the rows, and the event signal indexes the columns. Each intersection cell contains a <strong>Transition Descriptor</strong> consisting of:
+                </p>
+                <ol>
+                    <li><strong>Target Next State:</strong> The state to transition into upon event receipt.</li>
+                    <li><strong>Action Handler Pointer:</strong> A function pointer to the specific action routine to execute during the transition.</li>
+                </ol>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 240" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <rect x="50" y="30" width="160" height="60" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="130" y="55" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Current State</text>
+                        <text x="130" y="75" fill="#93c5fd" font-size="11" font-family="monospace" text-anchor="middle">Row Index [s]</text>
+
+                        <rect x="50" y="120" width="160" height="60" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="130" y="145" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Event Signal</text>
+                        <text x="130" y="165" fill="#a7f3d0" font-size="11" font-family="monospace" text-anchor="middle">Col Index [e]</text>
+
+                        <line x1="210" y1="60" x2="280" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+                        <line x1="210" y1="150" x2="280" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <rect x="280" y="65" width="220" height="80" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="390" y="95" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">2D Table Lookup</text>
+                        <text x="390" y="115" fill="#fde68a" font-size="11" font-family="monospace" text-anchor="middle">cell = Table[s][e];</text>
+                        <text x="390" y="133" fill="#94a3b8" font-size="10" text-anchor="middle">Constant Time O(1)</text>
+
+                        <line x1="500" y1="105" x2="560" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <rect x="560" y="40" width="200" height="55" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                        <text x="660" y="65" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">Execute Action()</text>
+                        <text x="660" y="82" fill="#c4b5fd" font-size="10" font-family="monospace" text-anchor="middle">cell.action(p_ctx, p_evt)</text>
+
+                        <rect x="560" y="115" width="200" height="55" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="2"/>
+                        <text x="660" y="140" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">Update State</text>
+                        <text x="660" y="157" fill="#fbcfe8" font-size="10" font-family="monospace" text-anchor="middle">fsm-&gt;state = cell.next_state</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 20.1: Constant-Time 2D Table-Driven FSM Dispatch Engine</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 20.2 -->
+                <h2>20.2 Complete C Implementation of a Table-Driven Engine</h2>
+                <p>
+                    Below is a production-grade, MISRA-compliant implementation of a 2D table-driven FSM with typed event parameters and flash placement.
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Forward declaration */
+typedef struct Fsm_t Fsm_t;
+
+/* State &amp; Event Enumerations */
+typedef enum {
+    STATE_STANDBY = 0,
+    STATE_CHARGING,
+    STATE_DISCHARGING,
+    STATE_ERROR,
+    STATE_MAX /* Boundary guard */
+} BatteryState_t;
+
+typedef enum {
+    EVENT_PLUG_AC = 0,
+    EVENT_UNPLUG_AC,
+    EVENT_LOAD_CONNECTED,
+    EVENT_OVERTEMP_FAULT,
+    EVENT_MAX /* Boundary guard */
+} BatteryEvent_t;
+
+typedef struct {
+    BatteryEvent_t signal;
+    uint32_t       payload;
+} Event_t;
+
+/* Action handler function pointer type */
+typedef void (*StateAction_t)(Fsm_t * const p_fsm, const Event_t * const p_evt);
+
+/* Transition descriptor stored in Flash ROM */
+typedef struct {
+    BatteryState_t next_state;
+    StateAction_t  action_fn;
+} Transition_t;
+
+/* FSM Context Instance */
+struct Fsm_t {
+    BatteryState_t state;
+    uint32_t       cell_voltage_mv;
+    int16_t        temperature_degc;
+};
+
+/* Forward Action Prototypes */
+static void act_start_charge(Fsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_stop_charge(Fsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_start_discharge(Fsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_trip_error(Fsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_ignore(Fsm_t * const p_fsm, const Event_t * const p_evt);
+
+/* 2D State Transition Matrix: Stored in .rodata (Flash) to conserve SRAM */
+static const Transition_t g_state_table[STATE_MAX][EVENT_MAX] = {
+    /* Current State: STATE_STANDBY */
+    [STATE_STANDBY] = {
+        [EVENT_PLUG_AC]        = { STATE_CHARGING,    act_start_charge },
+        [EVENT_UNPLUG_AC]      = { STATE_STANDBY,     act_ignore },
+        [EVENT_LOAD_CONNECTED] = { STATE_DISCHARGING, act_start_discharge },
+        [EVENT_OVERTEMP_FAULT] = { STATE_ERROR,       act_trip_error }
+    },
+    /* Current State: STATE_CHARGING */
+    [STATE_CHARGING] = {
+        [EVENT_PLUG_AC]        = { STATE_CHARGING,    act_ignore },
+        [EVENT_UNPLUG_AC]      = { STATE_STANDBY,     act_stop_charge },
+        [EVENT_LOAD_CONNECTED] = { STATE_CHARGING,    act_ignore },
+        [EVENT_OVERTEMP_FAULT] = { STATE_ERROR,       act_trip_error }
+    },
+    /* Current State: STATE_DISCHARGING */
+    [STATE_DISCHARGING] = {
+        [EVENT_PLUG_AC]        = { STATE_CHARGING,    act_start_charge },
+        [EVENT_UNPLUG_AC]      = { STATE_DISCHARGING, act_ignore },
+        [EVENT_LOAD_CONNECTED] = { STATE_DISCHARGING, act_ignore },
+        [EVENT_OVERTEMP_FAULT] = { STATE_ERROR,       act_trip_error }
+    },
+    /* Current State: STATE_ERROR */
+    [STATE_ERROR] = {
+        [EVENT_PLUG_AC]        = { STATE_ERROR, act_ignore },
+        [EVENT_UNPLUG_AC]      = { STATE_ERROR, act_ignore },
+        [EVENT_LOAD_CONNECTED] = { STATE_ERROR, act_ignore },
+        [EVENT_OVERTEMP_FAULT] = { STATE_ERROR, act_ignore }
+    }
+};
+
+/* Generic O(1) Dispatch Engine */
+void fsm_dispatch(Fsm_t * const p_fsm, const Event_t * const p_evt) {
+    if ((p_fsm == NULL) || (p_evt == NULL)) {
+        return;
+    }
+
+    /* Bounds check indices defensively against buffer overrun */
+    if ((p_fsm-&gt;state &gt;= STATE_MAX) || (p_evt-&gt;signal &gt;= EVENT_MAX)) {
+        act_trip_error(p_fsm, p_evt);
+        p_fsm-&gt;state = STATE_ERROR;
+        return;
+    }
+
+    const Transition_t * const p_trans = &amp;g_state_table[p_fsm-&gt;state][p_evt-&gt;signal];
+
+    /* Execute the registered transition action */
+    if (p_trans-&gt;action_fn != NULL) {
+        p_trans-&gt;action_fn(p_fsm, p_evt);
+    }
+
+    /* Advance to target state */
+    p_fsm-&gt;state = p_trans-&gt;next_state;
+}</code></pre>
+                <div class="code-caption">Program 20.1: Production 2D Table-Driven State Machine Engine</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 20.3 -->
+                <h2>20.3 Memory Footprint Analysis: RAM vs. ROM</h2>
+                <p>
+                    A critical advantage of the table-driven pattern in microcontrollers is memory placement. Because the state table is marked <code>const</code>, it resides permanently in <strong>Flash ROM</strong> (<code>.rodata</code>), consuming zero SRAM:
+                </p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.25rem 1.5rem; border-radius: 8px; margin: 1.5rem 0; border: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.95rem;">
+                    sizeof(Transition_t) = 4 bytes (enum) + 4 bytes (function pointer) = <strong>8 bytes</strong><br>
+                    Table Footprint = 4 States &times; 4 Events &times; 8 bytes = <strong>128 bytes of Flash ROM</strong><br>
+                    Runtime RAM Consumption per FSM Instance = <strong>12 bytes of SRAM</strong>
+                </div>
+
+                <p>
+                    Even for a massive machine with 16 states and 16 events ($256$ cells), the table occupies only $256 \times 8 = 2048\text{ bytes}$ (2 KB) of Flash, leaving the entire volatile SRAM free for buffers and application data.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 20.4 -->
+                <h2>20.4 Hierarchical State Machines (HSMs) &amp; Behavioral Inheritance</h2>
+                <p>
+                    In classical flat FSMs, global events (such as <code>EVENT_ESTOP</code>, <code>EVENT_LOW_BATTERY</code>, or <code>EVENT_RESET</code>) must be explicitly listed in every single state, resulting in massive code duplication.
+                </p>
+
+                <p>
+                    <strong>Hierarchical State Machines (HSMs)</strong> (formalized by David Harel in 1987) introduce <em>Behavioral Inheritance</em>: a substate inherits the event handlers of its superstate. If the substate does not consume an incoming event, the event automatically propagates upwards to the parent container state.
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 240" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <!-- Superstate Box -->
+                        <rect x="40" y="20" width="500" height="200" rx="12" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="60" y="45" fill="#93c5fd" font-size="13" font-weight="700">SUPERSTATE: OPERATIONAL</text>
+
+                        <!-- Substate 1 -->
+                        <rect x="70" y="70" width="180" height="70" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="160" y="100" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">SUBSTATE: HEATING</text>
+                        <text x="160" y="120" fill="#94a3b8" font-size="10" text-anchor="middle">PWM = 100%</text>
+
+                        <line x1="250" y1="105" x2="310" y2="105" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Substate 2 -->
+                        <rect x="310" y="70" width="180" height="70" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="400" y="100" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">SUBSTATE: COOLING</text>
+                        <text x="400" y="120" fill="#94a3b8" font-size="10" text-anchor="middle">PWM = 0%, Fan ON</text>
+
+                        <!-- Global Outward Transition from Superstate -->
+                        <path d="M 540 120 L 610 120" fill="none" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)"/>
+                        <text x="575" y="105" fill="#fca5a5" font-size="11" font-weight="700" text-anchor="middle">EVENT_ESTOP</text>
+
+                        <!-- Target Error State -->
+                        <rect x="610" y="75" width="150" height="90" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="685" y="115" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">STATE: FAULT</text>
+                        <text x="685" y="135" fill="#fca5a5" font-size="10" text-anchor="middle">Actuators Quenched</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 20.2: Hierarchical State Machine (HSM) with Inherited Superstate Transition</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>20.5 Code Comparison: Giant Switch-Case vs. 2D Table Engine</h2>
+                <p>
+                    Compare a sprawling procedural switch-case with a modular table-driven architecture.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Architecture: Complex Industrial Machine FSM</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Giant Nested Switch-Case</h4>
+                            <pre><code class="language-c">void fsm_dispatch(Event_t evt) {
+    switch (g_state) {
+        case S1:
+            if (evt == E1) { ... }
+            else if (evt == E2) { ... }
+            else if (evt == E3) { ... }
+            break;
+        case S2:
+            if (evt == E1) { ... }
+            /* Repeated 20 times */
+            /* 1,500 lines of code */
+            /* Cyclomatic Complexity &gt; 50 */
+    }
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Drawbacks:</strong> High cyclomatic complexity, variable lookup latency $O(N)$, hard to test individual cell paths, easy to introduce unintended fall-through bugs.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ 2D Table Engine</h4>
+                            <pre><code class="language-c">static const Transition_t table[S_MAX][E_MAX] = {
+    [S1] = { [E1] = { S2, act1 }, [E2] = { S3, act2 } },
+    [S2] = { [E1] = { S1, act3 } }
+};
+
+void fsm_dispatch(Fsm_t *fsm, Event_t evt) {
+    const Transition_t *t = &amp;table[fsm-&gt;state][evt];
+    t-&gt;action(fsm);
+    fsm-&gt;state = t-&gt;next_state;
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Benefits:</strong> Constant $O(1)$ dispatch time, 5 lines of engine logic, stored entirely in Flash ROM, table serves as self-documenting test matrix.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>20.6 Interactive Knowledge Check</h2>
+                <p>Test your mastery of table-driven state machine architecture and hierarchical automata.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. What is the time complexity of event dispatch in a two-dimensional table-driven state machine?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">O(N) proportional to the number of states.</li>
+                        <li class="mcq-option" data-correct="true">O(1) constant time, because lookup is a direct two-dimensional array index operation.</li>
+                        <li class="mcq-option" data-correct="false">O(log N) using binary search trees.</li>
+                        <li class="mcq-option" data-correct="false">O(N^2) quadratic time.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Array indexing <code>table[state][event]</code> calculates the address in 1 to 2 CPU cycles, providing deterministic real-time dispatch latency regardless of machine size.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. Why should the 2D state transition table be qualified with the <code>const</code> keyword in embedded C?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To allow the processor to modify the table at runtime.</li>
+                        <li class="mcq-option" data-correct="true">To ensure the linker places the table into non-volatile Flash ROM (.rodata) rather than precious volatile SRAM (.data).</li>
+                        <li class="mcq-option" data-correct="false">To prevent the preprocessor from deleting the file.</li>
+                        <li class="mcq-option" data-correct="false">Because function pointers cannot exist in RAM.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Marking large lookup tables as <code>const</code> places them in Flash memory, preserving scarce microcontroller SRAM for dynamic variables and buffers.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What is the primary software maintenance benefit of separating the state transition table from the action functions?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It eliminates the need for header files.</li>
+                        <li class="mcq-option" data-correct="true">It separates machine topology from business logic: changing a transition requires editing only table data without touching procedural control flow code.</li>
+                        <li class="mcq-option" data-correct="false">It doubles the serial baud rate.</li>
+                        <li class="mcq-option" data-correct="false">It bypasses the C linker.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Table-driven design encapsulates the graph structure in a declarative data matrix, keeping individual action handlers tiny, focused, and independently unit-testable.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. In an FSM with 10 states and 8 events, how many cells does the 2D transition table contain?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">18</li>
+                        <li class="mcq-option" data-correct="true">80</li>
+                        <li class="mcq-option" data-correct="false">100</li>
+                        <li class="mcq-option" data-correct="false">64</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> The table dimension is <code>[STATES][EVENTS] = 10 &times; 8 = 80</code> cells.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. What is the core innovation introduced by Hierarchical State Machines (HSMs)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Replacing C with assembly language.</li>
+                        <li class="mcq-option" data-correct="true">Behavioral inheritance: substates inherit event handlers from parent superstates, eliminating duplicate transitions for common events like E-Stop.</li>
+                        <li class="mcq-option" data-correct="false">Running state machines on multi-core processors only.</li>
+                        <li class="mcq-option" data-correct="false">Eliminating the need for event queues.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> HSMs allow parent superstates to handle shared events (e.g. <code>EVENT_ESTOP</code> or <code>EVENT_LOW_BATTERY</code>) once, rather than repeating the transition across every child substate.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What defensive check must be executed before indexing into <code>g_state_table[fsm-&gt;state][evt-&gt;signal]</code>?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Verify the clock crystal frequency.</li>
+                        <li class="mcq-option" data-correct="true">Verify that <code>fsm-&gt;state &lt; STATE_MAX</code> and <code>evt-&gt;signal &lt; EVENT_MAX</code> to prevent out-of-bounds array access memory corruption.</li>
+                        <li class="mcq-option" data-correct="false">Disable the SysTick timer.</li>
+                        <li class="mcq-option" data-correct="false">Read the MCU temperature sensor.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Array bounds verification guards against corrupted enums caused by memory bit-flips or uninitialized variables, satisfying MISRA-C Rule 18.1.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. What is an "Ignore Action" (<code>act_ignore</code>) in a table-driven FSM?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">An empty function that triggers a CPU reboot.</li>
+                        <li class="mcq-option" data-correct="true">A benign action handler that takes no action and leaves the state unchanged when an irrelevant event occurs.</li>
+                        <li class="mcq-option" data-correct="false">A compiler warning suppressor.</li>
+                        <li class="mcq-option" data-correct="false">A function that deletes the transition table from RAM.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> An explicit ignore function (or NULL pointer check) cleanly absorbs events that have no effect in the current state without triggering an error.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. In C99, what syntax feature allows sparse or readable initialization of the 2D state transition table?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Operator overloading.</li>
+                        <li class="mcq-option" data-correct="true">Designated Initializers: <code>[STATE_IDLE] = { [EVENT_START] = { ... } }</code>.</li>
+                        <li class="mcq-option" data-correct="false">Templates.</li>
+                        <li class="mcq-option" data-correct="false">Lambda expressions.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> C99 designated initializers allow indexing table entries by their explicit enum names, making the matrix readable and resilient to enum reordering.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is the cyclomatic complexity of a table-driven <code>fsm_dispatch()</code> function?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Proportional to the number of states times events ($S \times E$).</li>
+                        <li class="mcq-option" data-correct="true">Extremely low (typically 2 to 3), consisting only of bounds validation and pointer invocation.</li>
+                        <li class="mcq-option" data-correct="false">Infinite.</li>
+                        <li class="mcq-option" data-correct="false">Equal to the number of CPU registers.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Because branching is replaced by tabular indexing, the dispatch engine has virtually zero cyclomatic complexity, passing any static analysis audit with ease.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. When should an engineer transition from a nested <code>switch-case</code> FSM to a 2D table-driven FSM?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Only when the microcontroller has more than 1 GB of RAM.</li>
+                        <li class="mcq-option" data-correct="true">When state and event counts grow beyond ~6-8 items and switch-case complexity threatens readability, maintainability, and test coverage.</li>
+                        <li class="mcq-option" data-correct="false">Never; switch-case is always superior.</li>
+                        <li class="mcq-option" data-correct="false">Only when using C++ compilers.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Switch-case is excellent for small FSMs (low boilerplate). Table-driven FSMs are superior for mid-to-large FSMs where tabular structure prevents maintenance bugs.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>20.7 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master table-driven automata and hierarchical state machine architectures.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Vending Machine 2D Table Engine</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a complete table-driven state machine for an automated vending machine: states <code>WAITING_COIN</code>, <code>CREDIT_INSERTED</code>, <code>DISPENSING</code>, <code>RETURNING_CHANGE</code>; events <code>COIN_10C</code>, <code>COIN_25C</code>, <code>BUTTON_SELECT</code>, <code>BUTTON_CANCEL</code>, <code>MOTOR_DONE</code>. Store the transition table in <code>const</code> Flash and verify dispatch latency.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: State Entry and Exit Action Extenders</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Extend the <code>Transition_t</code> structure to support Moore-style entry and exit actions. When entering <code>DISPENSING</code>, turn on a dispensing LED; when exiting, turn it off. Verify that transitioning from state A to state B executes: <code>State_A_Exit()</code> &rarr; <code>Transition_Action()</code> &rarr; <code>State_B_Entry()</code>.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Host-Based Automated State Table Tester</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a test runner in C on the host PC that automatically executes every single cell in the 2D matrix. Verify that all out-of-bounds state and event indices are trapped defensively without a segmentation fault or undefined behavior.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Flash vs. SRAM Footprint Verification</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Compile the table-driven FSM with GCC ARM toolchain. Use <code>arm-none-eabi-nm -S</code> and <code>arm-none-eabi-size -A</code> to prove that the 2D transition table is located in the <code>.rodata</code> Flash segment and consumes zero bytes in the <code>.bss</code> or <code>.data</code> SRAM segments.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Lightweight Hierarchical FSM Dispatcher</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build a 2-level hierarchical state machine where an unhandled event in a substate delegates automatically to a parent state handler via a parent function pointer: <code>fsm-&gt;parent_state_handler(fsm, evt)</code>. Test with an emergency stop event and confirm clean hierarchical bubbling.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Paper</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">David Harel</span>
+                            </div>
+                            <h4>Statecharts: A Visual Formalism for Complex Systems</h4>
+                            <p>Foundational 1987 publication introducing hierarchical state nesting, orthogonal regions, and state clustering.</p>
+                            <a href="https://www.sciencedirect.com/science/article/pii/0167642387900359" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architectural Guide</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Miro Samek</span>
+                            </div>
+                            <h4>Quantum Leaps: QP Active Object Framework</h4>
+                            <p>Open-source architecture for hierarchical state machines and event-driven reactive programming in C.</p>
+                            <a href="https://www.state-machine.com/qp" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Design Patterns</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Erich Gamma et al.</span>
+                            </div>
+                            <h4>Design Patterns: Elements of Reusable Object-Oriented Software (State Pattern)</h4>
+                            <p>Classic reference on state-driven behavior encapsulation and polymorphic state transition architectures.</p>
+                            <a href="https://www.pearson.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_19.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 19: States, Events &amp; Transitions</span>
+                </a>
+                <a href="project_04.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Project 4: Module 4 Milestone</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

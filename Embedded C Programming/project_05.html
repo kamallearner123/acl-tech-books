@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5 Project: Layered Architecture & Production Capstone - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li class="active"><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Module 5 Capstone Project</span>
+                <h1>Layered Architecture &amp; Production Integration</h1>
+
+                <p class="intro-p">
+                    The hallmark of an elite embedded software engineer is the ability to design <strong>hardware-independent architectures</strong>. When business requirements force an MCU migration from ST to NXP or Texas Instruments, a poorly architected codebase must be scrapped and rewritten. A professionally layered architecture isolates the application and driver business logic behind clean abstraction interfaces, allowing 100% of driver and application code to be tested on <strong>Linux/WSL</strong> and seamlessly deployed to <strong>STM32</strong> hardware with only a swap of the bottom-most HAL adapter layer.
+                </p>
+
+                <!-- Architectural Diagram -->
+                <div class="summary-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Firmware Layer</th>
+                                <th>Responsibility</th>
+                                <th>Portability</th>
+                                <th>Host (Linux/WSL) vs Target (STM32)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Application</strong></td>
+                                <td>Telemetry formatting, threshold alerts, state coordination</td>
+                                <td>100% Portable (Pure C)</td>
+                                <td>Identical C code on both platforms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Driver Layer</strong></td>
+                                <td>BME280 sensor register protocol, calibration math</td>
+                                <td>100% Portable (Pure C)</td>
+                                <td>Identical C code on both platforms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>HAL Interface</strong></td>
+                                <td>Function pointer contract for I2C/SPI/UART transfers</td>
+                                <td>Interface Definition</td>
+                                <td>Shared <code>hal_i2c.h</code> header</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Platform Adapter</strong></td>
+                                <td>Concrete hardware register or simulated bus transfer</td>
+                                <td>Hardware Specific</td>
+                                <td>Linux: <code>hal_i2c_mock.c</code> | STM32: <code>hal_i2c_stm32.c</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 1: LINUX / WSL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid var(--accent); margin-bottom: 2rem;">
+                    <h2>Part 1: Linux / WSL Project — Decoupled Sensor Subsystem &amp; GitHub Actions CI/CD</h2>
+                    <p>
+                        We build a complete Environmental Sensor Subsystem. The driver consumes an abstract <code>hal_i2c_t</code> interface. On Linux/WSL, we inject a mock I2C driver that simulates sensor hardware registers in memory, enabling automated Unity unit tests and a production GitHub Actions CI workflow.
+                    </p>
+                </div>
+
+                <h3>Step 1: Abstract Hardware Interface (<code>hal_i2c.h</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file hal_i2c.h
+ * @brief Platform-Agnostic I2C Hardware Abstraction Layer
+ */
+#ifndef HAL_I2C_H
+#define HAL_I2C_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+typedef enum {
+    HAL_I2C_OK = 0,
+    HAL_I2C_ERR_NACK,
+    HAL_I2C_ERR_TIMEOUT,
+    HAL_I2C_ERR_BUS_ERROR,
+    HAL_I2C_ERR_PARAM
+} hal_i2c_status_t;
+
+/* Forward declaration of concrete instance */
+typedef struct hal_i2c_bus hal_i2c_bus_t;
+
+/* I2C Operations VTable */
+typedef struct {
+    hal_i2c_status_t (*write)(hal_i2c_bus_t *p_bus, uint8_t dev_addr, const uint8_t *data, size_t len);
+    hal_i2c_status_t (*read)(hal_i2c_bus_t *p_bus, uint8_t dev_addr, uint8_t *data, size_t len);
+    hal_i2c_status_t (*mem_read)(hal_i2c_bus_t *p_bus, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, size_t len);
+} hal_i2c_ops_t;
+
+struct hal_i2c_bus {
+    const hal_i2c_ops_t *ops;
+    void                *user_data; /* Points to hardware register base or mock buffer */
+};
+
+#endif /* HAL_I2C_H */</code></pre>
+                </div>
+
+                <h3>Step 2: Portable Sensor Driver (<code>bme280.h</code> &amp; <code>bme280.c</code>)</h3>
+                <p>
+                    This driver contains zero microcontroller-specific headers. It uses opaque pointers and handles all sensor calibration calculations:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file bme280.c
+ * @brief Fully Portable Sensor Driver using Abstract I2C HAL
+ */
+#include "bme280.h"
+
+#define BME280_CHIP_ID_REG   0xD0U
+#define BME280_EXPECTED_ID   0x60U
+#define BME280_DATA_REG      0xF7U
+
+typedef struct {
+    hal_i2c_bus_t *i2c_bus;
+    uint8_t        dev_addr;
+    int32_t        calib_t1;
+    int32_t        calib_t2;
+} bme280_dev_t;
+
+static bme280_dev_t g_sensors[2];
+static uint8_t g_num_sensors = 0;
+
+bme280_handle_t bme280_create(hal_i2c_bus_t *p_bus, uint8_t dev_addr) {
+    if ((p_bus == NULL) || (g_num_sensors &gt;= 2U)) {
+        return NULL;
+    }
+    bme280_dev_t *dev = &amp;g_sensors[g_num_sensors++];
+    dev-&gt;i2c_bus = p_bus;
+    dev-&gt;dev_addr = dev_addr;
+    return (bme280_handle_t)dev;
+}
+
+bme280_status_t bme280_init(bme280_handle_t handle) {
+    bme280_dev_t *dev = (bme280_dev_t *)handle;
+    if ((dev == NULL) || (dev-&gt;i2c_bus-&gt;ops-&gt;mem_read == NULL)) {
+        return BME280_ERR_PARAM;
+    }
+
+    uint8_t chip_id = 0U;
+    hal_i2c_status_t status = dev-&gt;i2c_bus-&gt;ops-&gt;mem_read(dev-&gt;i2c_bus, dev-&gt;dev_addr, 
+                                                           BME280_CHIP_ID_REG, &amp;chip_id, 1U);
+    if (status != HAL_I2C_OK) {
+        return BME280_ERR_BUS;
+    }
+
+    if (chip_id != BME280_EXPECTED_ID) {
+        return BME280_ERR_ID_MISMATCH;
+    }
+
+    return BME280_OK;
+}
+
+bme280_status_t bme280_read_temp_celsius(bme280_handle_t handle, int32_t *p_temp_c) {
+    bme280_dev_t *dev = (bme280_dev_t *)handle;
+    if ((dev == NULL) || (p_temp_c == NULL)) {
+        return BME280_ERR_PARAM;
+    }
+
+    uint8_t raw_data[3];
+    hal_i2c_status_t status = dev-&gt;i2c_bus-&gt;ops-&gt;mem_read(dev-&gt;i2c_bus, dev-&gt;dev_addr,
+                                                           BME280_DATA_REG, raw_data, 3U);
+    if (status != HAL_I2C_OK) {
+        return BME280_ERR_BUS;
+    }
+
+    /* Convert 20-bit raw sensor data to milli-celsius */
+    int32_t raw_adc = ((int32_t)raw_data[0] &lt;&lt; 12) | ((int32_t)raw_data[1] &lt;&lt; 4) | ((int32_t)raw_data[2] &gt;&gt; 4);
+    *p_temp_c = (raw_adc * 100) / 1024; /* Simulated calibration curve */
+
+    return BME280_OK;
+}</code></pre>
+                </div>
+
+                <h3>Step 3: Host Mock I2C Bus &amp; Unity Unit Test (<code>test_sensor_subsystem.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file test_sensor_subsystem.c
+ * @brief Host Unit Tests with Mock I2C Bus Implementation
+ */
+#include &lt;stdio.h&gt;
+#include &lt;assert.h&gt;
+#include "hal_i2c.h"
+#include "bme280.h"
+
+/* Mock Hardware Memory Space */
+static uint8_t g_mock_registers[256];
+static bool    g_inject_bus_timeout = false;
+
+static hal_i2c_status_t mock_mem_read(hal_i2c_bus_t *bus, uint8_t dev, uint8_t reg, uint8_t *data, size_t len) {
+    (void)bus; (void)dev;
+    if (g_inject_bus_timeout) {
+        return HAL_I2C_ERR_TIMEOUT;
+    }
+    for (size_t i = 0; i &lt; len; i++) {
+        data[i] = g_mock_registers[reg + i];
+    }
+    return HAL_I2C_OK;
+}
+
+static const hal_i2c_ops_t g_mock_ops = {
+    .write = NULL,
+    .read = NULL,
+    .mem_read = mock_mem_read
+};
+
+int main(void) {
+    printf("=== RUNNING HOST SENSOR SUBSYSTEM TESTS ===\n");
+
+    hal_i2c_bus_t mock_bus = { .ops = &amp;g_mock_ops, .user_data = NULL };
+    bme280_handle_t sensor = bme280_create(&amp;mock_bus, 0x76);
+    assert(sensor != NULL);
+
+    /* Test 1: Chip ID mismatch failure */
+    g_mock_registers[0xD0] = 0x55; /* Bad ID */
+    assert(bme280_init(sensor) == BME280_ERR_ID_MISMATCH);
+    printf("  [PASS] Rejects invalid hardware Chip ID\n");
+
+    /* Test 2: Valid Chip ID Initialization */
+    g_mock_registers[0xD0] = 0x60; /* Valid BME280 Chip ID */
+    assert(bme280_init(sensor) == BME280_OK);
+    printf("  [PASS] Initializes correctly with valid Chip ID\n");
+
+    /* Test 3: Hardware Bus Timeout Recovery */
+    g_inject_bus_timeout = true;
+    int32_t temp = 0;
+    assert(bme280_read_temp_celsius(sensor, &amp;temp) == BME280_ERR_BUS);
+    printf("  [PASS] Correctly handles hardware bus timeout\n");
+
+    printf("ALL HOST ARCHITECTURE TESTS PASSED!\n");
+    return 0;
+}</code></pre>
+                </div>
+
+                <h3>Step 4: Automated GitHub Actions CI Pipeline (<code>.github/workflows/firmware_ci.yml</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-yaml">name: Embedded Firmware CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Toolchain &amp; Static Analyzers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi cppcheck valgrind
+
+      - name: Run MISRA-C Static Analysis
+        run: |
+          cppcheck --enable=warning,style --error-exitcode=1 src/
+
+      - name: Run Host Unit Tests with AddressSanitizer
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined \
+              src/bme280.c tests/test_sensor_subsystem.c -o test_runner
+          ./test_runner
+
+      - name: Cross-Compile Target Firmware for STM32
+        run: |
+          make target
+
+      - name: Archive Binary Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: stm32-firmware-binaries
+          path: build/*.bin</code></pre>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 2: STM32 BARE-METAL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid #10b981; margin-bottom: 2rem;">
+                    <h2>Part 2: Physical STM32 Board Project — Production Flight Recorder &amp; Data Logger</h2>
+                    <p>
+                        Now, we take the exact same <code>bme280.c</code> and <code>bme280.h</code> files and deploy them to an <strong>STM32F401RE</strong> microcontroller. We provide a concrete hardware implementation of <code>hal_i2c_t</code> using the STM32 hardware <strong>I2C1 peripheral (PB8/PB9)</strong>.
+                    </p>
+                </div>
+
+                <h3>Hardware Layer Implementation (<code>hal_i2c_stm32.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file hal_i2c_stm32.c
+ * @brief Concrete STM32 Register-Level I2C Hardware Driver
+ */
+#include "hal_i2c.h"
+
+/* STM32F4 I2C1 Register Offsets */
+#define RCC_APB1ENR   (*(volatile uint32_t *)(0x40023840UL))
+#define RCC_AHB1ENR   (*(volatile uint32_t *)(0x40023830UL))
+#define GPIOB_MODER   (*(volatile uint32_t *)(0x40020400UL))
+#define GPIOB_AFRH    (*(volatile uint32_t *)(0x40020424UL))
+#define GPIOB_OTYPER  (*(volatile uint32_t *)(0x40020404UL))
+
+#define I2C1_CR1      (*(volatile uint32_t *)(0x40005400UL))
+#define I2C1_CR2      (*(volatile uint32_t *)(0x40005404UL))
+#define I2C1_OAR1     (*(volatile uint32_t *)(0x40005408UL))
+#define I2C1_DR       (*(volatile uint32_t *)(0x40005410UL))
+#define I2C1_SR1      (*(volatile uint32_t *)(0x40005414UL))
+#define I2C1_SR2      (*(volatile uint32_t *)(0x40005418UL))
+#define I2C1_CCR      (*(volatile uint32_t *)(0x4000541CUL))
+#define I2C1_TRISE    (*(volatile uint32_t *)(0x40005420UL))
+
+static hal_i2c_status_t stm32_i2c_mem_read(hal_i2c_bus_t *bus, uint8_t dev, uint8_t reg, uint8_t *data, size_t len) {
+    (void)bus;
+    /* 1. Generate Start Condition */
+    I2C1_CR1 |= (1UL &lt;&lt; 8); /* START */
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 0))) { /* Wait for SB flag */ }
+
+    /* 2. Send Device Write Address */
+    I2C1_DR = (uint32_t)(dev &lt;&lt; 1);
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 1))) { /* Wait for ADDR flag */ }
+    (void)I2C1_SR2; /* Clear ADDR flag by reading SR2 */
+
+    /* 3. Send Register Address */
+    I2C1_DR = (uint32_t)reg;
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 7))) { /* Wait for TXE */ }
+
+    /* 4. Generate Repeated Start for Read */
+    I2C1_CR1 |= (1UL &lt;&lt; 8); /* RESTART */
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 0))) { /* Wait for SB */ }
+
+    /* 5. Send Device Read Address */
+    I2C1_DR = (uint32_t)((dev &lt;&lt; 1) | 1U);
+    while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 1))) { /* Wait for ADDR */ }
+    (void)I2C1_SR2;
+
+    /* 6. Read Bytes */
+    for (size_t i = 0; i &lt; len; i++) {
+        if (i == (len - 1U)) {
+            I2C1_CR1 &amp;= ~(1UL &lt;&lt; 10); /* NACK last byte */
+            I2C1_CR1 |= (1UL &lt;&lt; 9);   /* STOP condition */
+        } else {
+            I2C1_CR1 |= (1UL &lt;&lt; 10);  /* ACK */
+        }
+        while (!(I2C1_SR1 &amp; (1UL &lt;&lt; 6))) { /* Wait for RXNE */ }
+        data[i] = (uint8_t)I2C1_DR;
+    }
+
+    return HAL_I2C_OK;
+}
+
+static const hal_i2c_ops_t g_stm32_i2c_ops = {
+    .write = NULL,
+    .read = NULL,
+    .mem_read = stm32_i2c_mem_read
+};
+
+/* Exported Concrete I2C Bus Instance */
+hal_i2c_bus_t g_stm32_i2c1_bus = {
+    .ops = &amp;g_stm32_i2c_ops,
+    .user_data = (void *)0x40005400UL
+};</code></pre>
+                </div>
+
+                <h3>Production Application Superloop (<code>main_app.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file main_app.c
+ * @brief Production Layered Environmental Flight Recorder
+ */
+#include &lt;stdint.h&gt;
+#include "hal_i2c.h"
+#include "bme280.h"
+
+extern hal_i2c_bus_t g_stm32_i2c1_bus;
+
+int main(void) {
+    /* Initialize Hardware Peripherals (Clocks, GPIOs, I2C1) */
+    
+    /* Create portable sensor instance using the concrete STM32 HAL bus */
+    bme280_handle_t sensor = bme280_create(&amp;g_stm32_i2c1_bus, 0x76);
+    
+    if (bme280_init(sensor) != BME280_OK) {
+        /* Fail-safe panic */
+        while (1) { /* Diagnostic LED Flash */ }
+    }
+
+    while (1) {
+        int32_t current_temp_mC = 0;
+        bme280_status_t status = bme280_read_temp_celsius(sensor, &amp;current_temp_mC);
+
+        if (status == BME280_OK) {
+            /* Package telemetry and log to non-volatile memory or stream over UART */
+        }
+
+        /* Power Management: Enter Sleep Mode until next timer tick */
+        __asm volatile ("wfi");
+    }
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <!-- Self-Assessment MCQs -->
+                <div class="interactive-quiz">
+                    <h3>Module 5 Capstone Knowledge Check</h3>
+                    <p>Test your mastery of layered software architecture, driver abstraction, and CI/CD pipelines.</p>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">1. What is the primary purpose of an Opaque Pointer (e.g. <code>typedef struct bme280_dev *bme280_handle_t</code>) in modular C design?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q1" value="0"> To encrypt the pointer in flash memory.</label></li>
+                            <li><label><input type="radio" name="q1" value="1"> Complete encapsulation: callers cannot inspect or modify internal struct members directly, preventing tight coupling and interface breakage.</label></li>
+                            <li><label><input type="radio" name="q1" value="2"> To convert C pointers into C++ references.</label></li>
+                            <li><label><input type="radio" name="q1" value="3"> It reduces pointer size from 32 bits to 16 bits.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">2. Why should device drivers NEVER include vendor hardware headers (e.g. <code>stm32f4xx.h</code>) directly?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q2" value="0"> Vendor headers are copyrighted and cannot be used in open source.</label></li>
+                            <li><label><input type="radio" name="q2" value="1"> Doing so disables compiler optimization.</label></li>
+                            <li><label><input type="radio" name="q2" value="2"> Direct inclusion binds the driver permanently to one specific silicon family, preventing reuse on other microcontrollers or host PC simulation.</label></li>
+                            <li><label><input type="radio" name="q2" value="3"> It causes recursive header inclusion errors.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">3. In our layered architecture, how does the sensor driver communicate with the physical I2C bus?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q3" value="0"> Through function pointers defined in the abstract <code>hal_i2c_ops_t</code> table injected at runtime.</label></li>
+                            <li><label><input type="radio" name="q3" value="1"> By calling <code>main()</code>.</label></li>
+                            <li><label><input type="radio" name="q3" value="2"> Through global shared memory buffers in SRAM.</label></li>
+                            <li><label><input type="radio" name="q3" value="3"> By triggering an interrupt vector directly.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">4. What is the fundamental difference between a Mock and a Stub in unit testing?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q4" value="0"> Mocks are written in C++; stubs are written in C.</label></li>
+                            <li><label><input type="radio" name="q4" value="1"> Stubs only run on microcontrollers; mocks only run on PCs.</label></li>
+                            <li><label><input type="radio" name="q4" value="2"> Mocks cannot return values.</label></li>
+                            <li><label><input type="radio" name="q4" value="3"> A Stub provides pre-canned answers to calls, while a Mock can verify that specific functions were called with exact expected arguments and order.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">5. What does the ARM instruction <code>__WFI()</code> (Wait For Interrupt) do in our production main loop?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q5" value="0"> It resets the microcontroller.</label></li>
+                            <li><label><input type="radio" name="q5" value="1"> It puts the CPU core into low-power sleep mode, halting clock cycles until an interrupt (e.g. SysTick or UART) wakes it up.</label></li>
+                            <li><label><input type="radio" name="q5" value="2"> It disables all system interrupts permanently.</label></li>
+                            <li><label><input type="radio" name="q5" value="3"> It flashes the onboard LED.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">6. What is the role of a Board Support Package (BSP) in firmware architecture?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q6" value="0"> It replaces the compiler build system.</label></li>
+                            <li><label><input type="radio" name="q6" value="1"> It generates PCB Gerber files.</label></li>
+                            <li><label><input type="radio" name="q6" value="2"> It configures board-level pinout mappings, power rails, crystal oscillators, and physical connectors specific to a custom circuit board.</label></li>
+                            <li><label><input type="radio" name="q6" value="3"> It stores the operating system kernel.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">7. Why should CI/CD pipelines compile with <code>-Werror</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q7" value="0"> It forces the compiler to treat all warnings as errors, preventing subtle bugs (such as uninitialized variables or type truncations) from reaching production.</label></li>
+                            <li><label><input type="radio" name="q7" value="1"> It prevents the compiler from emitting error messages.</label></li>
+                            <li><label><input type="radio" name="q7" value="2"> It doubles the compilation speed.</label></li>
+                            <li><label><input type="radio" name="q7" value="3"> It makes the ELF binary read-only.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">8. In I2C communication, what does the master device do before reading the final byte from a slave?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q8" value="0"> Sends a double ACK.</label></li>
+                            <li><label><input type="radio" name="q8" value="1"> Disables the SCL clock line.</label></li>
+                            <li><label><input type="radio" name="q8" value="2"> Generates a reset pulse.</label></li>
+                            <li><label><input type="radio" name="q8" value="3"> Transmits a NACK followed by a STOP condition, signaling to the slave that transmission has ended.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">9. What is the benefit of running firmware unit tests on Linux/WSL in automated CI rather than flashing hardware?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q9" value="0"> Linux uses the same machine instructions as ARM Cortex-M.</label></li>
+                            <li><label><input type="radio" name="q9" value="1"> Tests run in seconds, scale infinitely across cloud servers, and can use sanitizers (ASan/UBSan) without requiring expensive physical test racks.</label></li>
+                            <li><label><input type="radio" name="q9" value="2"> Hardware testing is completely unnecessary in embedded systems.</label></li>
+                            <li><label><input type="radio" name="q9" value="3"> It eliminates the need for a C compiler.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">10. What is 'Dependency Inversion' in the context of Embedded C?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q10" value="0"> Including header files at the bottom of a source file.</label></li>
+                            <li><label><input type="radio" name="q10" value="1"> Compiling source files in reverse alphabetical order.</label></li>
+                            <li><label><input type="radio" name="q10" value="2"> High-level business logic does not depend directly on low-level hardware registers; both depend on abstract interfaces (HAL contracts).</label></li>
+                            <li><label><input type="radio" name="q10" value="3"> Inverting the order of function parameters.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Hands-On Labs -->
+                <div class="labs-section">
+                    <h2>Hands-on Engineering Challenges</h2>
+                    
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 1 (Host)</div>
+                        <h3>SPI Bus Mock &amp; Flash Memory Driver</h3>
+                        <p>Design a <code>hal_spi.h</code> interface. Implement a driver for an external SPI Flash chip (e.g. W25Q128) and create a host-based mock with a 1MB RAM buffer verifying page write and sector erase operations.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 2 (Host)</div>
+                        <h3>CMock Automated Mock Generation</h3>
+                        <p>Integrate CMock into your Linux build. Automatically generate mock header and source files directly from <code>hal_i2c.h</code> and verify argument expectations with Unity.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 3 (STM32)</div>
+                        <h3>Multi-Device I2C Bus Arbitration</h3>
+                        <p>Attach two different sensors (e.g. BME280 on <code>0x76</code> and an OLED SSD1306 display on <code>0x3C</code>) to the same physical I2C1 bus. Verify that independent driver instances share the bus without collision.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 4 (STM32)</div>
+                        <h3>Circular Black-Box Flight Log in Flash</h3>
+                        <p>Allocate a 32KB circular logging partition in high STM32 flash memory. Record timestamped sensor fault telemetry and provide a UART dump command to read out crash logs after reboot.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 5 (CI/CD Automation)</div>
+                        <h3>Automated Code Coverage Badging in GitHub</h3>
+                        <p>Configure <code>gcov</code> and <code>lcov</code> in your GitHub Actions workflow to generate an HTML code coverage report, enforcing a mandatory 90% branch coverage threshold on all pull requests.</p>
+                    </div>
+                </div>
+
+                <!-- References -->
+                <div class="references-section">
+                    <h2>Further Technical Reading</h2>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architecture</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Pragmatic Bookshelf</span>
+                            </div>
+                            <h4>Test-Driven Development for Embedded C</h4>
+                            <p>James Grenning's definitive guide to unit testing, mock objects, and modular decoupling in C.</p>
+                            <a href="https://pragprog.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Guide</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Barr Group</span>
+                            </div>
+                            <h4>Embedded C Coding Standard</h4>
+                            <p>Industry-standard guidelines for writing robust, maintainable, and bug-free C code in firmware projects.</p>
+                            <a href="https://barrgroup.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_25.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 25: Integrated Firmware Architecture</span>
+                </a>
+                <a href="index.html" class="nav-button next">
+                    <span class="nav-label">Finish Curriculum &rarr;</span>
+                    <span class="nav-title">Course Overview &amp; Roadmap</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

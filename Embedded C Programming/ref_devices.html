@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref 4: 20 Industrial Architectures - Embedded C Programming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script>
+        const savedTheme = localStorage.getItem('embedded-c-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li class="active"><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number" style="background-color: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.3);">Engineering Reference 4</span>
+                <h1>20 Mission-Critical Real-World Embedded Architectures</h1>
+
+                <p>
+                    Below is an exhaustive engineering compendium profiling 20 real-world devices across four core industrial verticals: <strong>Automotive &amp; Transportation</strong>, <strong>Medical &amp; Healthcare</strong>, <strong>Industrial Automation &amp; Smart Grid</strong>, and <strong>Aerospace &amp; Connected IoT</strong>.
+                </p>
+
+                <!-- DOMAIN 1 -->
+                <h3 style="color: #3b82f6; border-bottom: 2px solid #3b82f6; padding-bottom: 0.35rem; margin-top: 2rem;">Domain 1: Automotive &amp; Transportation</h3>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">1. Engine Control Unit (ECU) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">ISO 26262 ASIL D</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Regulates direct fuel injection and ignition spark timing relative to top-dead-center piston position.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>Infineon AURIX TC397</code> (Triple 300 MHz TriCore in lock-step) or <code>NXP S32S24</code>.</li>
+                        <li><strong>Sensors:</strong> Hall crankshaft 60-2 tooth input capture, cam phase, wideband O2, MAP, knock sensors.</li>
+                        <li><strong>Actuators:</strong> 65V peak-and-hold GDI direct fuel injectors, ignition coils, electronic throttle H-bridge.</li>
+                        <li><strong>Real-Time Constraint:</strong> Spark pulse timing determinism within <strong>&plusmn;10 &mu;s</strong> at 7,000 RPM.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">2. Anti-Lock Braking (ABS) &amp; Electronic Stability (ESC) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">ISO 26262 ASIL D</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Modulates individual wheel hydraulic brake line pressure to counteract skidding and wheel lockup.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>TI TMS570LS3137</code> (Dual Cortex-R4F lock-step) + redundant supervisor IC.</li>
+                        <li><strong>Sensors:</strong> 4&times; active magneto-resistive wheel speed sensors, central 6-DoF yaw rate IMU, steering angle.</li>
+                        <li><strong>Actuators:</strong> 12&times; high-speed hydraulic solenoid valves, 40A brushless hydraulic return pump.</li>
+                        <li><strong>Real-Time Constraint:</strong> Main slip control cycle executes at <strong>100 Hz (10 ms)</strong>; 3 ms valve response.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">3. EV High-Voltage Battery Management System (BMS) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">ISO 26262 ASIL C/D</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Monitors 800V pack cell voltages, temperatures, SoC/SoH, and activates safety disconnect contactors.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>NXP S32K344</code> + daisy-chained <code>TI BQ79616</code> / <code>ADI ADBMS6815</code> isoSPI AFEs.</li>
+                        <li><strong>Sensors:</strong> 96&ndash;192 cell voltage monitors (&plusmn;1 mV), 40+ NTC thermistors, isolated fluxgate current transducer.</li>
+                        <li><strong>Actuators:</strong> Pyro-fuse emergency disconnect trigger, 800V DC vacuum contactors, cell balancing MOSFETs.</li>
+                        <li><strong>Real-Time Constraint:</strong> Short-circuit trip contactor disconnect within <strong>2 milliseconds</strong>.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">4. 77 GHz ADAS Radar / Camera Perception Fusion Unit &mdash; <span style="color: #f59e0b; font-size: 0.85rem;">ISO 26262 ASIL B/D</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Fuses millimeter-wave radar point clouds and HDR optical video for Autonomous Emergency Braking (AEB).</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>TI AWR2944</code> (77 GHz Transceiver + 4&times; Cortex-R5F + FFT Engine) + <code>NXP S32G3</code>.</li>
+                        <li><strong>Sensors:</strong> 4Tx/4Rx 77 GHz radar channels, 8-Megapixel automotive HDR CMOS sensor over MIPI CSI-2.</li>
+                        <li><strong>Actuators:</strong> Windshield defrost heater, CAN-FD / 100BASE-T1 Ethernet brake command packet dispatch.</li>
+                        <li><strong>Real-Time Constraint:</strong> Radar chirp-sequence FFT processing within <strong>50 milliseconds</strong> per frame.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">5. Digital Cockpit Domain Controller &amp; Cluster &mdash; <span style="color: #f59e0b; font-size: 0.85rem;">ISO 26262 ASIL B</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Renders safety-critical warning telltales alongside Android Automotive OS infotainment.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>NXP i.MX 8M QuadMax</code> (Linux/Android) + dedicated <code>Cortex-M4F</code> safety cluster core.</li>
+                        <li><strong>Sensors:</strong> Dual CAN-FD buses (speed, battery, gear), ambient cabin light photo-sensor.</li>
+                        <li><strong>Actuators:</strong> Dual 4K MIPI DSI displays, haptic touch console drivers, audio chime amplifier.</li>
+                        <li><strong>Real-Time Constraint:</strong> Safety cluster telltales must render within <strong>1,200 ms</strong> of vehicle unlock.</li>
+                    </ul>
+                </div>
+
+                <!-- DOMAIN 2 -->
+                <h3 style="color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 0.35rem; margin-top: 2rem;">Domain 2: Medical &amp; Healthcare Devices</h3>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">6. Implantable Cardiac Pacemaker &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 62304 Class C</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Monitors intrinsic cardiac depolarizations and delivers calibrated pacing pulses under bradycardia.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> Custom ultra-low-power ASIC containing <code>ARM Cortex-M0+</code> (&lt;2 &mu;A total current).</li>
+                        <li><strong>Sensors:</strong> Sub-mV intracardiac lead electrodes, 3-axis accelerometer for rate-adaptive exercise pacing.</li>
+                        <li><strong>Actuators:</strong> Capacitive multiplier delivering 0.5V&ndash;5V stimulation pulses across myocardial leads.</li>
+                        <li><strong>Real-Time Constraint:</strong> &plusmn;2 ms pacing timing accuracy; 10+ year battery lifespan on 1.2 Ah cell.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">7. Insulin Patch Pump &amp; Continuous Glucose Monitor (CGM) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 62304 Class C</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Measures interstitial glucose every 5 minutes and dispenses micro-units of insulin automatically.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>Nordic nRF52840</code> (Cortex-M4F + BLE 5.3) + <code>TI MSP430FR</code> safety supervisor MCU.</li>
+                        <li><strong>Sensors:</strong> Enzymatic glucose-oxidase potentiostat probe, syringe lead-screw occlusion strain gauge.</li>
+                        <li><strong>Actuators:</strong> Piezoelectric micro-pump or precision stepper motor delivering 0.025-microliter doses.</li>
+                        <li><strong>Real-Time Constraint:</strong> 500 ms independent dual-core verification of dose before motor enablement.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">8. Critical Care ICU Mechanical Ventilator &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 62304 Class C</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Maintains patient respiration through closed-loop airway pressure and volume regulation.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> Dual <code>STM32H743</code> (480 MHz Cortex-M7: Control + Safety) + <code>NXP i.MX 8M</code> for touch GUI.</li>
+                        <li><strong>Sensors:</strong> Dual differential pressure mass flow sensors, proximal airway piezoresistive sensor, O2 analyzer.</li>
+                        <li><strong>Actuators:</strong> High-speed voice-coil inspiratory valve, brushless blower turbine, proportional PEEP valve.</li>
+                        <li><strong>Real-Time Constraint:</strong> 1 ms closed-loop PID budget; 5 ms emergency overpressure relief valve clamp.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">9. Hospital Syringe Infusion Pump &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 62304 Class C</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Administers intravenous medications with nanoliter precision over extended therapy durations.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>STM32F407</code> (168 MHz Cortex-M4F) + <code>TI MSP430FR5969</code> diverse safety supervisor.</li>
+                        <li><strong>Sensors:</strong> Optical rotary encoder on lead screw, force load cell (occlusion), ultrasonic bubble detector.</li>
+                        <li><strong>Actuators:</strong> Bipolar microstepping motor (Trinamic TMC2209), emergency solenoid pinch clamp.</li>
+                        <li><strong>Real-Time Constraint:</strong> 4 ms motor shutdown and tube clamp trigger upon ultrasonic bubble detection.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">10. Multi-Parameter Bedside Patient Monitor &mdash; <span style="color: #f59e0b; font-size: 0.85rem;">IEC 62304 Class B/C</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Continuously acquires and processes 12-lead ECG, pulse oximetry SpO2, and NIBP blood pressure.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>ADI ADAS1000</code> ECG AFE + <code>STM32F767</code> + <code>TI Sitara AM6254</code> (Embedded Linux host).</li>
+                        <li><strong>Sensors:</strong> Isolated defibrillator-proof ECG leads (5 kV), optical finger probe, NIBP cuff pressure transducer.</li>
+                        <li><strong>Actuators:</strong> NIBP inflation air pump and deflation valves, isolated clinical alarm speaker.</li>
+                        <li><strong>Real-Time Constraint:</strong> 20 ms QRS-complex detection to flag ventricular fibrillation and sound audible alarm.</li>
+                    </ul>
+                </div>
+
+                <!-- DOMAIN 3 -->
+                <h3 style="color: #f59e0b; border-bottom: 2px solid #f59e0b; padding-bottom: 0.35rem; margin-top: 2rem;">Domain 3: Industrial Automation &amp; Smart Grid</h3>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">11. Modular Industrial PLC &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 61508 SIL 3</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Ruggedized logic controller executing cyclic ladder logic routines in harsh industrial plants.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>TI Sitara AM6442</code> (Dual Cortex-A53 + 4&times; Cortex-R5F real-time fieldbus cores).</li>
+                        <li><strong>Sensors:</strong> Optoisolated 24V DC inputs (IEC 61131-2 Type 1/3), 4-20mA current loop ADCs, RTDs.</li>
+                        <li><strong>Actuators:</strong> 24V solid-state high-side protected switches (ST VN808), EtherCAT / PROFINET slaves.</li>
+                        <li><strong>Real-Time Constraint:</strong> 1.0 ms jitter-free cyclic scan time across 256 digital and analog I/O points.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">12. Industrial Variable Frequency Drive (VFD) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 61800-5-2 SIL 3</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Regulates torque, velocity, and flux in 3-phase AC industrial motors with high energy efficiency.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>TI C2000 TMS320F28388D</code> (Dual 200 MHz DSPs with TMU) + Cortex-M4 comms core.</li>
+                        <li><strong>Sensors:</strong> 3-phase current sensing via isolated delta-sigma modulators (AMC1306), DC bus voltage, resolver.</li>
+                        <li><strong>Actuators:</strong> 6&times; isolated gate drivers switching 1200V SiC MOSFETs/IGBTs with hardware dead-time.</li>
+                        <li><strong>Real-Time Constraint:</strong> 62.5 &mu;s FOC current loop calculation budget (16 kHz Space-Vector PWM).</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">13. Smart Grid Electricity Meter (AMI) &mdash; <span style="color: #3b82f6; font-size: 0.85rem;">ANSI C12.20 Class 0.2</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Measures active/reactive energy with revenue-grade metrology, reporting over NB-IoT / RF mesh.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>Microchip SAM4Cx</code> (Dual Cortex-M4: Metrology + App) or <code>ADE9000</code> + <code>STM32L4</code>.</li>
+                        <li><strong>Sensors:</strong> Rogowski coils / Current Transformers (CT), precision voltage dividers, tamper Hall switches.</li>
+                        <li><strong>Actuators:</strong> 100A bistable latching disconnect relay, calibration pulse LED, cellular NB-IoT modem.</li>
+                        <li><strong>Real-Time Constraint:</strong> 8.0 kHz simultaneous voltage/current sampling for true RMS power factor calculation.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">14. Substation Digital Protection Relay &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 61850 / IEC 60255</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Monitors 3-phase high-voltage power lines and commands circuit breakers to trip on electrical faults.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>NXP QorIQ P2020</code> / <code>Xilinx Zynq UltraScale+</code> with hardware IEEE 1588 PTP.</li>
+                        <li><strong>Sensors:</strong> 16-bit simultaneous ADCs sampling PT and CT secondaries, arc-flash fiber sensors.</li>
+                        <li><strong>Actuators:</strong> High-speed 10A 250VDC tripping output relays, redundant optical fiber transceivers.</li>
+                        <li><strong>Real-Time Constraint:</strong> 15 ms fault identification and trip pulse; &lt;3 ms IEC 61850 GOOSE network dispatch.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">15. Autonomous Mobile Robot (AMR) &mdash; <span style="color: #f59e0b; font-size: 0.85rem;">ISO 3691-4 SIL 2</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Hauls 1,000 kg warehouse pallets autonomously, avoiding humans and navigating dynamic aisles.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>NVIDIA Jetson Orin Nano</code> (Perception &amp; SLAM) + <code>STM32G474</code> (Motor &amp; Safety Real-Time).</li>
+                        <li><strong>Sensors:</strong> Dual 2D safety laser scanners (LiDAR), 3D depth cameras, wheel quadrature magnetic encoders.</li>
+                        <li><strong>Actuators:</strong> Dual 48V 30A brushless hub motors, fail-safe spring-applied electromagnetic holding brakes.</li>
+                        <li><strong>Real-Time Constraint:</strong> 20 ms emergency stop brake engagement upon safety LiDAR zone breach.</li>
+                    </ul>
+                </div>
+
+                <!-- DOMAIN 4 -->
+                <h3 style="color: #8b5cf6; border-bottom: 2px solid #8b5cf6; padding-bottom: 0.35rem; margin-top: 2rem;">Domain 4: Aerospace, Energy &amp; Connected IoT</h3>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">16. Quadcopter Flight Controller &amp; Autopilot &mdash; <span style="color: #f59e0b; font-size: 0.85rem;">DO-178C DAL B</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Stabilizes multi-rotor drone attitude in high winds and executes autonomous waypoint missions.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>STM32H753</code> (480 MHz Cortex-M7 with DP-FPU running PX4 on NuttX RTOS).</li>
+                        <li><strong>Sensors:</strong> Dual redundant vibration-isolated 6-DoF SPI IMUs (ICM-42688-P), barometer, magnetometer, RTK GPS.</li>
+                        <li><strong>Actuators:</strong> 4&ndash;8&times; DShot600 digital ESC communication channels with bidirectional RPM telemetry.</li>
+                        <li><strong>Real-Time Constraint:</strong> 125 &mu;s total loop latency budget (8.0 kHz gyro sampling, EKF, and PID loop).</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">17. CubeSat On-Board Computer (OBC) &mdash; <span style="color: #ef4444; font-size: 0.85rem;">NASA Class D / ECSS</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Manages attitude determination, power distribution, and telemetry for nanosatellites in Low Earth Orbit.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> Radiation-tolerant <code>Microchip SAMV71Q21RT</code> (300 MHz Cortex-M7 with ECC) + redundant FRAM.</li>
+                        <li><strong>Sensors:</strong> Sun sensors, 3-axis magnetometers, CMOS star tracker imaging sensor, thermistors.</li>
+                        <li><strong>Actuators:</strong> 3-axis reaction wheel brushless motors, magnetorquer electromagnetic torque coils.</li>
+                        <li><strong>Real-Time Constraint:</strong> Continuous Triple Modular Redundancy (TMR) memory scrubbing for single-event upsets.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">18. Solar Grid-Tie Microinverter with MPPT &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEEE 1547 / UL 1741 SA</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Extracts maximum photovoltaic power and converts DC into 240V AC with anti-islanding safety.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>TI C2000 TMS320F280049C</code> (100 MHz real-time DSP with internal PGAs and comparators).</li>
+                        <li><strong>Sensors:</strong> PV input voltage/current sensors, AC grid zero-crossing comparator, grid PLL phase tracker.</li>
+                        <li><strong>Actuators:</strong> High-voltage GaN HEMT full-bridge inverter gate drivers (100 kHz), grid disconnect relay.</li>
+                        <li><strong>Real-Time Constraint:</strong> 100 ms anti-islanding shutdown upon utility grid loss to protect line workers.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">19. Advanced Biometric Health Smartwatch &mdash; <span style="color: #3b82f6; font-size: 0.85rem;">FDA 510(k) De Novo</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Monitors continuous cardiovascular vitals, ECG atrial fibrillation, and sleep staging with 14-day battery life.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>Ambiq Apollo4 Blue Plus</code> (Cortex-M4F @ 4 &mu;A/MHz) + <code>Nordic nRF5340</code> wireless core.</li>
+                        <li><strong>Sensors:</strong> Multi-wavelength optical PPG bio-sensor, titanium bezel ECG electrode, skin temp, 6-axis IMU.</li>
+                        <li><strong>Actuators:</strong> Linear Resonant Actuator (LRA) driven by TI DRV2605L, 1.4-inch round AMOLED MIPI display.</li>
+                        <li><strong>Real-Time Constraint:</strong> 99.2% of operating life spent in deep sleep at 15 &mu;A, waking up only via DMA interrupts.</li>
+                    </ul>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0;">
+                    <h4 style="margin: 0 0 0.5rem; color: var(--text-color);">20. Commercial 350 kW EV DC Ultra-Fast Charger &mdash; <span style="color: #ef4444; font-size: 0.85rem;">IEC 61851-23 / ISO 15118</span></h4>
+                    <p style="font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.75rem;">Delivers 500 Amperes at 800 Volts to recharge electric vehicles in 15 minutes with liquid-cooled cables.</p>
+                    <ul style="font-size: 0.88rem; line-height: 1.6;">
+                        <li><strong>Silicon:</strong> <code>NXP i.MX 8M Nano</code> (ISO 15118 Powerline Comms &amp; OCPP 2.0.1) + <code>STM32H723</code> power controller.</li>
+                        <li><strong>Sensors:</strong> 1,000V DC bus voltage transducers, 600A Hall current transducers, cable coolant PT1000s, insulation monitor.</li>
+                        <li><strong>Actuators:</strong> 500A rated DC contactor drivers, motorized plug locking pin, variable-speed coolant pumps.</li>
+                        <li><strong>Real-Time Constraint:</strong> 100 ms cable discharge to &lt;60V upon insulation breakdown or pilot signal loss.</li>
+                    </ul>
+                </div>
+
+                <!-- Footer Navigation -->
+                <footer class="page-navigation" style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                    <a href="ref_silicon.html" class="nav-button prev" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-color); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s ease;">
+                        <span style="font-size: 1.2rem;">&larr;</span>
+                        <div style="text-align: left;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Previous</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Ref 3: MCUs vs. MPUs (Silicon)</span>
+                        </div>
+                    </a>
+                    <a href="ref_standards.html" class="nav-button next" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--accent); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s ease; background-color: var(--accent-light);">
+                        <div style="text-align: right;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Next Topic &rarr;</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Ref 5: Standards &amp; Protocols</span>
+                        </div>
+                        <span style="font-size: 1.2rem;">&rarr;</span>
+                    </a>
+                </footer>
+
+                <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                    Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

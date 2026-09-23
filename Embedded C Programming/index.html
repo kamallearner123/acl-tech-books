@@ -1,1 +1,604 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Embedded C Programming</title><script>const savedTheme=localStorage.getItem('rust-book-theme')||localStorage.getItem('embedded-theme');if(savedTheme)document.documentElement.setAttribute('data-theme',savedTheme);</script><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li class="active"><a href="index.html">Course Overview</a></li><li><a href="topic_01.html">Chapter 1: C Programming History &amp; Tools</a></li><li><a href="topic_02.html">C Programming Best Practices</a></li><li><a href="topic_03.html">Compile, Runtime, Link &amp; Logic Errors</a></li><li><a href="topic_04.html">Assertions, Logging &amp; Debugging</a></li><li><a href="topic_05.html">Unit Testing Concepts</a></li><li><a href="topic_06.html">Build Pipeline</a></li><li><a href="topic_07.html">GCC &amp; Cross-Compilers</a></li><li><a href="topic_08.html">objdump, size, nm &amp; GDB</a></li><li><a href="topic_09.html">Make &amp; CMake</a></li><li><a href="topic_10.html">Git Workflow</a></li><li><a href="topic_11.html">Events &amp; Event Handling</a></li><li><a href="topic_12.html">Polling vs Interrupts</a></li><li><a href="topic_13.html">Callbacks &amp; Timers</a></li><li><a href="topic_14.html">Non-Blocking Firmware</a></li><li><a href="topic_15.html">Naming Conventions</a></li><li><a href="topic_16.html">Defensive Programming</a></li><li><a href="topic_17.html">Documentation Practices</a></li><li><a href="topic_18.html">MISRA-C Concepts</a></li><li><a href="topic_19.html">States, Events &amp; Transitions</a></li><li><a href="topic_20.html">State Tables &amp; FSMs</a></li><li><a href="topic_21.html">Modular .c &amp; .h Files</a></li><li><a href="topic_22.html">Interfaces, APIs &amp; Abstraction</a></li><li><a href="topic_23.html">Reusable Components</a></li><li><a href="topic_24.html">Application, Driver, HAL &amp; BSP</a></li><li><a href="topic_25.html">Integrated Firmware Architecture</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">Theme</button></div></header><article class="book-page"><span class="chapter-number">Focused curriculum</span><h1>Embedded C Programming</h1><p>A structured course in disciplined C, development tools, debugging, testing, event-driven design, finite-state machines, and layered firmware architecture.</p><h2>25 Topics</h2><ol><li><a href="topic_01.html">C Programming History &amp; Tools</a></li><li><a href="topic_02.html">C Programming Best Practices</a></li><li><a href="topic_03.html">Compile, Runtime, Link, and Logic Errors</a></li><li><a href="topic_04.html">Assertions, Logging, and Debugging Methodology</a></li><li><a href="topic_05.html">Unit Testing Concepts</a></li><li><a href="topic_06.html">Preprocessor → Compiler → Assembler → Linker → Executable</a></li><li><a href="topic_07.html">GCC and Cross-Compilers</a></li><li><a href="topic_08.html">objdump, size, nm, and GDB</a></li><li><a href="topic_09.html">Make and CMake Basics</a></li><li><a href="topic_10.html">Git Workflow</a></li><li><a href="topic_11.html">Events and Event Handling</a></li><li><a href="topic_12.html">Polling vs Interrupts</a></li><li><a href="topic_13.html">Callbacks and Timers</a></li><li><a href="topic_14.html">Non-Blocking Firmware Design</a></li><li><a href="topic_15.html">Naming Conventions</a></li><li><a href="topic_16.html">Defensive Programming</a></li><li><a href="topic_17.html">Documentation Practices</a></li><li><a href="topic_18.html">MISRA-C Concepts</a></li><li><a href="topic_19.html">States, Events, and Transitions</a></li><li><a href="topic_20.html">State Tables and Finite-State Machines</a></li><li><a href="topic_21.html">Modular .c and .h Files</a></li><li><a href="topic_22.html">Interfaces, APIs, and Abstraction</a></li><li><a href="topic_23.html">Reusable Components</a></li><li><a href="topic_24.html">Application, Driver, HAL, and BSP Layers</a></li><li><a href="topic_25.html">Integrated Firmware Architecture</a></li></ol></article></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded C Programming - Course Overview & Curriculum Roadmap</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar / Table of Contents -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Embedded C Programming</h2>
+        </div>
+        <div class="sidebar-content">
+            <ul class="toc">
+                <li class="active"><a href="index.html">Course Overview</a></li>
+                <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <header class="top-nav" id="top-nav">
+            <div class="nav-left">
+                <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-actions">
+                <div class="completeness-badge">Curriculum: <span>26 Chapters &bull; 5 Projects</span></div>
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <article class="book-page" style="max-width: 980px;">
+            <!-- Hero Section -->
+            <div style="text-align: center; padding: 2.5rem 1rem 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2.5rem;">
+                <div style="display: inline-block; background-color: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 0.85rem; padding: 0.35rem 1rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; border: 1px solid var(--accent);">
+                    Production Firmware Engineering
+                </div>
+                <h1 style="font-size: 2.75rem; line-height: 1.2; margin-bottom: 1rem; letter-spacing: -0.02em;">
+                    Embedded C Programming
+                </h1>
+                <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 1.75rem; line-height: 1.6;">
+                    A disciplined, 26-chapter master curriculum designed to bridge the gap between academic C syntax and robust, industry-grade embedded software. Master toolchains, event-driven design, defensive programming, state tables, and layered firmware architecture.
+                </p>
+
+                <!-- Curriculum Study Progress Card -->
+                <div class="curriculum-progress-card" id="curriculum-progress-card" style="background: var(--card-bg); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 1.25rem 1.75rem; margin: 1.5rem auto 2rem; max-width: 860px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; text-align: left; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; align-items: center; gap: 1.1rem;">
+                        <span style="font-size: 2.2rem; line-height: 1;">🎓</span>
+                        <div>
+                            <h4 style="margin: 0 0 0.25rem; font-size: 1.1rem; font-weight: 800; color: var(--text-color); font-family: 'Outfit', sans-serif;">Curriculum Coverage Tracker</h4>
+                            <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);"><strong id="home-covered-count" style="color: var(--accent);">0</strong> of <strong id="home-total-count">33</strong> Chapters Covered &bull; <strong id="home-questions-count">0</strong> Study Notes/Questions Logged</p>
+                        </div>
+                    </div>
+                    <div style="min-width: 220px; flex: 1; max-width: 300px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.45rem;">
+                            <span>Completion</span>
+                            <span id="home-progress-pct" style="color: #10b981; font-weight: 800;">0%</span>
+                        </div>
+                        <div style="height: 10px; background: var(--bg-color); border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color);">
+                            <div id="home-progress-fill" style="height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #059669); transition: width 0.4s ease; border-radius: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Metrics Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin: 2rem 0; text-align: center;">
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">26</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Core Chapters</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: #10b981; font-family: 'Outfit', sans-serif;">10</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Projects (Linux+STM32)</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: #3b82f6; font-family: 'Outfit', sans-serif;">310</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Interactive MCQs</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: #8b5cf6; font-family: 'Outfit', sans-serif;">155</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Hands-On Labs</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: #f59e0b; font-family: 'Outfit', sans-serif;">MISRA</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Safety-Critical</div>
+                    </div>
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 1.25rem 0.75rem; border-radius: 8px;">
+                        <div style="font-size: 1.85rem; font-weight: 800; color: var(--accent); font-family: 'Outfit', sans-serif;">C99/C11</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Standards Focus</div>
+                    </div>
+                </div>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left: 4px solid var(--accent); padding: 1.25rem; margin: 2rem 0; border-radius: 6px; text-align: left;">
+                    <strong style="color: var(--accent);">Architectural Approach:</strong> Unlike general software tutorials, this curriculum focuses entirely on <strong>deterministic, resource-constrained, bare-metal microcontrollers</strong>. You will learn to eliminate undefined behavior, reason about compiler instruction hoisting, prevent stack blowouts, build non-blocking superloops, and implement clean Hardware Abstraction Layers (HAL).
+                </div>
+            </div>
+
+            <!-- COURSE OUTCOMES SECTION -->
+            <div style="margin-bottom: 3.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                    <span style="background-color: var(--accent); color: white; font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; text-transform: uppercase;">Competencies</span>
+                    <h2 style="margin: 0; font-size: 1.85rem;">Course Learning Outcomes</h2>
+                </div>
+                <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.75rem;">
+                    Upon completing this comprehensive curriculum and its associated milestone projects, engineers will possess the theoretical mastery and hands-on skill set required to architect, write, debug, and certify commercial-grade embedded C firmware:
+                </p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                    <!-- Outcome 1 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: var(--accent);">&#9881;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">1. Low-Level Control &amp; Type Discipline</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Eliminate undefined behavior (UB), signed integer overflow, and sequence point violations using strict <code>&lt;stdint.h&gt;</code> types.</li>
+                            <li>Directly manipulate hardware memory-mapped registers using volatile pointers and atomic bitmasking techniques.</li>
+                            <li>Decode multi-byte telemetry packets across network/serial streams while maintaining absolute endianness neutrality.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Outcome 2 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: #10b981;">&#128296;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">2. Toolchain Mastery &amp; Linker Scripts</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Build and cross-compile firmware from raw command-line with <code>arm-none-eabi-gcc</code>, Make, and CMake without IDE lock-in.</li>
+                            <li>Handcraft custom GNU Linker Scripts (<code>.ld</code>) defining Flash/SRAM layout, VMA/LMA relocation, vector tables, and stack boundaries.</li>
+                            <li>Author bare-metal C startup code (CRT0) that initializes <code>.data</code> from Flash to RAM, zeroes <code>.bss</code>, and calls <code>main()</code>.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Outcome 3 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: #3b82f6;">&#9889;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">3. Reactive Concurrency &amp; Ring Buffers</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Architect cooperative non-blocking superloops and timer schedulers that banish processor-freezing <code>delay()</code> loops.</li>
+                            <li>Write lock-free Single-Producer Single-Consumer (SPSC) circular buffers using power-of-two masking and C11 memory fences.</li>
+                            <li>Manage NVIC hardware interrupt priorities, minimizing interrupt latency, context overhead, and avoiding reentrancy traps.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Outcome 4 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: #8b5cf6;">&#128737;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">4. Safety-Critical Standards &amp; State Machines</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Implement deterministic 2D Table-Driven Finite State Machines (FSMs) providing $O(1)$ event dispatch and action callbacks.</li>
+                            <li>Comply with MISRA-C:2012 safety guidelines: eliminating dynamic memory (<code>malloc</code>), unbounded loops, and unverified returns.</li>
+                            <li>Integrate hardware Independent Watchdog (IWDG) supervision and author assembly HardFault traps for crash register unwinding.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Outcome 5 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: #f59e0b;">&#128392;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">5. Layered Architecture &amp; Unit Testing</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Architect firmware in clean decoupled layers (Application &rarr; Service &rarr; Driver &rarr; HAL &rarr; BSP) using opaque handles.</li>
+                            <li>Write 100% portable hardware-agnostic device drivers (I2C/SPI) using interface function pointer contracts.</li>
+                            <li>Implement host-based Unit Testing with Unity and CMock on Linux/WSL, achieving high branch coverage prior to silicon flashing.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Outcome 6 -->
+                    <div style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 1.25rem; color: var(--accent);">&#128640;</span>
+                            <h3 style="margin: 0; font-size: 1.15rem; color: var(--text-color);">6. Dual-Target Production CI/CD</h3>
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                            <li>Inspect ELF binaries using <code>objdump</code>, <code>size</code>, and <code>nm</code> to enforce automated flash/SRAM budget gates.</li>
+                            <li>Automate firmware quality gates using GitHub Actions CI: compiling with <code>-Werror</code>, running static analysis, and archiving binaries.</li>
+                            <li>Flawlessly transition code between host simulation on <strong>Linux/WSL</strong> and physical silicon deployment on <strong>STM32</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Curriculum Modules Grid -->
+            <h2>Curriculum Roadmap &amp; Milestone Projects</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Explore the curriculum sequentially or jump into individual architectural concepts and capstone projects.</p>
+
+            <!-- Featured Introductory Chapter -->
+            <div style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(59, 130, 246, 0.08)); border: 2px solid var(--accent); border-radius: 10px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="display: inline-block; background-color: var(--accent); color: white; font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Engineering Prelude &bull; Start Here
+                    </span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Foundational Overview</span>
+                </div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.35rem;">
+                    <a href="intro.html" style="color: var(--text-color); text-decoration: none;">Why Program on Constrained Devices? Real-World Systems Anatomy</a>
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+                    Discover why <strong>98.9% of the world's 31 billion annual microprocessors</strong> (Dell Technologies, 2023) are deployed in constrained non-PC embedded systems. Deep dive into three canonical real-time systems &mdash; <strong>Smartwatches</strong>, <strong>Autonomous Drones</strong>, and <strong>Medical Infusion Pumps</strong> &mdash; and dissect the interplay between <strong>Microcontrollers</strong> (the brain), <strong>Sensors</strong> (the senses), <strong>Actuators</strong> (the muscles), power management, and real-time safety constraints.
+                </p>
+                <a href="intro.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent); font-weight: 700; font-size: 0.95rem; text-decoration: none;">
+                    Read Introductory Chapter &rarr;
+                </a>
+            </div>
+
+            <!-- Module 1 -->
+            <div style="margin-bottom: 2.5rem;">
+                <div style="font-weight: 700; color: var(--accent); font-size: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Module 1: C Foundations, Discipline &amp; Quality</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Topics 1 – 5 + Milestone Project</span>
+                </div>
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="topic_01.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 1: C Programming History &amp; Tools</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Evolution from Bell Labs to ISO/IEC standards, language features, cross-compilers, and toolchains.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_02.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 2: C Programming Best Practices</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Fixed-width standard types (&lt;stdint.h&gt;), const-correctness, side-effect elimination, deterministic memory.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_03.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 3: Compile, Runtime, Link &amp; Logic Errors</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Compiler warnings, undefined behavior (UB), sequence points, integer promotion traps, linker collisions.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_04.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 4: Assertions, Logging &amp; Debugging Methodology</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Target assertions, non-blocking telemetry loggers, UART printf retargeting, systematic debugging.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_05.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 5: Unit Testing Concepts</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Host-based unit testing with Unity/Ceedling, hardware register mocking, test-driven development (TDD).</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <!-- Milestone Project Card -->
+                    <a href="project_01.html" style="text-decoration: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.12)); border: 2px solid var(--accent); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: var(--accent);">&#128640; Project 1: Module 1 Milestone (Dual Target)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;"><strong>Linux/WSL:</strong> Safe Telemetry Decoder &amp; Assert Harness | <strong>STM32:</strong> Bare-Metal Diagnostic LED Panic Engine.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 700;">Open Project &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module 2 -->
+            <div style="margin-bottom: 2.5rem;">
+                <div style="font-weight: 700; color: #10b981; font-size: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Module 2: Toolchains, Build Systems &amp; Binary Inspection</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Topics 6 – 10 + Milestone Project</span>
+                </div>
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="topic_06.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 6: The Build Pipeline</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Dissecting cpp, cc1, as, and ld: from C source to relocatable object files and ELF firmware binaries.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_07.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 7: GCC &amp; Cross-Compilers</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Target triplets (arm-none-eabi), optimization levels (-O0 to -Os), strict warning flags, ABI conventions.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_08.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 8: objdump, size, nm &amp; GDB</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Inspecting symbol tables, analyzing section footprints (.text, .data, .bss), assembly disassembly.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_09.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 9: Make &amp; CMake Basics</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Writing cross-compilation Makefiles, dependency graphs, pattern rules, and modern CMake targets.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_10.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 10: Git Workflow for Firmware</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Managing submodules, gitattributes for binary files, semantic release tagging, CI/CD integration.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <!-- Milestone Project Card -->
+                    <a href="project_02.html" style="text-decoration: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.12)); border: 2px solid #10b981; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #10b981;">&#128640; Project 2: Module 2 Milestone (Dual Target)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;"><strong>Linux/WSL:</strong> Automated Binary Bloat Gate CLI | <strong>STM32:</strong> Zero-IDE Bare-Metal Firmware with Custom Linker Script.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #10b981; font-weight: 700;">Open Project &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module 3 -->
+            <div style="margin-bottom: 2.5rem;">
+                <div style="font-weight: 700; color: #3b82f6; font-size: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Module 3: Reactive &amp; Event-Driven Systems</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Topics 11 – 14 + Milestone Project</span>
+                </div>
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="topic_11.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 11: Events &amp; Event Handling</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Event structures, event queues, decoupled producer-consumer architectures, reactive firmware models.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_12.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 12: Polling vs Interrupts</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Latency vs CPU utilization trade-offs, NVIC priorities, critical sections, atomic access, race conditions.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_13.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 13: Callbacks &amp; Timers</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Function pointers in C, callback registration patterns, hardware timer interrupt hooks, timer wheels.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_14.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 14: Non-Blocking Firmware Design</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Banishing blocking delay loops, cooperative superloop scheduling, SysTick timestamp arithmetic.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <!-- Milestone Project Card -->
+                    <a href="project_03.html" style="text-decoration: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(59, 130, 246, 0.06), rgba(59, 130, 246, 0.12)); border: 2px solid #3b82f6; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #3b82f6;">&#128640; Project 3: Module 3 Milestone (Dual Target)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;"><strong>Linux/WSL:</strong> POSIX Signal-Emulated ISR &amp; Lock-Free Ring Buffer | <strong>STM32:</strong> Hardware Timer &amp; Interrupt UART CLI.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #3b82f6; font-weight: 700;">Open Project &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module 4 -->
+            <div style="margin-bottom: 2.5rem;">
+                <div style="font-weight: 700; color: #8b5cf6; font-size: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Module 4: Standards, Defensive Programming &amp; State Machines</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Topics 15 – 20 + Milestone Project</span>
+                </div>
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="topic_15.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 15: Naming Conventions &amp; Code Style</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Barr Group Embedded C style standards, module prefixing, typedef semantics, Hungarian vs semantic notation.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_16.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 16: Defensive Programming</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Pointer validation, boundary assertions, stuck-sensor recovery, hardware watchdog integration.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_17.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 17: Documentation Practices</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Doxygen documentation conventions, architecture decision records (ADRs), hardware register mapping.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_18.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 18: MISRA-C Concepts</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">MISRA-C:2012 core mandatory and required rules, static code analysis with cppcheck, deviation records.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_19.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 19: States, Events &amp; Transitions</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Finite-state automata theory, Moore vs Mealy machines, state diagrams, transition matrices, invalid events.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_20.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 20: State Tables &amp; Finite-State Machines</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Implementing 2D function-pointer state transition tables, generic FSM engines, hierarchical state machines.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <!-- Milestone Project Card -->
+                    <a href="project_04.html" style="text-decoration: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.06), rgba(139, 92, 246, 0.12)); border: 2px solid #8b5cf6; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #8b5cf6;">&#128640; Project 4: Module 4 Milestone (Dual Target)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;"><strong>Linux/WSL:</strong> MISRA-C Table-Driven Access FSM &amp; GDB Suite | <strong>STM32:</strong> Safety Motor Controller with IWDG &amp; HardFault.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #8b5cf6; font-weight: 700;">Open Project &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module 5 -->
+            <div style="margin-bottom: 2.5rem;">
+                <div style="font-weight: 700; color: #f59e0b; font-size: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Module 5: Layered Architecture, Modular Design &amp; Capstone</span>
+                    <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Topics 21 – 25 + Grand Capstone</span>
+                </div>
+                <div style="display: grid; gap: 0.75rem;">
+                    <a href="topic_21.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 21: Modular .c &amp; .h Files</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Header file hygiene, include guards, static file-scope private functions, coupling minimization.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_22.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 22: Interfaces, APIs &amp; Abstraction</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Opaque struct pointers (PIMPL in C), interface structs with function pointers (VTABLEs), hardware decoupling.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_23.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 23: Reusable Components</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Production-ready reusable C modules: lock-free circular ring buffer, software timer service, packet parser.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_24.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 24: Application, Driver, HAL &amp; BSP Layers</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Industrial layered firmware architecture: Application -> Middleware -> Driver -> HAL -> BSP -> Silicon.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <a href="topic_25.html" style="text-decoration: none; padding: 1rem 1.25rem; background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.05rem;">Topic 25: Integrated Firmware Architecture</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Grand capstone project: fully integrated reactive firmware combining state tables, ring buffers, and layered HAL.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600;">Start &rarr;</span>
+                    </a>
+                    <!-- Milestone Project Card -->
+                    <a href="project_05.html" style="text-decoration: none; padding: 1rem 1.25rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.16)); border: 2px solid #f59e0b; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--text-color); transition: all 0.2s ease;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #f59e0b;">&#127942; Project 5: Grand Milestone &amp; Production Capstone (Dual Target)</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;"><strong>Linux/WSL:</strong> Decoupled Sensor Hub with Mock HAL &amp; CI/CD | <strong>STM32:</strong> Production Flight Recorder on Silicon.</div>
+                        </div>
+                        <span style="font-size: 0.85rem; color: #f59e0b; font-weight: 700;">Open Capstone &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Engineering Reference Compendium Showcase Card -->
+            <div style="margin-bottom: 3rem; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(139, 92, 246, 0.08)); border: 2px solid #ec4899; border-radius: 10px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="display: inline-block; background-color: #ec4899; color: white; font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Industrial Reference Compendium
+                    </span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Hardware &bull; Transducers &bull; Silicon &bull; 20 Architectures</span>
+                </div>
+                <h3 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.35rem; color: var(--text-color);">
+                    Silicon, Sensors, Actuators &amp; 20 Industrial Architectures
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+                    Exhaustive reference handbook detailing physical operating principles, driver circuits, bus overheads, MCU vs MPU selection matrices, and deep-dive technical profiles of 20 mission-critical embedded systems across Automotive (ASIL D), Medical (Class C), Industrial Automation (SIL 3), and Aerospace (DO-178C).
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.25rem;">
+                    <a href="ref_sensors.html" style="text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; background: var(--sidebar-bg); border: 1px solid #3b82f6; color: #3b82f6; border-radius: 6px;">Ref 1: Sensors &rarr;</a>
+                    <a href="ref_actuators.html" style="text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; background: var(--sidebar-bg); border: 1px solid #f97316; color: #f97316; border-radius: 6px;">Ref 2: Actuators &rarr;</a>
+                    <a href="ref_silicon.html" style="text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; background: var(--sidebar-bg); border: 1px solid #10b981; color: #10b981; border-radius: 6px;">Ref 3: MCUs vs MPUs &rarr;</a>
+                    <a href="ref_devices.html" style="text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; background: var(--sidebar-bg); border: 1px solid #ec4899; color: #ec4899; border-radius: 6px;">Ref 4: 20 Architectures &rarr;</a>
+                    <a href="ref_standards.html" style="text-decoration: none; font-size: 0.82rem; font-weight: 600; padding: 0.35rem 0.75rem; background: var(--sidebar-bg); border: 1px solid #8b5cf6; color: #8b5cf6; border-radius: 6px;">Ref 5: Standards &rarr;</a>
+                </div>
+                <a href="reference.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #ec4899; font-weight: 700; font-size: 0.95rem; text-decoration: none;">
+                    Explore Full Overview Compendium &rarr;
+                </a>
+            </div>
+        </article>
+
+        <!-- Footer Navigation -->
+        <footer class="page-navigation">
+            <div></div>
+            <a href="intro.html" class="nav-button next">
+                <span class="nav-label">Begin Course &rarr;</span>
+                <span class="nav-title">Prelude: Why Constrained Devices?</span>
+            </a>
+        </footer>
+
+        <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+            Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+            <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+        </div>
+    </main>
+</div>
+
+<!-- Scripts -->
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

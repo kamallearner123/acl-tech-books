@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2 Project: Toolchains, Linker Scripts & Binary Analysis - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li class="active"><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Module 2 Capstone Project</span>
+                <h1>Toolchains, Linker Scripts &amp; Binary Analysis</h1>
+
+                <p class="intro-p">
+                    Firmware engineers cannot rely on black-box vendor IDEs to manage memory layouts and builds. A professional must understand the transition from source code to machine bits: configuring cross-compilers, orchestrating builds with Make/CMake, handcrafting custom linker scripts, inspecting ELF symbols, and automating memory budget enforcement in Git CI pipelines. This capstone guides you through building a complete cross-compilation pipeline on <strong>Linux/WSL</strong> and crafting a <strong>zero-IDE bare-metal firmware project</strong> with custom linker scripts on an <strong>STM32</strong> microcontroller.
+                </p>
+
+                <!-- Project Comparison -->
+                <div class="summary-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Project 1: Linux / WSL Environment</th>
+                                <th>Project 2: Physical STM32 Board</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Project Focus</strong></td>
+                                <td>Multi-Target Build Matrix &amp; Binary Bloat Inspector CLI</td>
+                                <td>Zero-IDE Bare-Metal Firmware with Custom Linker Script</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Key Artifacts</strong></td>
+                                <td>Modular <code>Makefile</code>, <code>bloat_check.sh</code>, Git pre-commit hook</td>
+                                <td><code>stm32_flash.ld</code>, <code>startup_stm32.c</code>, <code>firmware.map</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Toolchain Focus</strong></td>
+                                <td>GCC, <code>arm-none-eabi-size</code>, <code>arm-none-eabi-nm</code>, <code>objdump</code></td>
+                                <td>Cross-linker VMA/LMA mapping, CRT0 vector table, OpenOCD/GDB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Verification</strong></td>
+                                <td>Automated memory budget gate halting builds on footprint bloat</td>
+                                <td>Section allocation audit in map file, GDB hardware reset verification</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 1: LINUX / WSL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid var(--accent); margin-bottom: 2rem;">
+                    <h2>Part 1: Linux / WSL Project — Multi-Target Build Matrix &amp; Binary Bloat Inspector</h2>
+                    <p>
+                        In commercial firmware development, builds must support both <strong>Host Simulation</strong> (for rapid automated unit testing on x86_64) and <strong>Target Cross-Compilation</strong> (for flashing to ARM Cortex-M). Furthermore, firmware teams use automated bloat gates to reject pull requests that exceed strict SRAM or Flash memory thresholds.
+                    </p>
+                </div>
+
+                <h3>Step 1: Production Multi-Target <code>Makefile</code></h3>
+                <p>
+                    This Makefile cleanly decouples host native builds (<code>make host</code>) from target cross-compilation (<code>make target</code>), generates disassembly, symbol maps, and invokes our bloat inspector:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-makefile"># ==============================================================================
+# Multi-Target Firmware Makefile
+# Supports: Host Native (x86_64) &amp; Cross-Target (ARM Cortex-M4)
+# ==============================================================================
+
+PROJECT_NAME := sensor_firmware
+BUILD_DIR    := build
+
+# Host Compilers
+HOST_CC      := gcc
+HOST_CFLAGS  := -std=c11 -Wall -Wextra -Werror -O2 -g
+
+# Target Cross-Toolchain
+TARGET_PREFIX := arm-none-eabi-
+TARGET_CC     := $(TARGET_PREFIX)gcc
+TARGET_OBJCOPY:= $(TARGET_PREFIX)objcopy
+TARGET_OBJDUMP:= $(TARGET_PREFIX)objdump
+TARGET_SIZE   := $(TARGET_PREFIX)size
+TARGET_NM     := $(TARGET_PREFIX)nm
+
+# Cortex-M4 Hardware Flags
+TARGET_MCU_FLAGS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
+TARGET_CFLAGS    := $(TARGET_MCU_FLAGS) -std=c11 -Wall -Wextra -Werror -Os -g3 \
+                    -ffunction-sections -fdata-sections -DSTM32F401xE
+TARGET_LDFLAGS   := $(TARGET_MCU_FLAGS) -T stm32_flash.ld \
+                    -Wl,-Map=$(BUILD_DIR)/$(PROJECT_NAME).map,--cref \
+                    -Wl,--gc-sections --specs=nano.specs --specs=nosys.specs
+
+# Sources
+SRCS_COMMON := src/sensor.c
+SRCS_HOST   := src/main_host.c $(SRCS_COMMON)
+SRCS_TARGET := src/main_target.c src/startup_stm32.c $(SRCS_COMMON)
+
+.PHONY: all host target clean bloat-check
+
+all: target
+
+# Target Cross-Compilation Rule
+target: $(BUILD_DIR)/$(PROJECT_NAME).elf $(BUILD_DIR)/$(PROJECT_NAME).bin bloat-check
+
+$(BUILD_DIR)/$(PROJECT_NAME).elf: $(SRCS_TARGET) stm32_flash.ld | $(BUILD_DIR)
+	@echo "--> Cross-compiling target ELF for Cortex-M4..."
+	$(TARGET_CC) $(TARGET_CFLAGS) $(SRCS_TARGET) $(TARGET_LDFLAGS) -o $@
+	@echo "--> Generating Disassembly Listing..."
+	$(TARGET_OBJDUMP) -d -S $@ &gt; $(BUILD_DIR)/$(PROJECT_NAME).asm
+	@echo "--> Generating Sorted Symbol Footprint..."
+	$(TARGET_NM) --size-sort -C -r $@ &gt; $(BUILD_DIR)/symbols_by_size.txt
+	@echo "--> Memory Utilization Summary:"
+	$(TARGET_SIZE) -B $@
+
+$(BUILD_DIR)/$(PROJECT_NAME).bin: $(BUILD_DIR)/$(PROJECT_NAME).elf
+	$(TARGET_OBJCOPY) -O binary $&lt; $@
+
+# Host Native Build Rule
+host: $(SRCS_HOST) | $(BUILD_DIR)
+	@echo "--> Compiling native host binary..."
+	$(HOST_CC) $(HOST_CFLAGS) $(SRCS_HOST) -o $(BUILD_DIR)/$(PROJECT_NAME)_host
+	@echo "--> Executing host simulator:"
+	./$(BUILD_DIR)/$(PROJECT_NAME)_host
+
+# Automated Binary Bloat Gate
+bloat-check: $(BUILD_DIR)/$(PROJECT_NAME).elf
+	@chmod +x scripts/bloat_check.sh
+	@scripts/bloat_check.sh $(BUILD_DIR)/$(PROJECT_NAME).elf 524288 98304
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+clean:
+	rm -rf $(BUILD_DIR)</code></pre>
+                </div>
+
+                <h3>Step 2: Binary Bloat Inspector Script (<code>scripts/bloat_check.sh</code>)</h3>
+                <p>
+                    This bash script parses the ELF output using <code>arm-none-eabi-size</code> and <code>arm-none-eabi-nm</code>. It halts the build if Flash or RAM thresholds are exceeded or if any single symbol exceeds budget:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-bash">#!/usr/bin/env bash
+# ==============================================================================
+# scripts/bloat_check.sh: Embedded Binary Footprint &amp; Memory Budget Gate
+# Usage: ./bloat_check.sh &lt;elf_file&gt; &lt;max_flash_bytes&gt; &lt;max_ram_bytes&gt;
+# ==============================================================================
+set -euo pipefail
+
+ELF_FILE="${1:-build/sensor_firmware.elf}"
+MAX_FLASH="${2:-524288}" # 512 KB
+MAX_RAM="${3:-98304}"    # 96 KB
+
+if [ ! -f "$ELF_FILE" ]; then
+    echo "ERROR: ELF file '$ELF_FILE' not found!"
+    exit 1
+fi
+
+# Extract text, data, bss sections using size in Berkeley format
+SIZE_OUTPUT=$(arm-none-eabi-size -B "$ELF_FILE" | tail -n 1)
+TEXT=$(echo "$SIZE_OUTPUT" | awk '{print $1}')
+DATA=$(echo "$SIZE_OUTPUT" | awk '{print $2}')
+BSS=$(echo "$SIZE_OUTPUT"  | awk '{print $3}')
+
+# Flash = .text + .data
+TOTAL_FLASH=$((TEXT + DATA))
+# RAM = .data + .bss
+TOTAL_RAM=$((DATA + BSS))
+
+FLASH_PERCENT=$(awk "BEGIN {printf \"%.2f\", ($TOTAL_FLASH / $MAX_FLASH) * 100}")
+RAM_PERCENT=$(awk "BEGIN {printf \"%.2f\", ($TOTAL_RAM / $MAX_RAM) * 100}")
+
+echo "================ MEMORY BUDGET REPORT ================"
+echo "FLASH: ${TOTAL_FLASH} / ${MAX_FLASH} bytes (${FLASH_PERCENT}%)"
+echo "  RAM: ${TOTAL_RAM} / ${MAX_RAM} bytes (${RAM_PERCENT}%)"
+echo "  Breakdown: .text=${TEXT}B, .data=${DATA}B, .bss=${BSS}B"
+echo "------------------------------------------------------"
+
+# Audit Top 5 Largest Symbols
+echo "Top 5 Memory-Consuming Symbols:"
+arm-none-eabi-nm --size-sort -r -C "$ELF_FILE" | head -n 5
+
+# Enforce Budgets
+if [ "$TOTAL_FLASH" -gt "$MAX_FLASH" ]; then
+    echo "ERROR: FLASH OVERFLOW! Exceeded budget by $((TOTAL_FLASH - MAX_FLASH)) bytes!"
+    exit 2
+fi
+
+if [ "$TOTAL_RAM" -gt "$MAX_RAM" ]; then
+    echo "ERROR: RAM OVERFLOW! Exceeded budget by $((TOTAL_RAM - MAX_RAM)) bytes!"
+    exit 3
+fi
+
+echo "STATUS: Memory budget PASSED."
+exit 0</code></pre>
+                </div>
+
+                <h3>Step 3: Git Pre-Commit Hook Integration</h3>
+                <p>
+                    Integrate the bloat check directly into your local Git repository so no developer can commit code that breaks memory constraints:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-bash"># Install Git pre-commit hook in .git/hooks/pre-commit
+cat &lt;&lt; 'EOF' &gt; .git/hooks/pre-commit
+#!/usr/bin/env bash
+echo "Running firmware pre-commit verification..."
+make clean
+make target || { echo "Build failed! Commit aborted."; exit 1; }
+echo "Pre-commit verification succeeded."
+EOF
+
+chmod +x .git/hooks/pre-commit</code></pre>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 2: STM32 BARE-METAL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid #10b981; margin-bottom: 2rem;">
+                    <h2>Part 2: Physical STM32 Board Project — Zero-IDE Bare-Metal Firmware with Custom Linker Script</h2>
+                    <p>
+                        Professional embedded firmware demands absolute control over the reset sequence and memory layout. Here, we discard vendor auto-generated code and build our own <strong>custom Linker Script (<code>.ld</code>)</strong> and <strong>C Startup Routine (<code>startup_stm32.c</code>)</strong> from first principles.
+                    </p>
+                </div>
+
+                <h3>Step 1: Custom Linker Script (<code>stm32_flash.ld</code>)</h3>
+                <p>
+                    This script defines the physical Flash (512K) and SRAM (96K) boundaries, maps the vector table to address <code>0x08000000</code>, defines the VMA/LMA relocation mechanics for <code>.data</code>, zeroes <code>.bss</code>, and reserves top-of-RAM for the Main Stack Pointer (MSP):
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-ld">/* Entry Point symbol defined in startup code */
+ENTRY(Reset_Handler)
+
+/* Memory Layout for STM32F401RET6 */
+MEMORY
+{
+    FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 512K
+    RAM   (xrw) : ORIGIN = 0x20000000, LENGTH = 96K
+}
+
+/* Stack boundary calculation: Top of RAM */
+_estack = ORIGIN(RAM) + LENGTH(RAM);
+
+SECTIONS
+{
+    /* 1. Vector Table: Must reside at base of Flash */
+    .isr_vector :
+    {
+        . = ALIGN(4);
+        KEEP(*(.isr_vector))
+        . = ALIGN(4);
+    } &gt; FLASH
+
+    /* 2. Program Code and Read-Only Constants */
+    .text :
+    {
+        . = ALIGN(4);
+        *(.text)
+        *(.text*)
+        *(.rodata)
+        *(.rodata*)
+        . = ALIGN(4);
+        _etext = .; /* Symbol marking end of code in Flash */
+    } &gt; FLASH
+
+    /* 3. Initialized Data Section: VMA in RAM, LMA in Flash */
+    _sidata = LOADADDR(.data);
+    .data :
+    {
+        . = ALIGN(4);
+        _sdata = .; /* Start of .data in RAM */
+        *(.data)
+        *(.data*)
+        . = ALIGN(4);
+        _edata = .; /* End of .data in RAM */
+    } &gt; RAM AT &gt; FLASH
+
+    /* 4. Zero-Initialized BSS Section in RAM */
+    .bss :
+    {
+        . = ALIGN(4);
+        _sbss = .;  /* Start of .bss in RAM */
+        *(.bss)
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        _ebss = .;  /* End of .bss in RAM */
+    } &gt; RAM
+
+    /* Discard unused debugging metadata */
+    /DISCARD/ :
+    {
+        *(.note.GNU-stack)
+    }
+}</code></pre>
+                </div>
+
+                <h3>Step 2: C Startup File &amp; Vector Table (<code>src/startup_stm32.c</code>)</h3>
+                <p>
+                    Rather than writing assembly, modern embedded practice implements CRT0 in pure C. The startup code copies initialized variables from Flash to RAM, fills <code>.bss</code> with zeros, and jumps to <code>main()</code>:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file startup_stm32.c
+ * @brief Bare-Metal C Startup Routine &amp; Vector Table for STM32F4
+ */
+#include &lt;stdint.h&gt;
+
+/* Symbols exported by the Linker Script */
+extern uint32_t _estack;
+extern uint32_t _etext;
+extern uint32_t _sidata;
+extern uint32_t _sdata;
+extern uint32_t _edata;
+extern uint32_t _sbss;
+extern uint32_t _ebss;
+
+/* Prototypes */
+void Reset_Handler(void);
+void Default_Handler(void);
+extern int main(void);
+
+/* Exception Handler Aliases pointing to Default_Handler */
+void NMI_Handler(void)        __attribute__((weak, alias("Default_Handler")));
+void HardFault_Handler(void)  __attribute__((weak, alias("Default_Handler")));
+void MemManage_Handler(void)  __attribute__((weak, alias("Default_Handler")));
+void BusFault_Handler(void)   __attribute__((weak, alias("Default_Handler")));
+void UsageFault_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void SysTick_Handler(void)    __attribute__((weak, alias("Default_Handler")));
+
+/* Vector Table placed in .isr_vector section */
+__attribute__((section(".isr_vector"), used))
+const uint32_t * const g_vector_table[] = {
+    (uint32_t *)&amp;_estack,        /* Initial Stack Pointer (MSP) */
+    (uint32_t *)Reset_Handler,   /* Reset Handler */
+    (uint32_t *)NMI_Handler,     /* NMI Handler */
+    (uint32_t *)HardFault_Handler,/* HardFault Handler */
+    (uint32_t *)MemManage_Handler,
+    (uint32_t *)BusFault_Handler,
+    (uint32_t *)UsageFault_Handler,
+    0, 0, 0, 0,                  /* Reserved */
+    (uint32_t *)Default_Handler, /* SVCall */
+    (uint32_t *)Default_Handler, /* Debug Monitor */
+    0,                           /* Reserved */
+    (uint32_t *)Default_Handler, /* PendSV */
+    (uint32_t *)SysTick_Handler  /* SysTick */
+};
+
+/* C Runtime Initialization (CRT0) */
+void Reset_Handler(void) {
+    /* 1. Copy initialized .data section from Flash (LMA) to RAM (VMA) */
+    uint32_t *p_src = &amp;_sidata;
+    uint32_t *p_dest = &amp;_sdata;
+    while (p_dest &lt; &amp;_edata) {
+        *p_dest++ = *p_src++;
+    }
+
+    /* 2. Zero-initialize the .bss section in RAM */
+    uint32_t *p_bss = &amp;_sbss;
+    while (p_bss &lt; &amp;_ebss) {
+        *p_bss++ = 0U;
+    }
+
+    /* 3. Call application entry point */
+    main();
+
+    /* 4. Safety trap if main ever returns */
+    while (1) {
+        __asm volatile ("wfi");
+    }
+}
+
+/* Default Catch-All Exception Trap */
+void Default_Handler(void) {
+    while (1) {
+        /* Hang in loop for debugger attachment */
+    }
+}</code></pre>
+                </div>
+
+                <h3>Step 3: Target Application (<code>src/main_target.c</code>)</h3>
+                <p>
+                    A clean firmware application demonstrating global variables (in <code>.data</code> and <code>.bss</code>) to verify our startup initialization:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file main_target.c
+ * @brief Hardware Demonstration of Linker Sections &amp; Startup
+ */
+#include &lt;stdint.h&gt;
+
+/* Hardware Register Definitions */
+#define RCC_AHB1ENR   (*(volatile uint32_t *)(0x40023830UL))
+#define GPIOA_MODER   (*(volatile uint32_t *)(0x40020000UL))
+#define GPIOA_BSRR    (*(volatile uint32_t *)(0x40020018UL))
+
+/* Variable in .data (Initialized, must be copied from Flash to RAM) */
+uint32_t g_blink_period_ticks = 400000UL;
+
+/* Variable in .bss (Uninitialized, must be zeroed by Reset_Handler) */
+uint32_t g_heartbeat_counter;
+
+static void delay(volatile uint32_t count) {
+    while (count &gt; 0) {
+        count--;
+    }
+}
+
+int main(void) {
+    /* Enable GPIOA Clock */
+    RCC_AHB1ENR |= (1UL &lt;&lt; 0);
+
+    /* Configure PA5 (LD2) as Output */
+    GPIOA_MODER &amp;= ~(3UL &lt;&lt; (5 * 2));
+    GPIOA_MODER |=  (1UL &lt;&lt; (5 * 2));
+
+    /* Verification check: If CRT0 failed to copy .data, period would be 0! */
+    if (g_blink_period_ticks == 0UL) {
+        g_blink_period_ticks = 50000UL; /* Fast error blink */
+    }
+
+    while (1) {
+        GPIOA_BSRR = (1UL &lt;&lt; 5);       /* LED ON */
+        delay(g_blink_period_ticks);
+        GPIOA_BSRR = (1UL &lt;&lt; (5 + 16)); /* LED OFF */
+        delay(g_blink_period_ticks);
+
+        g_heartbeat_counter++;
+    }
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <!-- Self-Assessment MCQs -->
+                <div class="interactive-quiz">
+                    <h3>Module 2 Capstone Knowledge Check</h3>
+                    <p>Test your mastery of the build pipeline, linker mechanics, and memory budget enforcement.</p>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">1. In <code>stm32_flash.ld</code>, what is the distinction between <strong>VMA</strong> (Virtual/Run Address) and <strong>LMA</strong> (Load Memory Address) for the <code>.data</code> section?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q1" value="0"> VMA is used by the debugger; LMA is used by the C preprocessor.</label></li>
+                            <li><label><input type="radio" name="q1" value="1"> VMA is the execution address in RAM where variables live; LMA is the persistent storage address in Flash where initial values are burned.</label></li>
+                            <li><label><input type="radio" name="q1" value="2"> VMA and LMA are always identical in ARM Cortex-M microcontrollers.</label></li>
+                            <li><label><input type="radio" name="q1" value="3"> LMA represents the stack pointer while VMA represents the heap pointer.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">2. Why are the GCC flags <code>-ffunction-sections</code> and <code>-fdata-sections</code> combined with <code>-Wl,--gc-sections</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q2" value="0"> To compress machine code using gzip algorithms.</label></li>
+                            <li><label><input type="radio" name="q2" value="1"> To automatically align all functions to 64-byte boundaries.</label></li>
+                            <li><label><input type="radio" name="q2" value="2"> They place each function/variable in its own ELF section so the linker can discard unused code, dramatically shrinking binary footprint.</label></li>
+                            <li><label><input type="radio" name="q2" value="3"> To enable runtime garbage collection in C.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">3. What is the very first entry at index 0 of the ARM Cortex-M vector table?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q3" value="0"> The initial Main Stack Pointer (MSP) address (<code>_estack</code>).</label></li>
+                            <li><label><input type="radio" name="q3" value="1"> The address of <code>Reset_Handler</code>.</label></li>
+                            <li><label><input type="radio" name="q3" value="2"> The address of <code>main()</code>.</label></li>
+                            <li><label><input type="radio" name="q3" value="3"> A magic number signature required by the bootloader.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">4. Which flag in <code>arm-none-eabi-nm</code> sorts symbols by their memory size in descending order?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q4" value="0"> <code>-a</code></label></li>
+                            <li><label><input type="radio" name="q4" value="1"> <code>-u</code></label></li>
+                            <li><label><input type="radio" name="q4" value="2"> <code>--format=sysv</code></label></li>
+                            <li><label><input type="radio" name="q4" value="3"> <code>--size-sort -r</code></label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">5. Why is <code>--specs=nano.specs</code> commonly passed to the linker in embedded ARM GCC projects?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q5" value="0"> It replaces GCC with a lightweight nano-compiler.</label></li>
+                            <li><label><input type="radio" name="q5" value="1"> It links Newlib-Nano, an optimized C runtime library that drastically reduces the footprint of standard C library functions (e.g. <code>printf</code>).</label></li>
+                            <li><label><input type="radio" name="q5" value="2"> It enables hardware floating point unit (FPU) acceleration.</label></li>
+                            <li><label><input type="radio" name="q5" value="3"> It disables all C type checking.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">6. What happens if the startup code fails to initialize <code>.bss</code> memory?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q6" value="0"> The compiler generates an unresolved symbol linker error.</label></li>
+                            <li><label><input type="radio" name="q6" value="1"> The CPU triggers a bus fault upon boot.</label></li>
+                            <li><label><input type="radio" name="q6" value="2"> Global uninitialized variables will contain random garbage from SRAM power-up state rather than zero, violating the C language standard.</label></li>
+                            <li><label><input type="radio" name="q6" value="3"> The Flash memory becomes write-protected.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">7. What information does the <code>.map</code> file provide to an embedded engineer?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q7" value="0"> Exact memory addresses, section placements, symbol sizes, and object file cross-references.</label></li>
+                            <li><label><input type="radio" name="q7" value="1"> The PCB trace layout and pin routing diagram.</label></li>
+                            <li><label><input type="radio" name="q7" value="2"> The execution time in microseconds for each function.</label></li>
+                            <li><label><input type="radio" name="q7" value="3"> A list of syntax errors in the C source code.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">8. In <code>stm32_flash.ld</code>, why is <code>KEEP(*(.isr_vector))</code> necessary?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q8" value="0"> It encrypts the vector table in Flash.</label></li>
+                            <li><label><input type="radio" name="q8" value="1"> It copies the vector table to RAM automatically.</label></li>
+                            <li><label><input type="radio" name="q8" value="2"> It prevents the compiler from converting interrupts into C functions.</label></li>
+                            <li><label><input type="radio" name="q8" value="3"> It instructs the linker garbage collector (<code>--gc-sections</code>) not to discard the vector table even though it is never referenced explicitly in C code.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">9. What is the role of <code>LOADADDR(.data)</code> in the linker script?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q9" value="0"> It returns the size of the <code>.data</code> section in bytes.</label></li>
+                            <li><label><input type="radio" name="q9" value="1"> It returns the absolute physical Flash address (LMA) where the initial values of <code>.data</code> are located.</label></li>
+                            <li><label><input type="radio" name="q9" value="2"> It allocates dynamic heap memory for initialized variables.</label></li>
+                            <li><label><input type="radio" name="q9" value="3"> It configures the hardware Memory Protection Unit (MPU).</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">10. Why should a firmware project track binary sizes in a Git pre-commit hook or CI pipeline?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q10" value="0"> Git cannot store commits unless the binary size is known in advance.</label></li>
+                            <li><label><input type="radio" name="q10" value="1"> It speeds up Git push and pull operations.</label></li>
+                            <li><label><input type="radio" name="q10" value="2"> To prevent inadvertent library bloat (such as unintended standard I/O linking) from quietly exhausting micro-controller Flash or RAM limits.</label></li>
+                            <li><label><input type="radio" name="q10" value="3"> It automatically patches security vulnerabilities in C code.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Hands-On Labs -->
+                <div class="labs-section">
+                    <h2>Hands-on Engineering Challenges</h2>
+                    
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 1 (Host)</div>
+                        <h3>Symbol Bloat Regression CLI</h3>
+                        <p>Extend <code>bloat_check.sh</code> to compare the newly compiled ELF against the previous Git commit's ELF (using <code>git show HEAD:build/firmware.elf</code>). Fail the build if any individual function grew by more than 15%.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 2 (Host)</div>
+                        <h3>CMake Multi-Toolchain Target Matrix</h3>
+                        <p>Write a single <code>CMakeLists.txt</code> that uses a CMake toolchain file (<code>arm-gcc.cmake</code>) to build the target firmware when passed <code>-DCMAKE_TOOLCHAIN_FILE=arm-gcc.cmake</code>, and builds a host simulator when omitted.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 3 (STM32)</div>
+                        <h3>Custom Flash Sector for Calibration Data</h3>
+                        <p>Modify <code>stm32_flash.ld</code> to carve out a dedicated 16KB Flash sector named <code>.calib_data</code> at address <code>0x0807C000</code>. Place a <code>const calibration_t</code> struct into this section using GCC <code>__attribute__((section(".calib_data")))</code> and verify in the <code>.map</code> file.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 4 (STM32)</div>
+                        <h3>Stack Watermarking &amp; Overflow Guard</h3>
+                        <p>In <code>startup_stm32.c</code>, fill the RAM region between <code>_ebss</code> and <code>_estack - 1024</code> with a watermark pattern (<code>0xDEADBEEF</code>). In <code>main()</code>, count how many words of the watermark were overwritten to determine peak stack usage.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 5 (Toolchain Automation)</div>
+                        <h3>Disassembly Annotation Automation</h3>
+                        <p>Add a Makefile target <code>make annotate</code> that generates mixed C and assembly listings using <code>arm-none-eabi-objdump -S -l</code>, highlighting compiler optimization differences between <code>-O0</code>, <code>-O2</code>, and <code>-Os</code>.</p>
+                    </div>
+                </div>
+
+                <!-- References -->
+                <div class="references-section">
+                    <h2>Further Technical Reading</h2>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">GNU Toolchain</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Free Software Foundation</span>
+                            </div>
+                            <h4>GNU Linker (ld) Command Language Manual</h4>
+                            <p>Official specification of linker scripts, section commands, memory regions, and symbol assignments.</p>
+                            <a href="https://sourceware.org/binutils/docs/ld/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architecture</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Arm Developer</span>
+                            </div>
+                            <h4>Arm Cortex-M4 Generic User Guide</h4>
+                            <p>Defines exception model, vector table offsets, core registers (MSP/PSP), and memory architecture.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_10.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 10: Git Workflow for Firmware</span>
+                </a>
+                <a href="topic_11.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 11: Events &amp; Event Handling</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

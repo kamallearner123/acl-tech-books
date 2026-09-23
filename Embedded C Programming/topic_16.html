@@ -1,7 +1,653 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Defensive Programming</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_16.html">Defensive Programming</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 16</span><h1>Defensive Programming</h1><p>Validate pointers, lengths, ranges, states, and return values at boundaries. Initialize objects, define safe defaults, avoid undefined behavior, and make failures observable.</p><pre><code>int copy_bytes(uint8_t *dst, size_t cap,
-               const uint8_t *src, size_t length)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 16: Defensive Programming - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li class="active"><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 16</span>
+                <h1>Defensive Programming in Embedded C</h1>
+
+                <p>
+                    In desktop application programming, an unhandled exception or null-pointer dereference results in an OS process crash and a core dump. In an embedded system, there is no underlying operating system to clean up resources: a crashed core leaves motor H-bridges energized, surgical lasers firing, or flight control surfaces locked in place.
+                </p>
+
+                <p>
+                    <strong>Defensive Programming</strong> is the systematic engineering practice of designing software to remain reliable and secure despite unexpected hardware faults, corrupted communications, electromagnetic interference (EMI), and programming bugs in peer modules. It operates on a foundational axiom: <em>Anything that can fail, will fail; the firmware must anticipate every failure, detect it immediately, and transition into a verified fail-safe state.</em>
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 16.1 -->
+                <h2>16.1 Boundary Validation &amp; Pointer Sanitization</h2>
+                <p>
+                    Every public API function accepting pointers or numerical arguments must validate its parameters prior to performing any hardware operations or memory writes:
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef enum {
+    DRIVER_STATUS_OK = 0,
+    DRIVER_STATUS_NULL_PTR,
+    DRIVER_STATUS_INVALID_PARAM,
+    DRIVER_STATUS_BUFFER_OVERFLOW,
+    DRIVER_STATUS_HARDWARE_TIMEOUT
+} DriverStatus_t;
+
+DriverStatus_t telemetry_packet_serialize(
+    const uint8_t * const p_src_data,
+    const size_t          src_len_bytes,
+    uint8_t * const       p_dst_buffer,
+    const size_t          dst_capacity_bytes,
+    size_t * const        p_written_bytes)
 {
-    if (dst == NULL || src == NULL || length &gt; cap) return -1;
-    for (size_t i = 0u; i &lt; length; ++i) dst[i] = src[i];
-    return 0;
-}</code></pre></article><footer class="page-navigation"><a class="nav-button prev" href="topic_15.html">Naming</a><a class="nav-button next" href="topic_17.html">Documentation</a></footer></main></div><script src="script.js"></script></body></html>
+    /* 1. Pointer Sanitization: Check all input and output pointers */
+    if ((p_src_data == NULL) || (p_dst_buffer == NULL) || (p_written_bytes == NULL)) {
+        return DRIVER_STATUS_NULL_PTR;
+    }
+
+    /* 2. Range & Bounds Validation */
+    if (src_len_bytes == 0U) {
+        return DRIVER_STATUS_INVALID_PARAM;
+    }
+
+    /* Reserve 4 bytes for preamble and 2 bytes for CRC16 */
+    const size_t required_bytes = src_len_bytes + 6U;
+    if (required_bytes &gt; dst_capacity_bytes) {
+        *p_written_bytes = 0U;
+        return DRIVER_STATUS_BUFFER_OVERFLOW;
+    }
+
+    /* 3. Safe Execution */
+    p_dst_buffer[0] = 0xAAU;
+    p_dst_buffer[1] = 0x55U;
+    p_dst_buffer[2] = (uint8_t)(src_len_bytes &gt;&gt; 8);
+    p_dst_buffer[3] = (uint8_t)(src_len_bytes &amp; 0xFFU);
+
+    for (size_t i = 0; i &lt; src_len_bytes; ++i) {
+        p_dst_buffer[4U + i] = p_src_data[i];
+    }
+
+    /* Append CRC checksum */
+    uint16_t crc = crc16_calculate(&amp;p_dst_buffer[4], src_len_bytes);
+    p_dst_buffer[4U + src_len_bytes]      = (uint8_t)(crc &gt;&gt; 8);
+    p_dst_buffer[4U + src_len_bytes + 1U] = (uint8_t)(crc &amp; 0xFFU);
+
+    *p_written_bytes = required_bytes;
+    return DRIVER_STATUS_OK;
+}</code></pre>
+                <div class="code-caption">Program 16.1: Defensively Hardened Serialization Function</div>
+
+                <div class="callout callout-danger" style="margin: 1.5rem 0;">
+                    <h4 style="margin-top:0;">The Cardinal Rule of Buffer Parameters</h4>
+                    <p>
+                        In defensive C, <strong>never pass a buffer pointer without also passing its maximum allocated capacity</strong>. Functions like <code>strcpy()</code>, <code>sprintf()</code>, and <code>gets()</code> that assume the destination buffer is large enough are banned by MISRA-C and modern security standards. Always pass capacity and verify bounds before every byte write.
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 16.2 -->
+                <h2>16.2 Stuck-Hardware Fallbacks &amp; Bounded Loops</h2>
+                <p>
+                    A ubiquitous design flaw in amateur firmware is unbounded polling of hardware status registers:
+                </p>
+
+                <pre><code class="language-c">/* FATAL BUG: Unbounded spin-loop! */
+void i2c_write_byte_fragile(uint8_t data) {
+    I2C1-&gt;DR = data;
+    while (!(I2C1-&gt;SR1 &amp; I2C_SR1_TXE)); /* HANGS FOREVER IF BUS IS SHORTED! */
+}</code></pre>
+
+                <p>
+                    If an external I2C sensor experiences an ESD strike, loose solder joint, or drops power, the <code>TXE</code> flag may never assert. The CPU will freeze inside the <code>while</code> loop indefinitely, resulting in a locked medical ventilator or drone flight controller.
+                </p>
+
+                <h3>The Bounded Timeout Pattern</h3>
+                <p>
+                    Every loop waiting for hardware confirmation must include an explicit countdown or SysTick timestamp timeout:
+                </p>
+
+                <pre><code class="language-c">#define I2C_TIMEOUT_MAX_CYCLES  (100000UL)
+
+DriverStatus_t i2c_write_byte_defensive(const uint8_t data) {
+    uint32_t timeout_counter = I2C_TIMEOUT_MAX_CYCLES;
+
+    I2C1-&gt;DR = data;
+
+    while (!(I2C1-&gt;SR1 &amp; I2C_SR1_TXE)) {
+        if (--timeout_counter == 0U) {
+            /* Hardware failure detected! Recover peripheral and abort */
+            i2c_bus_hardware_reset();
+            return DRIVER_STATUS_HARDWARE_TIMEOUT;
+        }
+    }
+
+    return DRIVER_STATUS_OK;
+}</code></pre>
+                <div class="code-caption">Program 16.2: Bounded Timeout Loop Preventing Permanent Deadlock</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 16.3 -->
+                <h2>16.3 Fail-Safe States &amp; Actuator Quenching</h2>
+                <p>
+                    When an unrecoverable fault is detected (sensor timeout, CRC checksum mismatch, brownout warning), defensive code must enforce immediate <strong>actuator quenching</strong>:
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 240" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <rect x="30" y="30" width="180" height="70" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="120" y="65" fill="#f8fafc" font-size="13" font-weight="600" text-anchor="middle">Normal Operation</text>
+                        <text x="120" y="85" fill="#94a3b8" font-size="10" text-anchor="middle">PID Motor Driving</text>
+
+                        <line x1="210" y1="65" x2="270" y2="65" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="240" y="55" fill="#ef4444" font-size="10" font-weight="bold" text-anchor="middle">FAULT</text>
+
+                        <rect x="270" y="30" width="220" height="70" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="380" y="60" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Quench Actuators</text>
+                        <text x="380" y="80" fill="#fca5a5" font-size="10" text-anchor="middle">PWM = 0, Relays OPEN</text>
+
+                        <line x1="490" y1="65" x2="550" y2="65" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <rect x="550" y="30" width="220" height="70" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="660" y="60" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Safe Limp Mode</text>
+                        <text x="660" y="80" fill="#fde68a" font-size="10" text-anchor="middle">Log Error, Blink Warning</text>
+
+                        <!-- Recovery line -->
+                        <path d="M 660 100 L 660 180 L 120 180 L 120 105" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="6,4"/>
+                        <text x="390" y="170" fill="#10b981" font-size="11" text-anchor="middle">Diagnostic Reset &amp; Self-Test Pass (Manual / Automated)</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 16.1: Fail-Safe State Transition and Actuator Quenching Pipeline</div>
+                </div>
+
+                <pre><code class="language-c">void safety_system_trigger_emergency_stop(const ErrorCode_t fault_code) {
+    /* Step 1: Immediately disable hardware PWM gate drivers */
+    TIM1-&gt;BDTR &amp;= ~TIM_BDTR_MOE; /* Main Output Enable OFF in Cortex-M timer */
+    GPIO_SetLow(RELAY_HEATER_PIN);
+    GPIO_SetLow(SOLENOID_VALVE_PIN);
+
+    /* Step 2: Record blackbox diagnostic telemetry into non-volatile memory */
+    nvram_log_critical_fault(fault_code, millis());
+
+    /* Step 3: Set status indicator to Alert Strobe */
+    led_strobe_error_pattern(fault_code);
+
+    /* Step 4: Lock state machine into FAIL_SAFE */
+    g_system_state = STATE_EMERGENCY_SHUTDOWN;
+}</code></pre>
+                <div class="code-caption">Program 16.3: Hardware Actuator Emergency Quench Routine</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 16.4 -->
+                <h2>16.4 Stack Watermarking &amp; Canary Words</h2>
+                <p>
+                    Stack overflow is among the most silent and destructive failure modes in embedded C. Because microcontrollers lack Memory Management Units (MMUs) with paging and segmentation, a stack growing downwards collides silently with global <code>.data</code> and <code>.bss</code> sections.
+                </p>
+
+                <p>
+                    A standard defensive technique is <strong>Stack Watermarking</strong>: during startup, the entire unused stack area is painted with a distinctive byte pattern (e.g., <code>0xA5A5A5A5</code>). Periodically, a background diagnostic task inspects the memory from the base of the stack upwards to calculate the exact maximum historical stack consumption:
+                </p>
+
+                <pre><code class="language-c">extern uint32_t _stack_bottom; /* Defined in linker script */
+extern uint32_t _stack_top;
+
+#define STACK_WATERMARK_PATTERN (0xA5A5A5A5UL)
+
+void stack_paint_canary(void) {
+    uint32_t *p_curr = &amp;_stack_bottom;
+    /* Paint up to current stack pointer minus safety margin */
+    uint32_t *p_sp = (uint32_t *)__get_MSP();
+
+    while (p_curr &lt; p_sp) {
+        *p_curr++ = STACK_WATERMARK_PATTERN;
+    }
+}
+
+size_t stack_get_free_bytes(void) {
+    const uint32_t *p_curr = &amp;_stack_bottom;
+    size_t unused_words = 0;
+
+    while (*p_curr == STACK_WATERMARK_PATTERN) {
+        unused_words++;
+        p_curr++;
+    }
+
+    return unused_words * sizeof(uint32_t);
+}</code></pre>
+                <div class="code-caption">Program 16.4: Stack Watermarking and Free Margin Detector</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>16.5 Code Comparison: Blind vs. Defensively Engineered Firmware</h2>
+                <p>
+                    Compare a naive parser that trusts external inputs with a defensively designed parser capable of repelling malformed network packets.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Implementations: Packet Parser</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Blind &amp; Fragile (Crash Magnet)</h4>
+                            <pre><code class="language-c">/* Trusts caller completely */
+void process_packet(uint8_t *buffer) {
+    uint8_t len = buffer[0];
+    uint8_t payload[32];
+
+    /* Buffer Overflow Vulnerability!
+       If len &gt; 32, stack is corrupted */
+    for (int i = 0; i &lt; len; i++) {
+        payload[i] = buffer[1 + i];
+    }
+    execute_command(payload[0]);
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Flaws:</strong> No null pointer check, no total buffer length parameter, unbounded array copy resulting in stack smashing if <code>len &gt; 32</code>.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Defensively Hardened</h4>
+                            <pre><code class="language-c">#define MAX_PAYLOAD_BYTES (32U)
+
+DriverStatus_t process_packet(
+    const uint8_t * const p_buf,
+    const size_t          buf_len) 
+{
+    if ((p_buf == NULL) || (buf_len &lt; 2U)) {
+        return DRIVER_STATUS_INVALID_PARAM;
+    }
+    const uint8_t payload_len = p_buf[0];
+
+    /* Strict Bounds Validation */
+    if ((payload_len &gt; MAX_PAYLOAD_BYTES) || 
+        (buf_len &lt; (size_t)(payload_len + 1U))) {
+        return DRIVER_STATUS_BUFFER_OVERFLOW;
+    }
+
+    uint8_t payload[MAX_PAYLOAD_BYTES];
+    for (size_t i = 0; i &lt; payload_len; ++i) {
+        payload[i] = p_buf[1U + i];
+    }
+    return execute_command(payload[0]);
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Safety:</strong> Total length validation, payload clamp check, const correctness, status code return.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>16.6 Interactive Knowledge Check</h2>
+                <p>Test your comprehension of defensive programming techniques and failure mitigation.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. Why is an unbounded spin loop like <code>while (!(SPI1-&gt;SR &amp; SPI_SR_RXNE));</code> considered dangerous in production firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because the compiler converts <code>while</code> loops to recursive function calls.</li>
+                        <li class="mcq-option" data-correct="true">If an electrical fault or disconnected slave causes the flag to never assert, the CPU hangs forever.</li>
+                        <li class="mcq-option" data-correct="false">Because SPI flags can only be read once per power cycle.</li>
+                        <li class="mcq-option" data-correct="false">It disables all hardware interrupts automatically.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Unbounded loops assume hardware works perfectly. Any physical wire disconnect or ESD latchup stalls the firmware permanently unless guarded by a bounded timeout.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. What is "actuator quenching" in safety-critical firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Cooling high-power MOSFETs with liquid nitrogen.</li>
+                        <li class="mcq-option" data-correct="true">Immediately cutting drive signals (disabling PWM, de-energizing relays) upon detecting a fault to enter a safe passive state.</li>
+                        <li class="mcq-option" data-correct="false">Increasing the actuator frequency to maximum speed during an error.</li>
+                        <li class="mcq-option" data-correct="false">Writing configuration parameters to Flash memory.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Actuator quenching ensures physical hardware (motors, heaters, valves) cannot cause harm when software loses valid sensor feedback or enters a fault state.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What is the defensive technique of "stack watermarking"?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Writing the programmer's name into the vector table.</li>
+                        <li class="mcq-option" data-correct="true">Filling the unused stack space with a known pattern (e.g. 0xA5A5A5A5) at boot to measure maximum stack depth during operation.</li>
+                        <li class="mcq-option" data-correct="false">Using hardware parity bits on stack registers.</li>
+                        <li class="mcq-option" data-correct="false">Compressing stack frames using Huffman coding.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> By inspecting how much of the magic watermark pattern was overwritten during execution, developers can accurately calculate stack usage margins and prevent collisions.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What parameter must ALWAYS accompany a raw buffer pointer passed into a function?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A checksum of the function's bytecode.</li>
+                        <li class="mcq-option" data-correct="true">The maximum capacity/length of the allocated buffer in bytes.</li>
+                        <li class="mcq-option" data-correct="false">The memory bus clock frequency.</li>
+                        <li class="mcq-option" data-correct="false">A pointer to the parent process ID.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Without an explicit capacity parameter, a receiving function cannot verify whether writing data will overflow the buffer boundary.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. Why is <code>strcpy(dst, src)</code> strictly banned under MISRA-C and defensive embedded standards?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">It performs no bounds checking, causing unbounded buffer overflows if <code>src</code> exceeds <code>dst</code>.</li>
+                        <li class="mcq-option" data-correct="false">It is only implemented in C++ compilers.</li>
+                        <li class="mcq-option" data-correct="false">It consumes 4 KB of Flash memory per call.</li>
+                        <li class="mcq-option" data-correct="false">It forces the CPU into Thumb mode.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>strcpy()</code> copies until encountering a null byte with zero regard for destination capacity. Safer alternatives or custom bounded loop copies are required.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is the purpose of checking <code>if ((uintptr_t)ptr % 4 != 0)</code> before casting a byte pointer to a 32-bit integer pointer on ARM Cortex-M0?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To verify the pointer is in ROM.</li>
+                        <li class="mcq-option" data-correct="true">To avoid an unaligned memory access HardFault, which occurs on architectures that do not support unaligned 32-bit loads.</li>
+                        <li class="mcq-option" data-correct="false">To enable floating-point hardware.</li>
+                        <li class="mcq-option" data-correct="false">To check if the pointer is null.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> ARM Cortex-M0 and Cortex-M0+ cores lack hardware unaligned memory access support. Dereferencing an unaligned 32-bit address immediately triggers a UsageFault/HardFault.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. How should a defensive function handle a null pointer argument?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Print an ASCII joke to the UART console.</li>
+                        <li class="mcq-option" data-correct="true">Immediately return an explicit error code (e.g. <code>STATUS_NULL_PTR</code>) without dereferencing the pointer.</li>
+                        <li class="mcq-option" data-correct="false">Assign the pointer to address <code>0x00000000</code>.</li>
+                        <li class="mcq-option" data-correct="false">Enter an infinite busy-wait loop.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Checking for <code>NULL</code> at the top of the function and returning an error code prevents dereferencing an invalid address.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. What does "graceful degradation" mean in embedded architecture?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Slowly decreasing the MCU voltage until the chip turns off.</li>
+                        <li class="mcq-option" data-correct="true">Maintaining partial system functionality (e.g. basic safety monitoring) when non-critical components or sensors fail, rather than shutting down entirely.</li>
+                        <li class="mcq-option" data-correct="false">Allowing flash memory to degrade without wear leveling.</li>
+                        <li class="mcq-option" data-correct="false">Gradually dimming status LEDs.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> If a secondary sensor (e.g., ambient humidity) fails, graceful degradation keeps the primary motor control and thermal safety loops running safely rather than locking up.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is a "Windowed Watchdog" (WWDG) and how does it improve defensive reliability over a standard watchdog?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It displays watchdog status in a graphical OLED window.</li>
+                        <li class="mcq-option" data-correct="true">It triggers a reset not only if refreshed too late, but also if refreshed too early, detecting runaway loops that kick the watchdog prematurely.</li>
+                        <li class="mcq-option" data-correct="false">It only operates during daytime windows.</li>
+                        <li class="mcq-option" data-correct="false">It disables all flash writes during brownouts.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> A WWDG enforces both an upper and lower time limit for refresh. If buggy code gets stuck in a tight loop that repeatedly calls the feed function too quickly, the WWDG resets the MCU.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. In a defensive C codebase, what should be done with unused <code>switch</code> cases?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Omit the <code>default:</code> label to save ROM space.</li>
+                        <li class="mcq-option" data-correct="true">Always include a <code>default:</code> case that handles invalid states, logs an anomaly, and places the system in a safe fallback state.</li>
+                        <li class="mcq-option" data-correct="false">Comment them out with preprocessor macros.</li>
+                        <li class="mcq-option" data-correct="false">Jump directly to the vector table.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Cosmic rays, electrical noise, or pointer corruptions can flip bits in an enum variable. A defensive <code>default:</code> block traps illegal states and prevents undefined execution paths.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>16.7 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to build resilient firmware immune to hardware faults and data corruption.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Bounded Hardware Timeout Wrapper</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a generic macro or inline function: <code>WAIT_FOR_FLAG_TIMEOUT(reg, flag, timeout_us, status)</code>. Test it by deliberately disconnecting the MISO line on an SPI bus. Verify that the system reports a timeout status within 50 &mu;s and does not freeze.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Memory Alignment &amp; Bounds Sanitizer</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a defensive memory copy function: <code>safe_mem_copy(uint32_t *p_dst, const uint32_t *p_src, size_t count_words)</code>. Verify that it checks for null pointers, verifies 4-byte address alignment on both buffers, and detects overlapping buffer memory regions.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Stack Canary &amp; High-Watermark Monitor</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement the stack watermark engine from Program 16.4 in your startup code. Write a recursive test function that consumes stack space incrementally. Verify that a background task detects when free stack falls below 128 bytes and triggers an orderly safety shutdown.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Windowed Watchdog (WWDG) Timing Calibration</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Configure a hardware Windowed Watchdog with a lower refresh limit of 20 ms and an upper limit of 50 ms. Write a cooperative loop task that kicks the watchdog at 30 ms intervals. Intentionally trigger an early kick (at 5 ms) and verify that the MCU resets immediately.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Fail-Safe Quench Interlock</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build a simulated motor speed controller. Inject three distinct faults: (1) ADC disconnect, (2) Temperature over 85 &deg;C, and (3) UART communication loss for &gt; 500 ms. Verify that every fault cleanly executes the <code>safety_system_trigger_emergency_stop()</code> sequence within 2 milliseconds.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Aerospace Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">RTCA / EUROCAE</span>
+                            </div>
+                            <h4>DO-178C: Software Considerations in Airborne Systems</h4>
+                            <p>International safety standard detailing defensive code guidelines, boundary checking, and fault containment in avionics.</p>
+                            <a href="https://www.rtca.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Automotive Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ISO</span>
+                            </div>
+                            <h4>ISO 26262: Road Vehicles &ndash; Functional Safety (Part 6)</h4>
+                            <p>Mandates defensive software architectural mechanisms including plausibility checks, range monitoring, and watchdogs.</p>
+                            <a href="https://www.iso.org/standard/68383.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Security Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">SEI CERT</span>
+                            </div>
+                            <h4>SEI CERT C Coding Standard</h4>
+                            <p>Definitive rules for preventing memory corruption, integer overflow, and undefined behavior in mission-critical C systems.</p>
+                            <a href="https://wiki.sei.cmu.edu/confluence/display/c" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_15.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 15: Naming Conventions &amp; Style</span>
+                </a>
+                <a href="topic_17.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 17: Documentation &amp; Doxygen</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1 Project: C Foundations, Safety & Diagnostics - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li class="active"><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Module 1 Capstone Project</span>
+                <h1>C Foundations, Safety &amp; Hardware Diagnostics</h1>
+
+                <p class="intro-p">
+                    Having mastered the foundational pillars of Embedded C—fixed-width types, memory boundaries, common compiler traps, assertions, defensive logging, and unit testing—it is time to consolidate this knowledge. This milestone features two complete, standalone engineering projects: one optimized for host simulation on <strong>Linux/WSL</strong> using GCC, sanitizers, and Unity; and one deployed bare-metal on an <strong>STM32 microcontroller</strong> using direct register access and hardware-level panic diagnostics.
+                </p>
+
+                <!-- Project Matrix Table -->
+                <div class="summary-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Project 1: Linux / WSL Environment</th>
+                                <th>Project 2: Physical STM32 Board</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Project Focus</strong></td>
+                                <td>Safe Telemetry Packet Decoder &amp; Assert Test Suite</td>
+                                <td>Bare-Metal Diagnostic Assert &amp; LED Morse Blink Engine</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hardware / Target</strong></td>
+                                <td>x86_64 / aarch64 Host Terminal (GCC, Valgrind, ASan)</td>
+                                <td>STM32F4 (Nucleo-F401RE / F411RE) or STM32F103 (BluePill)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Curriculum Synergy</strong></td>
+                                <td>Fixed-width types, bitwise unpacking, endianness, Unity tests</td>
+                                <td>Volatile register pointers, hardware panic loops, zero-HAL GPIO</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Verification Method</strong></td>
+                                <td>Automated Unity test harness, AddressSanitizer runtime checks</td>
+                                <td>Logic analyzer / oscilloscope on LED pin, SWD GDB registers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 1: LINUX / WSL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid var(--accent); margin-bottom: 2rem;">
+                    <h2>Part 1: Linux / WSL Project — Safe Telemetry Packet Decoder</h2>
+                    <p>
+                        In distributed embedded systems (automotive CAN, avionics ARINC, IoT MQTT), sensor nodes transmit serialized binary frames over raw serial channels. A fundamental embedded programming skill is decoding packed frames into typed C structs safely—without buffer overruns, endianness bugs, or undefined behavior.
+                    </p>
+                </div>
+
+                <h3>System Architecture &amp; Frame Specification</h3>
+                <p>
+                    The host simulator decodes binary packets structured according to a strict communication protocol:
+                </p>
+                <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                    [0xAA] [0x55] | [Msg_ID: 1B] | [Payload_Len: 1B] | [Data: N Bytes (Max 32)] | [CRC16: 2B (Little Endian)]
+                </div>
+                <ul>
+                    <li><strong>Sync Bytes</strong>: <code>0xAA, 0x55</code> (Must match or frame is rejected immediately).</li>
+                    <li><strong>Message ID</strong>: <code>0x01</code> (Battery Status), <code>0x02</code> (IMU Attitude), <code>0x03</code> (Motor Faults).</li>
+                    <li><strong>Payload Length</strong>: 1 to 32 bytes. Any length exceeding 32 triggers a length violation assert.</li>
+                    <li><strong>Data Integrity</strong>: CCITT-CRC16 checksum across Header + Payload bytes.</li>
+                </ul>
+
+                <h3>Step 1: Header Definition (<code>telemetry.h</code>)</h3>
+                <p>
+                    Strict use of <code>&lt;stdint.h&gt;</code>, <code>&lt;stdbool.h&gt;</code>, defensive error codes, and macro assertions:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file telemetry.h
+ * @brief Defensive Telemetry Frame Decoder Interface
+ */
+#ifndef TELEMETRY_H
+#define TELEMETRY_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+#define TELEMETRY_SYNC_BYTE1      0xAAU
+#define TELEMETRY_SYNC_BYTE2      0x55U
+#define TELEMETRY_MAX_PAYLOAD_LEN 32U
+#define TELEMETRY_MIN_FRAME_LEN   6U  /* 2 sync + 1 id + 1 len + 2 crc */
+
+typedef enum {
+    TELEM_OK = 0,
+    TELEM_ERR_NULL_PTR,
+    TELEM_ERR_FRAME_TOO_SHORT,
+    TELEM_ERR_BAD_SYNC,
+    TELEM_ERR_INVALID_LENGTH,
+    TELEM_ERR_CRC_MISMATCH,
+    TELEM_ERR_UNKNOWN_MSG_ID
+} telem_status_t;
+
+typedef struct {
+    uint8_t  msg_id;
+    uint8_t  payload_len;
+    uint8_t  payload[TELEMETRY_MAX_PAYLOAD_LEN];
+    uint16_t crc16;
+} telem_frame_t;
+
+/* Defensive Assertion with Return Code */
+#define EMB_ASSERT_RETURN(cond, err_code) \
+    do { \
+        if (!(cond)) { \
+            return (err_code); \
+        } \
+    } while (0)
+
+/* API Prototypes */
+uint16_t telem_compute_crc16(const uint8_t *data, size_t length);
+telem_status_t telem_decode_frame(const uint8_t *raw_buf, size_t buf_len, telem_frame_t *out_frame);
+
+#endif /* TELEMETRY_H */</code></pre>
+                </div>
+
+                <h3>Step 2: Robust Implementation (<code>telemetry.c</code>)</h3>
+                <p>
+                    This decoder checks all boundaries before pointer dereferencing, calculates CRC16 dynamically, and unpacks multi-byte integers using explicit byte shifts (endian-neutral):
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file telemetry.c
+ * @brief Defensive Frame Decoder Implementation
+ */
+#include "telemetry.h"
+
+uint16_t telem_compute_crc16(const uint8_t *data, size_t length) {
+    if (data == NULL || length == 0U) {
+        return 0U;
+    }
+    uint16_t crc = 0xFFFFU;
+    for (size_t i = 0; i &lt; length; i++) {
+        crc ^= (uint16_t)data[i];
+        for (uint8_t bit = 0; bit &lt; 8U; bit++) {
+            if ((crc &amp; 0x0001U) != 0U) {
+                crc = (crc &gt;&gt; 1U) ^ 0x8408U; /* Reversed CCITT polynomial */
+            } else {
+                crc = crc &gt;&gt; 1U;
+            }
+        }
+    }
+    return crc;
+}
+
+telem_status_t telem_decode_frame(const uint8_t *raw_buf, size_t buf_len, telem_frame_t *out_frame) {
+    EMB_ASSERT_RETURN(raw_buf != NULL, TELEM_ERR_NULL_PTR);
+    EMB_ASSERT_RETURN(out_frame != NULL, TELEM_ERR_NULL_PTR);
+    EMB_ASSERT_RETURN(buf_len &gt;= TELEMETRY_MIN_FRAME_LEN, TELEM_ERR_FRAME_TOO_SHORT);
+
+    /* 1. Verify Synchronization Header */
+    if ((raw_buf[0] != TELEMETRY_SYNC_BYTE1) || (raw_buf[1] != TELEMETRY_SYNC_BYTE2)) {
+        return TELEM_ERR_BAD_SYNC;
+    }
+
+    uint8_t msg_id = raw_buf[2];
+    uint8_t payload_len = raw_buf[3];
+
+    /* 2. Validate Payload Length */
+    if (payload_len &gt; TELEMETRY_MAX_PAYLOAD_LEN) {
+        return TELEM_ERR_INVALID_LENGTH;
+    }
+
+    /* 3. Check Full Frame Length Boundary */
+    size_t expected_total_len = 4U + (size_t)payload_len + 2U;
+    if (buf_len &lt; expected_total_len) {
+        return TELEM_ERR_FRAME_TOO_SHORT;
+    }
+
+    /* 4. Extract Checksum (Little-Endian) */
+    size_t crc_idx = 4U + (size_t)payload_len;
+    uint16_t expected_crc = (uint16_t)raw_buf[crc_idx] | ((uint16_t)raw_buf[crc_idx + 1U] &lt;&lt; 8U);
+
+    /* 5. Compute CRC over Header &amp; Payload */
+    uint16_t calc_crc = telem_compute_crc16(&amp;raw_buf[2], 2U + (size_t)payload_len);
+    if (calc_crc != expected_crc) {
+        return TELEM_ERR_CRC_MISMATCH;
+    }
+
+    /* 6. Populate Output Frame */
+    out_frame-&gt;msg_id = msg_id;
+    out_frame-&gt;payload_len = payload_len;
+    out_frame-&gt;crc16 = expected_crc;
+    for (uint8_t i = 0; i &lt; payload_len; i++) {
+        out_frame-&gt;payload[i] = raw_buf[4U + i];
+    }
+
+    return TELEM_OK;
+}</code></pre>
+                </div>
+
+                <h3>Step 3: Automated Unit Test Suite (<code>test_telemetry.c</code>)</h3>
+                <p>
+                    Writing tests for edge cases: null pointers, corrupted sync headers, truncated payloads, and CRC injection errors.
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file test_telemetry.c
+ * @brief Host-Based Regression Suite using Unity
+ */
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;assert.h&gt;
+#include "telemetry.h"
+
+/* Lightweight Host Test Harness */
+static int tests_run = 0;
+static int tests_passed = 0;
+
+#define TEST_ASSERT(expr, msg) do { \
+    tests_run++; \
+    if (expr) { \
+        tests_passed++; \
+        printf("  [PASS] %s\n", msg); \
+    } else { \
+        printf("  [FAIL] %s (Line %d)\n", msg, __LINE__); \
+    } \
+} while(0)
+
+void test_null_pointers(void) {
+    telem_frame_t frame;
+    uint8_t buf[16] = {0xAA, 0x55, 0x01, 0x01, 0x42, 0x00, 0x00};
+    
+    TEST_ASSERT(telem_decode_frame(NULL, sizeof(buf), &amp;frame) == TELEM_ERR_NULL_PTR, "Rejects NULL input buffer");
+    TEST_ASSERT(telem_decode_frame(buf, sizeof(buf), NULL) == TELEM_ERR_NULL_PTR, "Rejects NULL output frame");
+}
+
+void test_valid_packet(void) {
+    /* Packet: Sync(0xAA, 0x55), ID(0x01), Len(0x02), Data(0x10, 0x20) */
+    uint8_t buf[8] = {0xAA, 0x55, 0x01, 0x02, 0x10, 0x20, 0x00, 0x00};
+    uint16_t crc = telem_compute_crc16(&amp;buf[2], 4);
+    buf[6] = (uint8_t)(crc &amp; 0xFFU);
+    buf[7] = (uint8_t)((crc &gt;&gt; 8U) &amp; 0xFFU);
+
+    telem_frame_t frame;
+    telem_status_t status = telem_decode_frame(buf, sizeof(buf), &amp;frame);
+
+    TEST_ASSERT(status == TELEM_OK, "Decodes valid frame successfully");
+    TEST_ASSERT(frame.msg_id == 0x01, "Correct message ID extracted");
+    TEST_ASSERT(frame.payload_len == 2, "Correct payload length extracted");
+    TEST_ASSERT(frame.payload[0] == 0x10 &amp;&amp; frame.payload[1] == 0x20, "Payload data intact");
+}
+
+void test_bad_crc(void) {
+    uint8_t buf[8] = {0xAA, 0x55, 0x01, 0x02, 0x10, 0x20, 0xDE, 0xAD};
+    telem_frame_t frame;
+    telem_status_t status = telem_decode_frame(buf, sizeof(buf), &amp;frame);
+
+    TEST_ASSERT(status == TELEM_ERR_CRC_MISMATCH, "Detects corrupted CRC checksum");
+}
+
+void test_oversized_payload_rejection(void) {
+    uint8_t buf[64] = {0xAA, 0x55, 0x01, 35}; /* Len 35 &gt; Max 32 */
+    telem_frame_t frame;
+    telem_status_t status = telem_decode_frame(buf, sizeof(buf), &amp;frame);
+
+    TEST_ASSERT(status == TELEM_ERR_INVALID_LENGTH, "Rejects packet with length &gt; 32");
+}
+
+int main(void) {
+    printf("=== RUNNING MODULE 1 TELEMETRY UNIT TESTS ===\n");
+    test_null_pointers();
+    test_valid_packet();
+    test_bad_crc();
+    test_oversized_payload_rejection();
+    printf("Summary: %d / %d tests passed.\n", tests_passed, tests_run);
+    return (tests_passed == tests_run) ? 0 : 1;
+}</code></pre>
+                </div>
+
+                <h3>Step 4: Building with AddressSanitizer &amp; Valgrind</h3>
+                <p>
+                    Compile in your Linux terminal or WSL bash session with maximum diagnostic flags:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-bash"># Compile with C11, all warnings as errors, and AddressSanitizer
+gcc -std=c11 -Wall -Wextra -Werror -pedantic -fsanitize=address,undefined -g telemetry.c test_telemetry.c -o test_runner
+
+# Execute the test suite
+./test_runner
+
+# Verify with Valgrind for zero memory leaks
+valgrind --leak-check=full --show-leak-kinds=all ./test_runner</code></pre>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 2: STM32 BARE-METAL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid #10b981; margin-bottom: 2rem;">
+                    <h2>Part 2: Physical STM32 Board Project — Bare-Metal Diagnostics &amp; Assert Engine</h2>
+                    <p>
+                        On an embedded target, when an assert fails, there is no terminal to print to and no OS to terminate the process. In safety-critical systems, an assert failure must trigger a <strong>controlled fail-safe halt</strong>: disabling motor drives, recording the source file and line to non-volatile RAM, and visually pulsing an error code on a diagnostic LED.
+                    </p>
+                </div>
+
+                <h3>Hardware Mapping: STM32F401RE / STM32F411RE Nucleo</h3>
+                <ul>
+                    <li><strong>Target MCU</strong>: STM32F401RE (ARM Cortex-M4 @ 84MHz, 512KB Flash, 96KB SRAM).</li>
+                    <li><strong>Green User LED (LD2)</strong>: Connected to <strong>GPIOA Pin 5</strong> (Active High).</li>
+                    <li><strong>User Blue Pushbutton (B1)</strong>: Connected to <strong>GPIOC Pin 13</strong> (Active Low, Pull-Up).</li>
+                    <li><strong>Direct Memory Bus</strong>: AHB1 Peripheral Bus controls <code>RCC</code> (Base: <code>0x40023800</code>) and <code>GPIOA</code> (Base: <code>0x40020000</code>).</li>
+                </ul>
+
+                <h3>Bare-Metal Implementation (<code>main.c</code>)</h3>
+                <p>
+                    The following pure C program requires zero vendor HAL or CubeMX libraries. It accesses hardware registers through strict <code>volatile uint32_t *</code> pointers and implements a hardware diagnostic assert handler:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file main.c
+ * @brief STM32F4 Bare-Metal Hardware Assert &amp; GPIO Diagnostics
+ * Target: STM32F401RE / STM32F411RE Nucleo-64
+ */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Base Addresses for STM32F4 Peripherals */
+#define PERIPH_BASE       (0x40000000UL)
+#define AHB1PERIPH_BASE   (PERIPH_BASE + 0x00020000UL)
+
+/* RCC Register Map */
+#define RCC_BASE          (AHB1PERIPH_BASE + 0x3800UL)
+#define RCC_AHB1ENR       (*(volatile uint32_t *)(RCC_BASE + 0x30UL))
+#define RCC_AHB1ENR_GPIOAEN (1UL &lt;&lt; 0)
+#define RCC_AHB1ENR_GPIOCEN (1UL &lt;&lt; 2)
+
+/* GPIOA (User LED on PA5) */
+#define GPIOA_BASE        (AHB1PERIPH_BASE + 0x0000UL)
+#define GPIOA_MODER       (*(volatile uint32_t *)(GPIOA_BASE + 0x00UL))
+#define GPIOA_ODR         (*(volatile uint32_t *)(GPIOA_BASE + 0x14UL))
+#define GPIOA_BSRR        (*(volatile uint32_t *)(GPIOA_BASE + 0x18UL))
+
+/* GPIOC (User Button on PC13) */
+#define GPIOC_BASE        (AHB1PERIPH_BASE + 0x0800UL)
+#define GPIOC_MODER       (*(volatile uint32_t *)(GPIOC_BASE + 0x00UL))
+#define GPIOC_IDR         (*(volatile uint32_t *)(GPIOC_BASE + 0x10UL))
+
+#define LED_PIN           5UL
+#define BUTTON_PIN        13UL
+
+/* Diagnostic Error Record Stored in Uninitialized RAM */
+typedef struct {
+    const char *file;
+    uint32_t    line;
+    uint32_t    fault_code;
+} diagnostic_record_t;
+
+/* Global diagnostic block preserved across soft resets */
+__attribute__((section(".noinit"))) diagnostic_record_t g_last_fault;
+
+/* Software Delay Routine */
+static void delay_cycles(volatile uint32_t count) {
+    while (count &gt; 0) {
+        count--;
+    }
+}
+
+/* Hardware Panic: Morse / Blink Error Code and Halt */
+void hardware_assert_failed(const char *file, uint32_t line, uint32_t code) {
+    /* 1. Disable all interrupts for atomic halt */
+    __asm volatile ("cpsid i" : : : "memory");
+
+    /* 2. Store fault telemetry for SWD/GDB debugger */
+    g_last_fault.file = file;
+    g_last_fault.line = line;
+    g_last_fault.fault_code = code;
+
+    /* 3. Infinite SOS / Blink Alarm on User LED */
+    while (1) {
+        /* Blink N times corresponding to error code */
+        for (uint32_t i = 0; i &lt; code; i++) {
+            GPIOA_BSRR = (1UL &lt;&lt; LED_PIN);          /* LED ON */
+            delay_cycles(200000);
+            GPIOA_BSRR = (1UL &lt;&lt; (LED_PIN + 16UL)); /* LED OFF */
+            delay_cycles(200000);
+        }
+        /* Long pause between code bursts */
+        delay_cycles(1200000);
+    }
+}
+
+/* Custom Embedded Assert Macro */
+#define EMB_ASSERT(expr, err_code) \
+    do { \
+        if (!(expr)) { \
+            hardware_assert_failed(__FILE__, __LINE__, (err_code)); \
+        } \
+    } while(0)
+
+/* Initialize Clocks and GPIO Pins */
+static void gpio_init(void) {
+    /* Enable GPIOA and GPIOC Peripheral Clocks */
+    RCC_AHB1ENR |= (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOCEN);
+
+    /* Configure PA5 as General Purpose Output (MODER = 01) */
+    GPIOA_MODER &amp;= ~(3UL &lt;&lt; (LED_PIN * 2));
+    GPIOA_MODER |=  (1UL &lt;&lt; (LED_PIN * 2));
+
+    /* Configure PC13 as Input (MODER = 00) */
+    GPIOC_MODER &amp;= ~(3UL &lt;&lt; (BUTTON_PIN * 2));
+}
+
+int main(void) {
+    gpio_init();
+
+    uint32_t loop_counter = 0;
+
+    while (1) {
+        /* Read Blue Button on PC13 (Active LOW on Nucleo) */
+        bool button_pressed = ((GPIOC_IDR &amp; (1UL &lt;&lt; BUTTON_PIN)) == 0);
+
+        /* Intentional Fault Injection: Pressing the button triggers Error Code 3 */
+        EMB_ASSERT(!button_pressed, 3);
+
+        /* Normal Heartbeat Blink */
+        GPIOA_BSRR = (1UL &lt;&lt; LED_PIN);
+        delay_cycles(400000);
+        GPIOA_BSRR = (1UL &lt;&lt; (LED_PIN + 16UL));
+        delay_cycles(400000);
+
+        loop_counter++;
+        /* Mathematical Invariant: Loop counter must never wrap negatively */
+        EMB_ASSERT(loop_counter &gt; 0, 1);
+    }
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <h3>Compiling, Flashing, and Debugging on Hardware</h3>
+                <p>
+                    From your Linux/WSL terminal connected to the STM32 Nucleo via USB:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-bash"># 1. Compile with arm-none-eabi-gcc targeting Cortex-M4
+arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 \
+    -O2 -Wall -Wextra -Werror -g3 -c main.c -o main.o
+
+# 2. Link with minimal startup and linker script (details in Module 2)
+arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -T STM32F401RETx_FLASH.ld \
+    main.o startup_stm32f401xe.o -o firmware.elf
+
+# 3. Convert ELF to raw binary
+arm-none-eabi-objcopy -O binary firmware.elf firmware.bin
+
+# 4. Flash to STM32 board using ST-LINK CLI or st-flash
+st-flash write firmware.bin 0x08000000
+
+# 5. Connect GDB to inspect g_last_fault if an assert fires
+arm-none-eabi-gdb firmware.elf
+(gdb) target extended-remote :3333
+(gdb) print g_last_fault</code></pre>
+                </div>
+
+                <!-- Self-Assessment MCQs -->
+                <div class="interactive-quiz">
+                    <h3>Module 1 Capstone Knowledge Check</h3>
+                    <p>Test your understanding of the concepts applied across both Linux and STM32 projects.</p>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">1. In <code>telemetry.c</code>, why is the 16-bit CRC reconstructed using explicit byte shifts (<code>buf[0] | (buf[1] &lt;&lt; 8)</code>) rather than casting the buffer pointer directly to <code>(uint16_t *)</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q1" value="0"> Casting to <code>(uint16_t *)</code> is not valid C syntax.</label></li>
+                            <li><label><input type="radio" name="q1" value="1"> Pointer casting causes unaligned memory access faults on certain ARM architectures and introduces host endianness dependency.</label></li>
+                            <li><label><input type="radio" name="q1" value="2"> Pointer casting is slower because GCC disables all optimizations on raw pointers.</label></li>
+                            <li><label><input type="radio" name="q1" value="3"> Shifting bytes automatically performs CRC verification in hardware.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">2. When <code>hardware_assert_failed()</code> is called on STM32, what is the critical purpose of <code>__asm volatile ("cpsid i")</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q2" value="0"> It reboots the microcontroller immediately.</label></li>
+                            <li><label><input type="radio" name="q2" value="1"> It clears all GPIO output registers to protect connected peripherals.</label></li>
+                            <li><label><input type="radio" name="q2" value="2"> It disables all maskable interrupts so that an ISR cannot interrupt the fault handler or cause reentrancy issues.</label></li>
+                            <li><label><input type="radio" name="q2" value="3"> It enables low-power deep sleep mode.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">3. What does <code>__attribute__((section(".noinit")))</code> ensure for the <code>g_last_fault</code> variable?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q3" value="0"> The C startup runtime (CRT0) will not zero-initialize this memory during reset, preserving fault telemetry across warm reboots.</label></li>
+                            <li><label><input type="radio" name="q3" value="1"> The variable is placed in Flash ROM instead of SRAM.</label></li>
+                            <li><label><input type="radio" name="q3" value="2"> The compiler completely removes the variable to save memory.</label></li>
+                            <li><label><input type="radio" name="q3" value="3"> The variable is encrypted in hardware.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">4. Why is <code>GPIOA_BSRR</code> preferred over <code>GPIOA_ODR</code> for turning the LED on and off in embedded firmware?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q4" value="0"> BSRR can only be accessed in privileged kernel mode.</label></li>
+                            <li><label><input type="radio" name="q4" value="1"> ODR does not support output mode on Cortex-M4.</label></li>
+                            <li><label><input type="radio" name="q4" value="2"> BSRR provides atomic bit-set and bit-reset in a single cycle without requiring a read-modify-write operation, avoiding race conditions.</label></li>
+                            <li><label><input type="radio" name="q4" value="3"> ODR requires double the memory bus clock cycles.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">5. Which GCC compiler flag flags out-of-bounds array reads and stack buffer overflows at runtime in our Linux project?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q5" value="0"> <code>-O3</code></label></li>
+                            <li><label><input type="radio" name="q5" value="1"> <code>-fsanitize=address,undefined</code></label></li>
+                            <li><label><input type="radio" name="q5" value="2"> <code>-fno-builtin</code></label></li>
+                            <li><label><input type="radio" name="q5" value="3"> <code>-mcpu=native</code></label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">6. In <code>EMB_ASSERT_RETURN(cond, err_code)</code>, why is the macro wrapped in <code>do { ... } while(0)</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q6" value="0"> To cause the compiler to generate a loop in assembly.</label></li>
+                            <li><label><input type="radio" name="q6" value="1"> To allow the macro to accept variable argument lists.</label></li>
+                            <li><label><input type="radio" name="q6" value="2"> It prevents the compiler from inlining the function.</label></li>
+                            <li><label><input type="radio" name="q6" value="3"> To make the macro expand safely into a single statement that works properly inside <code>if/else</code> constructs with semicolons.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">7. What is the danger of using <code>int</code> instead of <code>uint32_t</code> when creating bitmask shifts such as <code>(1 &lt;&lt; 31)</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q7" value="0"> Shifting a 1 into the sign bit of a signed 32-bit integer causes undefined behavior in standard C.</label></li>
+                            <li><label><input type="radio" name="q7" value="1"> The compiler will truncate the value to 16 bits.</label></li>
+                            <li><label><input type="radio" name="q7" value="2"> It causes an immediate hardware HardFault interrupt.</label></li>
+                            <li><label><input type="radio" name="q7" value="3"> There is no danger; <code>int</code> is always unsigned in GCC.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">8. When reading the user button state on PC13 with <code>(GPIOC_IDR &amp; (1UL &lt;&lt; 13)) == 0</code>, why does 0 indicate 'pressed'?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q8" value="0"> Because the GPIO pin is configured as open-drain output.</label></li>
+                            <li><label><input type="radio" name="q8" value="1"> Because PC13 only supports inverted logic.</label></li>
+                            <li><label><input type="radio" name="q8" value="2"> Because the Nucleo user button is wired in an active-low configuration with a pull-up resistor; pressing it pulls the pin to GND.</label></li>
+                            <li><label><input type="radio" name="q8" value="3"> Because IDR reads the inverse of the ODR register.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">9. What happens if <code>volatile</code> is omitted from the hardware register pointers (e.g. <code>#define GPIOA_ODR (*(uint32_t *)...)</code>)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q9" value="0"> The code will fail to compile with a syntax error.</label></li>
+                            <li><label><input type="radio" name="q9" value="1"> The optimizing compiler may cache the register value in a CPU register or optimize away repeated writes, breaking hardware control.</label></li>
+                            <li><label><input type="radio" name="q9" value="2"> The memory controller will lock the AHB bus.</label></li>
+                            <li><label><input type="radio" name="q9" value="3"> The register will automatically become read-only.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">10. Why is Valgrind or ASan essential when verifying embedded C code on a Linux host?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q10" value="0"> They convert C code directly into ARM machine instructions.</label></li>
+                            <li><label><input type="radio" name="q10" value="1"> They simulate the clock speed of an STM32 microcontroller.</label></li>
+                            <li><label><input type="radio" name="q10" value="2"> They catch memory corruption, out-of-bounds buffer access, and uninitialized reads before the code is flashed to hardware where debugging is more difficult.</label></li>
+                            <li><label><input type="radio" name="q10" value="3"> They automatically generate MISRA-C compliance certificates.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Hands-On Labs -->
+                <div class="labs-section">
+                    <h2>Hands-on Engineering Challenges</h2>
+                    
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 1 (Host)</div>
+                        <h3>Corrupted Packet Stream Fuzz Testing</h3>
+                        <p>Write a host-based fuzz tester in C that feeds 100,000 randomly corrupted byte sequences into <code>telem_decode_frame()</code>. Verify with AddressSanitizer that the function never crashes, leaks memory, or reads out-of-bounds.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 2 (Host)</div>
+                        <h3>Dynamic Payload Type Dispatcher</h3>
+                        <p>Extend <code>telemetry.c</code> with a message handler table: for <code>msg_id = 0x01</code>, unpack battery millivolts and temperature into a <code>battery_telemetry_t</code> struct; for <code>msg_id = 0x02</code>, unpack 3-axis accelerometer readings.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 3 (STM32)</div>
+                        <h3>Morse Code SOS Panic Generator</h3>
+                        <p>Modify <code>hardware_assert_failed()</code> on STM32 so that instead of simple N-blinks, it flashes international Morse code for "SOS" (<code>... --- ...</code>: 3 short, 3 long, 3 short) with precise timing intervals.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 4 (STM32)</div>
+                        <h3>Button Debounce Filter without Delay</h3>
+                        <p>Implement a software integrator debounce algorithm for PC13 that samples the pin every 5ms in the main loop and requires 4 consecutive identical readings before recognizing a valid button press.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 5 (Host + Hardware)</div>
+                        <h3>Host &harr; Target Telemetry Loopback</h3>
+                        <p>Connect your STM32 USART2 (PA2/PA3) to your PC USB-UART bridge. Transmit valid telemetry frames from the Linux host and confirm the STM32 decodes them, turns on LD2 on success, or triggers <code>hardware_assert_failed()</code> on CRC mismatch.</p>
+                    </div>
+                </div>
+
+                <!-- References -->
+                <div class="references-section">
+                    <h2>Further Technical Reading</h2>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Silicon Reference</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">STMicroelectronics</span>
+                            </div>
+                            <h4>STM32F401xD/xE Reference Manual (RM0368)</h4>
+                            <p>Complete memory mapping, reset clock control (RCC), and GPIO register specifications for Cortex-M4.</p>
+                            <a href="https://www.st.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Testing Framework</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ThrowTheSwitch</span>
+                            </div>
+                            <h4>Unity Test Framework for C</h4>
+                            <p>Official guide and API reference for writing embedded unit tests, test runners, and assertions.</p>
+                            <a href="http://www.throwtheswitch.org/unity" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_05.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 5: Unit Testing in C</span>
+                </a>
+                <a href="topic_06.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 6: The Build Pipeline</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

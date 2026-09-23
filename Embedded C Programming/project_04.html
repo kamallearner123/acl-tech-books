@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4 Project: Standards, State Machines & Defensive Systems - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li class="active"><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Module 4 Capstone Project</span>
+                <h1>Standards, State Machines &amp; Defensive Systems</h1>
+
+                <p class="intro-p">
+                    Writing firmware for life-critical or industrial equipment requires disciplined engineering practices. Ad-hoc spaghetti code with nested <code>if/else</code> chains fails in edge cases and cannot be certified under standards such as MISRA-C or ISO 26262. In this milestone, we construct two robust systems: a <strong>MISRA-C compliant, table-driven Access Control FSM tested via automated GDB scripts on Linux/WSL</strong>, and a <strong>Safety-Critical Motor Controller featuring an Independent Hardware Watchdog (IWDG) and custom HardFault diagnostic capture on STM32</strong>.
+                </p>
+
+                <!-- Project Comparison Table -->
+                <div class="summary-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Project 1: Linux / WSL Environment</th>
+                                <th>Project 2: Physical STM32 Board</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Project Focus</strong></td>
+                                <td>MISRA-C Table-Driven Access Control FSM &amp; GDB Suite</td>
+                                <td>Safety-Critical Motor Controller with IWDG &amp; HardFault Trap</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Design Pattern</strong></td>
+                                <td>2D State Transition Matrix with action function pointers</td>
+                                <td>Hierarchical FSM with fail-safe fallback &amp; watchdog supervision</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Compliance &amp; Quality</strong></td>
+                                <td>MISRA-C:2012 compliance, zero dynamic memory, Doxygen docs</td>
+                                <td>Hardware watchdog window refresh, assembly register stack unwinding</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Automated Verification</strong></td>
+                                <td>Headless GDB regression script injecting fault events</td>
+                                <td>Hardware reset cause detection (RCC_CSR), SWD live telemetry</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 1: LINUX / WSL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid var(--accent); margin-bottom: 2rem;">
+                    <h2>Part 1: Linux / WSL Project — MISRA-C Compliant Access Control FSM</h2>
+                    <p>
+                        In security and industrial automation, access gates must never enter undefined states. A <strong>2D State Transition Table</strong> guarantees deterministic $O(1)$ event dispatch, mathematically proves that all state-event permutations are handled, and eliminates deeply nested conditional logic.
+                    </p>
+                </div>
+
+                <h3>System State Diagram &amp; Transitions</h3>
+                <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                    [STATE_LOCKED] --------(EVENT_BADGE_SCANNED)-------&gt; [STATE_AUTHENTICATING]
+                          ^                                                      |
+                          |                                      +---------------+---------------+
+                          |                                      | (AUTH_SUCCESS) | (AUTH_FAIL / 3x)
+                          |                                      v               v
+                   (TIMEOUT / 5s)                        [STATE_UNLOCKED]  [STATE_LOCKOUT]
+                          |                                      |               |
+                          +--------------------------------------+         (TAMPER_DETECTED)
+                                                                                 |
+                                                                                 v
+                                                                          [STATE_ALARM]
+                </div>
+
+                <h3>Step 1: Doxygen-Documented FSM Interface (<code>access_fsm.h</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file access_fsm.h
+ * @brief MISRA-C Compliant Table-Driven Industrial Access Control FSM
+ * @author Apt Computing Labs
+ * @date 2026
+ */
+#ifndef ACCESS_FSM_H
+#define ACCESS_FSM_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/**
+ * @brief Access Control States (Exhaustive Enum)
+ */
+typedef enum {
+    STATE_LOCKED = 0,
+    STATE_AUTHENTICATING,
+    STATE_UNLOCKED,
+    STATE_LOCKOUT,
+    STATE_ALARM,
+    STATE_COUNT /* Sentinel */
+} fsm_state_t;
+
+/**
+ * @brief Access Control Events
+ */
+typedef enum {
+    EVENT_BADGE_SCANNED = 0,
+    EVENT_AUTH_SUCCESS,
+    EVENT_AUTH_FAIL,
+    EVENT_UNLOCK_TIMEOUT,
+    EVENT_TAMPER_DETECTED,
+    EVENT_RESET_KEY,
+    EVENT_COUNT /* Sentinel */
+} fsm_event_t;
+
+/**
+ * @brief Forward declaration of FSM context structure
+ */
+typedef struct access_fsm access_fsm_t;
+
+/**
+ * @brief Action callback function pointer type
+ */
+typedef void (*fsm_action_t)(access_fsm_t *p_fsm);
+
+/**
+ * @brief Transition Table Entry: Defines Next State and Associated Action
+ */
+typedef struct {
+    fsm_state_t  next_state;
+    fsm_action_t action;
+} transition_entry_t;
+
+/**
+ * @brief Access FSM Instance Context
+ */
+struct access_fsm {
+    fsm_state_t current_state;
+    uint32_t    failed_attempts;
+    uint32_t    audit_log_counter;
+};
+
+/* API Prototypes */
+void access_fsm_init(access_fsm_t *p_fsm);
+void access_fsm_dispatch(access_fsm_t *p_fsm, fsm_event_t event);
+fsm_state_t access_fsm_get_state(const access_fsm_t *p_fsm);
+
+#endif /* ACCESS_FSM_H */</code></pre>
+                </div>
+
+                <h3>Step 2: Table-Driven Implementation (<code>access_fsm.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file access_fsm.c
+ * @brief Implementation adhering strictly to MISRA-C:2012 Rules
+ */
+#include &lt;stdio.h&gt;
+#include "access_fsm.h"
+
+/* Action Function Prototypes */
+static void action_log_scan(access_fsm_t *p_fsm);
+static void action_unlock_solenoid(access_fsm_t *p_fsm);
+static void action_lock_solenoid(access_fsm_t *p_fsm);
+static void action_register_fail(access_fsm_t *p_fsm);
+static void action_sound_alarm(access_fsm_t *p_fsm);
+static void action_reset_lockout(access_fsm_t *p_fsm);
+static void action_ignore(access_fsm_t *p_fsm);
+
+/* State Transition Matrix [Current State][Event] */
+static const transition_entry_t g_transition_table[STATE_COUNT][EVENT_COUNT] = {
+    [STATE_LOCKED] = {
+        [EVENT_BADGE_SCANNED]   = { STATE_AUTHENTICATING, action_log_scan },
+        [EVENT_TAMPER_DETECTED] = { STATE_ALARM,          action_sound_alarm },
+        [EVENT_AUTH_SUCCESS]    = { STATE_LOCKED,         action_ignore },
+        [EVENT_AUTH_FAIL]       = { STATE_LOCKED,         action_ignore },
+        [EVENT_UNLOCK_TIMEOUT]  = { STATE_LOCKED,         action_ignore },
+        [EVENT_RESET_KEY]       = { STATE_LOCKED,         action_ignore }
+    },
+    [STATE_AUTHENTICATING] = {
+        [EVENT_AUTH_SUCCESS]    = { STATE_UNLOCKED,       action_unlock_solenoid },
+        [EVENT_AUTH_FAIL]       = { STATE_LOCKED,         action_register_fail },
+        [EVENT_TAMPER_DETECTED] = { STATE_ALARM,          action_sound_alarm },
+        [EVENT_BADGE_SCANNED]   = { STATE_AUTHENTICATING, action_ignore },
+        [EVENT_UNLOCK_TIMEOUT]  = { STATE_LOCKED,         action_lock_solenoid },
+        [EVENT_RESET_KEY]       = { STATE_AUTHENTICATING, action_ignore }
+    },
+    [STATE_UNLOCKED] = {
+        [EVENT_UNLOCK_TIMEOUT]  = { STATE_LOCKED,         action_lock_solenoid },
+        [EVENT_TAMPER_DETECTED] = { STATE_ALARM,          action_sound_alarm },
+        [EVENT_BADGE_SCANNED]   = { STATE_UNLOCKED,       action_ignore },
+        [EVENT_AUTH_SUCCESS]    = { STATE_UNLOCKED,       action_ignore },
+        [EVENT_AUTH_FAIL]       = { STATE_UNLOCKED,       action_ignore },
+        [EVENT_RESET_KEY]       = { STATE_UNLOCKED,       action_ignore }
+    },
+    [STATE_LOCKOUT] = {
+        [EVENT_RESET_KEY]       = { STATE_LOCKED,         action_reset_lockout },
+        [EVENT_TAMPER_DETECTED] = { STATE_ALARM,          action_sound_alarm },
+        [EVENT_BADGE_SCANNED]   = { STATE_LOCKOUT,        action_ignore },
+        [EVENT_AUTH_SUCCESS]    = { STATE_LOCKOUT,        action_ignore },
+        [EVENT_AUTH_FAIL]       = { STATE_LOCKOUT,        action_ignore },
+        [EVENT_UNLOCK_TIMEOUT]  = { STATE_LOCKOUT,        action_ignore }
+    },
+    [STATE_ALARM] = {
+        [EVENT_RESET_KEY]       = { STATE_LOCKED,         action_reset_lockout },
+        [EVENT_BADGE_SCANNED]   = { STATE_ALARM,          action_ignore },
+        [EVENT_AUTH_SUCCESS]    = { STATE_ALARM,          action_ignore },
+        [EVENT_AUTH_FAIL]       = { STATE_ALARM,          action_ignore },
+        [EVENT_UNLOCK_TIMEOUT]  = { STATE_ALARM,          action_ignore },
+        [EVENT_TAMPER_DETECTED] = { STATE_ALARM,          action_ignore }
+    }
+};
+
+void access_fsm_init(access_fsm_t *p_fsm) {
+    if (p_fsm != NULL) {
+        p_fsm-&gt;current_state = STATE_LOCKED;
+        p_fsm-&gt;failed_attempts = 0U;
+        p_fsm-&gt;audit_log_counter = 0U;
+    }
+}
+
+void access_fsm_dispatch(access_fsm_t *p_fsm, fsm_event_t event) {
+    if ((p_fsm == NULL) || (event &gt;= EVENT_COUNT) || (p_fsm-&gt;current_state &gt;= STATE_COUNT)) {
+        return; /* Defensive boundary guard (MISRA-C Rule 14.4) */
+    }
+
+    const transition_entry_t *p_entry = &amp;g_transition_table[p_fsm-&gt;current_state][event];
+
+    /* Update State */
+    p_fsm-&gt;current_state = p_entry-&gt;next_state;
+    p_fsm-&gt;audit_log_counter++;
+
+    /* Execute Action Callback */
+    if (p_entry-&gt;action != NULL) {
+        p_entry-&gt;action(p_fsm);
+    }
+}
+
+fsm_state_t access_fsm_get_state(const access_fsm_t *p_fsm) {
+    return (p_fsm != NULL) ? p_fsm-&gt;current_state : STATE_LOCKED;
+}
+
+static void action_log_scan(access_fsm_t *p_fsm) {
+    printf("[FSM Action] Badge scanned. Validating credentials...\n");
+}
+
+static void action_unlock_solenoid(access_fsm_t *p_fsm) {
+    p_fsm-&gt;failed_attempts = 0U;
+    printf("[FSM Action] Access Granted! Door Solenoid ENERGIZED (Unlocked).\n");
+}
+
+static void action_lock_solenoid(access_fsm_t *p_fsm) {
+    printf("[FSM Action] Door Solenoid DE-ENERGIZED (Locked).\n");
+}
+
+static void action_register_fail(access_fsm_t *p_fsm) {
+    p_fsm-&gt;failed_attempts++;
+    printf("[FSM Action] Auth Failed! Attempt %u / 3.\n", p_fsm-&gt;failed_attempts);
+    if (p_fsm-&gt;failed_attempts &gt;= 3U) {
+        printf("[FSM Action] MAXIMUM FAILS EXCEEDED. Transitioning to LOCKOUT!\n");
+        p_fsm-&gt;current_state = STATE_LOCKOUT;
+    }
+}
+
+static void action_sound_alarm(access_fsm_t *p_fsm) {
+    printf("[FSM Action] CRITICAL ALARM! Siren ON, Security Telemetry Dispatched!\n");
+}
+
+static void action_reset_lockout(access_fsm_t *p_fsm) {
+    p_fsm-&gt;failed_attempts = 0U;
+    printf("[FSM Action] Supervisor Key Reset. Returning to LOCKED state.\n");
+}
+
+static void action_ignore(access_fsm_t *p_fsm) {
+    /* MISRA explicit no-op */
+    (void)p_fsm;
+}</code></pre>
+                </div>
+
+                <h3>Step 3: Headless GDB Automated Test Script (<code>test_fsm.gdb</code>)</h3>
+                <p>
+                    Automate regression verification without manual clicking using GDB commands:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-text"># test_fsm.gdb: Automated Headless GDB Test Harness
+set pagination off
+set logging file gdb_test.log
+set logging on
+
+file build/access_fsm_test
+break main
+run
+
+# Verify Initial State is STATE_LOCKED (0)
+break access_fsm_dispatch
+continue
+print g_fsm.current_state
+assert g_fsm.current_state == 0
+
+# Inject Tamper Event and assert ALARM (4)
+set $event = 4
+call access_fsm_dispatch(&amp;g_fsm, $event)
+print g_fsm.current_state
+assert g_fsm.current_state == 4
+
+echo === ALL GDB FSM TESTS PASSED SUCCESSFULLY ===\n
+quit 0</code></pre>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 2: STM32 BARE-METAL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid #10b981; margin-bottom: 2rem;">
+                    <h2>Part 2: Physical STM32 Board Project — Hardware Watchdog (IWDG) &amp; HardFault Diagnostics</h2>
+                    <p>
+                        In critical microcontroller systems, software can lock up due to cosmic rays, EMI, or unexpected race conditions. The <strong>Independent Watchdog (IWDG)</strong> runs on a dedicated internal low-speed oscillator (LSI @ 32kHz) and cannot be halted by software once started. If the firmware fails to kick the watchdog within its programmed timeout, the MCU undergoes a hardware reset.
+                    </p>
+                </div>
+
+                <h3>Bare-Metal Implementation (<code>safety_motor.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file safety_motor.c
+ * @brief Safety-Critical Motor Controller with IWDG &amp; HardFault Handler
+ * Target: STM32F401RE Nucleo-64
+ */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Register Offsets */
+#define RCC_CSR        (*(volatile uint32_t *)(0x40023874UL))
+#define RCC_AHB1ENR    (*(volatile uint32_t *)(0x40023830UL))
+#define GPIOA_MODER    (*(volatile uint32_t *)(0x40020000UL))
+#define GPIOA_BSRR     (*(volatile uint32_t *)(0x40020018UL))
+#define GPIOC_IDR      (*(volatile uint32_t *)(0x40020810UL))
+
+/* Independent Watchdog (IWDG) Registers */
+#define IWDG_KR        (*(volatile uint32_t *)(0x40003000UL))
+#define IWDG_PR        (*(volatile uint32_t *)(0x40003004UL))
+#define IWDG_RLR       (*(volatile uint32_t *)(0x40003008UL))
+#define IWDG_SR        (*(volatile uint32_t *)(0x4000300CUL))
+
+/* IWDG Magic Key Values */
+#define IWDG_KEY_RELOAD     0xAAAAUL
+#define IWDG_KEY_ENABLE     0xCCCCUL
+#define IWDG_KEY_WRITE_EN   0x5555UL
+
+/* Stack Frame captured during HardFault */
+typedef struct {
+    uint32_t r0;
+    uint32_t r1;
+    uint32_t r2;
+    uint32_t r3;
+    uint32_t r12;
+    uint32_t lr;
+    uint32_t pc;
+    uint32_t psr;
+} hardfault_stack_t;
+
+volatile hardfault_stack_t g_crash_telemetry;
+
+/* C Portion of HardFault Handler called from assembly */
+void HardFault_Handler_C(hardfault_stack_t *p_stack) {
+    g_crash_telemetry = *p_stack;
+
+    /* Disable interrupts and enter fail-safe visual beacon */
+    __asm volatile ("cpsid i" : : : "memory");
+
+    while (1) {
+        /* Rapid strobe indicating hardware fault */
+        GPIOA_BSRR = (1UL &lt;&lt; 5);
+        for (volatile int i = 0; i &lt; 50000; i++);
+        GPIOA_BSRR = (1UL &lt;&lt; (5 + 16));
+        for (volatile int i = 0; i &lt; 50000; i++);
+    }
+}
+
+/* Assembly Trampoline to extract correct stack pointer (MSP vs PSP) */
+__attribute__((naked)) void HardFault_Handler(void) {
+    __asm volatile (
+        "tst lr, #4\n"              /* Test EXC_RETURN bit 2 */
+        "ite eq\n"
+        "mrseq r0, msp\n"          /* If 0, stack was MSP */
+        "mrsne r0, psp\n"          /* If 1, stack was PSP */
+        "b HardFault_Handler_C\n"  /* Branch to C handler with stack pointer in R0 */
+    );
+}
+
+/* Configure IWDG for ~500ms Timeout */
+static void iwdg_init(void) {
+    IWDG_KR = IWDG_KEY_ENABLE;   /* 1. Start IWDG Clock */
+    IWDG_KR = IWDG_KEY_WRITE_EN; /* 2. Enable write access to PR and RLR */
+    IWDG_PR = 0x04UL;            /* 3. Prescaler /64 (32kHz / 64 = 500 Hz clock) */
+    IWDG_RLR = 250UL;            /* 4. 250 ticks @ 500Hz = 500 ms timeout */
+    while (IWDG_SR != 0U) { /* Wait for registers to update */ }
+    IWDG_KR = IWDG_KEY_RELOAD;   /* 5. Initial reload */
+}
+
+/* Kick / Refresh Watchdog */
+static inline void iwdg_refresh(void) {
+    IWDG_KR = IWDG_KEY_RELOAD;
+}
+
+int main(void) {
+    RCC_AHB1ENR |= (1UL &lt;&lt; 0) | (1UL &lt;&lt; 2); /* Enable GPIOA &amp; GPIOC */
+
+    /* PA5 (LED) Output */
+    GPIOA_MODER &amp;= ~(3UL &lt;&lt; 10);
+    GPIOA_MODER |=  (1UL &lt;&lt; 10);
+
+    /* Check if system reset was caused by IWDG timeout */
+    bool was_watchdog_reset = ((RCC_CSR &amp; (1UL &lt;&lt; 29)) != 0);
+    RCC_CSR |= (1UL &lt;&lt; 24); /* Clear reset flags */
+
+    if (was_watchdog_reset) {
+        /* Blink 5 fast pulses to inform operator of watchdog recovery */
+        for (int i = 0; i &lt; 5; i++) {
+            GPIOA_BSRR = (1UL &lt;&lt; 5);
+            for (volatile int d = 0; d &lt; 80000; d++);
+            GPIOA_BSRR = (1UL &lt;&lt; (5 + 16));
+            for (volatile int d = 0; d &lt; 80000; d++);
+        }
+    }
+
+    iwdg_init();
+
+    while (1) {
+        /* Normal Superloop Operation: Kick the watchdog */
+        iwdg_refresh();
+
+        /* Normal Heartbeat Toggle */
+        GPIOA_BSRR = (1UL &lt;&lt; 5);
+        for (volatile int d = 0; d &lt; 200000; d++);
+        GPIOA_BSRR = (1UL &lt;&lt; (5 + 16));
+        for (volatile int d = 0; d &lt; 200000; d++);
+
+        /* Fault Injection Demo: Pressing the Blue Button (PC13) simulates an infinite loop! */
+        if ((GPIOC_IDR &amp; (1UL &lt;&lt; 13)) == 0) {
+            /* Firmware hangs without kicking IWDG: Watchdog resets MCU after 500ms */
+            while (1) { /* Infinite Hang */ }
+        }
+    }
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <!-- Self-Assessment MCQs -->
+                <div class="interactive-quiz">
+                    <h3>Module 4 Capstone Knowledge Check</h3>
+                    <p>Test your mastery of MISRA rules, table-driven state machines, and hardware fault handling.</p>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">1. Why does MISRA-C strictly prohibit dynamic memory allocation (<code>malloc</code> and <code>free</code>) in safety-critical firmware?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q1" value="0"> C compilers produce syntax errors when <code>stdlib.h</code> is included.</label></li>
+                            <li><label><input type="radio" name="q1" value="1"> Heap allocation leads to non-deterministic execution times, heap fragmentation, and potential silent allocation failures during long-duration runs.</label></li>
+                            <li><label><input type="radio" name="q1" value="2"> Microcontroller Flash cannot physically store heap memory.</label></li>
+                            <li><label><input type="radio" name="q1" value="3"> It prevents the use of arrays in C.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">2. In <code>HardFault_Handler</code>, why is an assembly trampoline required before calling the C fault handler?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q2" value="0"> To clear the processor pipeline cache.</label></li>
+                            <li><label><input type="radio" name="q2" value="1"> Assembly is required to enable the floating point unit.</label></li>
+                            <li><label><input type="radio" name="q2" value="2"> To inspect the EXC_RETURN value in <code>LR</code> and determine whether the stack frame was pushed onto the Main Stack Pointer (MSP) or Process Stack Pointer (PSP).</label></li>
+                            <li><label><input type="radio" name="q2" value="3"> To zero-initialize the BSS section.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">3. What is the key advantage of a 2D State Transition Matrix over a <code>switch-case</code> FSM?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q3" value="0"> Guaranteed $O(1)$ constant-time transitions, decoupling of state logic from action execution, and static verification that every combination is handled.</label></li>
+                            <li><label><input type="radio" name="q3" value="1"> Transition matrices consume zero RAM.</label></li>
+                            <li><label><input type="radio" name="q3" value="2"> It allows the state machine to run without a CPU clock.</label></li>
+                            <li><label><input type="radio" name="q3" value="3"> Switch-case statements are deprecated in C11.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">4. Why does the Independent Watchdog (IWDG) use the internal 32kHz LSI oscillator instead of the main system clock (HSE/HSI)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q4" value="0"> LSI consumes more power.</label></li>
+                            <li><label><input type="radio" name="q4" value="1"> The main clock cannot be divided down.</label></li>
+                            <li><label><input type="radio" name="q4" value="2"> LSI is faster than HSE.</label></li>
+                            <li><label><input type="radio" name="q4" value="3"> If the main crystal or PLL fails, the watchdog will continue running on its independent clock source and successfully reset the MCU.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">5. In the captured <code>hardfault_stack_t</code> structure, which register contains the memory address of the instruction that caused the CPU crash?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q5" value="0"> <code>R0</code></label></li>
+                            <li><label><input type="radio" name="q5" value="1"> <code>PC</code> (Program Counter)</label></li>
+                            <li><label><input type="radio" name="q5" value="2"> <code>PSR</code> (Program Status Register)</label></li>
+                            <li><label><input type="radio" name="q5" value="3"> <code>R12</code></label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">6. What does MISRA-C Rule 17.7 mandate regarding function return values?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q6" value="0"> Functions must always return a 64-bit integer.</label></li>
+                            <li><label><input type="radio" name="q6" value="1"> All functions must be declared <code>void</code>.</label></li>
+                            <li><label><input type="radio" name="q6" value="2"> The value returned by any non-void function shall be tested or explicitly cast to <code>(void)</code> if deliberately ignored.</label></li>
+                            <li><label><input type="radio" name="q6" value="3"> Return values must be passed via global variables.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">7. How does firmware know after booting whether the reset was caused by power-up (POR) or a watchdog event (IWDG)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q7" value="0"> By inspecting the Reset Status flags in the RCC Control/Status Register (<code>RCC_CSR</code>).</label></li>
+                            <li><label><input type="radio" name="q7" value="1"> By checking the value of the Program Counter.</label></li>
+                            <li><label><input type="radio" name="q7" value="2"> By reading the flash memory checksum.</label></li>
+                            <li><label><input type="radio" name="q7" value="3"> It cannot be known; all resets produce identical states.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">8. What is 'Window Watchdog' (WWDG) behavior compared to regular watchdog (IWDG)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q8" value="0"> WWDG can only run during daytime hours.</label></li>
+                            <li><label><input type="radio" name="q8" value="1"> WWDG runs on a separate PC display.</label></li>
+                            <li><label><input type="radio" name="q8" value="2"> WWDG cannot reset the microcontroller.</label></li>
+                            <li><label><input type="radio" name="q8" value="3"> WWDG triggers a reset not only if refreshed too late, but also if refreshed too early (outside an allowed time window), detecting rogue fast loops.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">9. Why is recursion prohibited in MISRA-C and safety-critical embedded systems?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q9" value="0"> Recursive functions take longer to compile.</label></li>
+                            <li><label><input type="radio" name="q9" value="1"> Recursive functions make static stack depth calculation impossible, creating a dangerous risk of stack overflow.</label></li>
+                            <li><label><input type="radio" name="q9" value="2"> The ARM Cortex-M architecture lacks a stack pointer.</label></li>
+                            <li><label><input type="radio" name="q9" value="3"> C11 compilers automatically convert recursive calls into infinite loops.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">10. In Doxygen, what tag documents the expected state or conditions that must be true BEFORE calling a function?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q10" value="0"> <code>@post</code></label></li>
+                            <li><label><input type="radio" name="q10" value="1"> <code>@param</code></label></li>
+                            <li><label><input type="radio" name="q10" value="2"> <code>@pre</code></label></li>
+                            <li><label><input type="radio" name="q10" value="3"> <code>@deprecated</code></label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Hands-On Labs -->
+                <div class="labs-section">
+                    <h2>Hands-on Engineering Challenges</h2>
+                    
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 1 (Host)</div>
+                        <h3>Cppcheck MISRA-C Automated Scanner</h3>
+                        <p>Configure <code>cppcheck --addon=misra</code> in your Makefile. Run it against <code>access_fsm.c</code> and eliminate 100% of reported advisory and mandatory rule violations.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 2 (Host)</div>
+                        <h3>Hierarchical State Machine (HSM) Refactoring</h3>
+                        <p>Extend the access control FSM to support a Super-State <code>STATE_OPERATIONAL</code> that encompasses <code>LOCKED</code>, <code>AUTHENTICATING</code>, and <code>UNLOCKED</code>, handling global events (such as <code>EMERGENCY_EVAC</code>) at the parent state level.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 3 (STM32)</div>
+                        <h3>HardFault Stack Unwinder &amp; Serial Crash Dump</h3>
+                        <p>Enhance <code>HardFault_Handler_C</code> to transmit a human-readable crash report over USART2 (printing PC, LR, and fault status registers CFSR, HFSR, and BFAR) before halting.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 4 (STM32)</div>
+                        <h3>Dual Watchdog Supervision Architecture</h3>
+                        <p>Configure both IWDG (hardware fallback) and WWDG (window watchdog) simultaneously. Configure a software task monitor that verifies individual task execution deadlines before clearing the watchdogs.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 5 (Documentation Automation)</div>
+                        <h3>Automated Doxygen HTML &amp; State Diagram Pipeline</h3>
+                        <p>Generate a complete HTML documentation suite with Graphviz dot state machine diagrams using <code>doxygen Doxyfile</code> and verify all functions and state structures are fully cross-referenced.</p>
+                    </div>
+                </div>
+
+                <!-- References -->
+                <div class="references-section">
+                    <h2>Further Technical Reading</h2>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">MISRA Consortium</span>
+                            </div>
+                            <h4>MISRA C:2012 Guidelines</h4>
+                            <p>Guidelines for the use of the C language in critical systems, covering rule definitions and rationale.</p>
+                            <a href="https://www.misra.org.uk" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Application Note</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Arm Developer</span>
+                            </div>
+                            <h4>Application Note 209: Using Cortex-M3/M4 Fault Exceptions</h4>
+                            <p>Deep dive into HardFault, MemManage, BusFault, UsageFault, and extracting crash state from stacked registers.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_20.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 20: State Tables &amp; FSMs</span>
+                </a>
+                <a href="topic_21.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 21: Modular .c &amp; .h Files</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

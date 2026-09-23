@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3 Project: Reactive Systems, Interrupts & Ring Buffers - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li class="active"><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Module 3 Capstone Project</span>
+                <h1>Reactive Systems, Interrupts &amp; Ring Buffers</h1>
+
+                <p class="intro-p">
+                    Real-time embedded firmware lives and dies by responsiveness. Hard deadlines cannot tolerate blocking loops (such as <code>delay_ms()</code>), and high-speed communication buses cannot drop bytes while the processor is busy. In this milestone, we bridge theory and practice by building two reactive systems: a <strong>POSIX signal-emulated interrupt simulator with lock-free SPSC circular buffers on Linux/WSL</strong>, and a <strong>hardware timer-scheduled, interrupt-driven UART Command Line Interface on physical STM32 hardware</strong>.
+                </p>
+
+                <!-- Project Comparison Table -->
+                <div class="summary-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Project 1: Linux / WSL Environment</th>
+                                <th>Project 2: Physical STM32 Board</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Project Focus</strong></td>
+                                <td>Signal-Emulated ISR Pipeline &amp; Lock-Free SPSC Ring Buffer</td>
+                                <td>Timer-Scheduled Non-Blocking UART Command Interface</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Concurrency Mechanism</strong></td>
+                                <td>POSIX <code>SIGALRM</code> / Real-Time signals &amp; C11 atomics</td>
+                                <td>Cortex-M NVIC hardware interrupts (TIM2 &amp; USART2)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Structures</strong></td>
+                                <td>Power-of-two Single-Producer Single-Consumer ring buffer</td>
+                                <td>Volatile circular buffer with atomic head/tail indices</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Execution Model</strong></td>
+                                <td>Event-driven superloop with prioritized callback queue</td>
+                                <td>1ms SysTick/Timer tick, zero-delay command interpreter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 1: LINUX / WSL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid var(--accent); margin-bottom: 2rem;">
+                    <h2>Part 1: Linux / WSL Project — POSIX Interrupt Simulator &amp; Lock-Free Ring Buffer</h2>
+                    <p>
+                        How do embedded developers test interrupt handlers before hardware is available? On Linux/WSL, we emulate hardware interrupts using POSIX signals (<code>timer_create</code> / <code>SIGALRM</code>). Because POSIX signal handlers asynchronously interrupt the main thread just like an MCU ISR, they expose race conditions, reentrancy bugs, and atomic ordering failures.
+                    </p>
+                </div>
+
+                <h3>Step 1: Lock-Free Ring Buffer Header (<code>ring_buffer.h</code>)</h3>
+                <p>
+                    A single-producer, single-consumer (SPSC) ring buffer with power-of-two sizing, enabling bitwise index wrapping without expensive modulo (<code>%</code>) division:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file ring_buffer.h
+ * @brief Lock-Free SPSC Circular Buffer for Interrupt-to-Thread Communication
+ */
+#ifndef RING_BUFFER_H
+#define RING_BUFFER_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+#define RING_BUFFER_CAPACITY 64U /* Must be a power of two */
+#define RING_BUFFER_MASK     (RING_BUFFER_CAPACITY - 1U)
+
+typedef struct {
+    uint8_t  buffer[RING_BUFFER_CAPACITY];
+    volatile uint32_t head; /* Written by Producer (ISR), read by Consumer */
+    volatile uint32_t tail; /* Written by Consumer (Task), read by Producer */
+    volatile uint32_t drop_count;
+} ring_buffer_t;
+
+void     ring_buf_init(ring_buffer_t *rb);
+bool     ring_buf_put(ring_buffer_t *rb, uint8_t byte);
+bool     ring_buf_get(ring_buffer_t *rb, uint8_t *p_byte);
+uint32_t ring_buf_count(const ring_buffer_t *rb);
+bool     ring_buf_is_empty(const ring_buffer_t *rb);
+bool     ring_buf_is_full(const ring_buffer_t *rb);
+
+#endif /* RING_BUFFER_H */</code></pre>
+                </div>
+
+                <h3>Step 2: Lock-Free Implementation (<code>ring_buffer.c</code>)</h3>
+                <p>
+                    Compiler barriers ensure the byte is committed to memory before the <code>head</code> index is incremented:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file ring_buffer.c
+ * @brief Lock-Free SPSC Implementation with Explicit Memory Barriers
+ */
+#include "ring_buffer.h"
+
+void ring_buf_init(ring_buffer_t *rb) {
+    if (rb != NULL) {
+        rb-&gt;head = 0U;
+        rb-&gt;tail = 0U;
+        rb-&gt;drop_count = 0U;
+    }
+}
+
+uint32_t ring_buf_count(const ring_buffer_t *rb) {
+    return (rb-&gt;head - rb-&gt;tail);
+}
+
+bool ring_buf_is_full(const ring_buffer_t *rb) {
+    return (ring_buf_count(rb) &gt;= RING_BUFFER_CAPACITY);
+}
+
+bool ring_buf_is_empty(const ring_buffer_t *rb) {
+    return (rb-&gt;head == rb-&gt;tail);
+}
+
+/* Producer Function: Called inside ISR */
+bool ring_buf_put(ring_buffer_t *rb, uint8_t byte) {
+    if (ring_buf_is_full(rb)) {
+        rb-&gt;drop_count++;
+        return false; /* Buffer overflow */
+    }
+
+    /* Store data at current head slot */
+    rb-&gt;buffer[rb-&gt;head &amp; RING_BUFFER_MASK] = byte;
+
+    /* Memory Barrier: Ensure byte is written before head updates */
+    __atomic_thread_fence(__ATOMIC_RELEASE);
+
+    rb-&gt;head++;
+    return true;
+}
+
+/* Consumer Function: Called inside Background Loop */
+bool ring_buf_get(ring_buffer_t *rb, uint8_t *p_byte) {
+    if (ring_buf_is_empty(rb)) {
+        return false; /* Buffer empty */
+    }
+
+    *p_byte = rb-&gt;buffer[rb-&gt;tail &amp; RING_BUFFER_MASK];
+
+    /* Memory Barrier: Ensure byte is read before tail advances */
+    __atomic_thread_fence(__ATOMIC_RELEASE);
+
+    rb-&gt;tail++;
+    return true;
+}</code></pre>
+                </div>
+
+                <h3>Step 3: Signal-Emulated ISR Harness (<code>host_sim.c</code>)</h3>
+                <p>
+                    A Linux program setting up a 10ms hardware interval timer via <code>setitimer()</code>, triggering an asynchronous signal handler that acts as our simulated ADC sensor ISR:
+                </p>
+
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file host_sim.c
+ * @brief Host Signal-Emulated Interrupt Engine &amp; Non-Blocking Scheduler
+ */
+#define _POSIX_C_SOURCE 200809L
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;sys/time.h&gt;
+#include &lt;unistd.h&gt;
+#include "ring_buffer.h"
+
+static ring_buffer_t g_telemetry_rb;
+static volatile sig_atomic_t g_irq_count = 0;
+static volatile sig_atomic_t g_keep_running = 1;
+
+/* Simulated Hardware Interrupt Service Routine (ISR) */
+static void simulated_timer_isr(int sig) {
+    (void)sig;
+    g_irq_count++;
+
+    /* Produce synthetic sensor byte (0x30 to 0x39) */
+    uint8_t synthetic_byte = (uint8_t)('0' + (g_irq_count % 10));
+    ring_buf_put(&amp;g_telemetry_rb, synthetic_byte);
+}
+
+int main(void) {
+    printf("=== POSIX SIGNAL-EMULATED INTERRUPT ENGINE ===\n");
+    ring_buf_init(&amp;g_telemetry_rb);
+
+    /* 1. Register Simulated ISR via SIGALRM */
+    struct sigaction sa;
+    sa.sa_handler = simulated_timer_isr;
+    sa.sa_flags = SA_RESTART;
+    sigemptyset(&amp;sa.sa_mask);
+    sigaction(SIGALRM, &amp;sa, NULL);
+
+    /* 2. Configure 10ms Interval Timer */
+    struct itimerval timer;
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = 10000; /* 10 ms periodic tick */
+    timer.it_value.tv_sec = 0;
+    timer.it_value.tv_usec = 10000;
+    setitimer(ITIMER_REAL, &amp;timer, NULL);
+
+    printf("Simulated hardware interrupts running at 100 Hz. Processing in non-blocking superloop...\n");
+
+    uint32_t processed_bytes = 0;
+    while (processed_bytes &lt; 50) {
+        uint8_t rx_data;
+        /* Non-blocking drain: Never wait or block */
+        if (ring_buf_get(&amp;g_telemetry_rb, &amp;rx_data)) {
+            printf("[Main Loop Task] Received Sensor Byte: '%c' (Total Processed: %u)\n", 
+                   rx_data, ++processed_bytes);
+        }
+
+        /* Simulate non-blocking concurrent work */
+        usleep(5000); /* 5 ms background cycle */
+    }
+
+    /* Disable timer */
+    timer.it_value.tv_usec = 0;
+    timer.it_interval.tv_usec = 0;
+    setitimer(ITIMER_REAL, &amp;timer, NULL);
+
+    printf("Execution Finished: %d IRQs fired, %u bytes processed, %u dropped.\n",
+           g_irq_count, processed_bytes, g_telemetry_rb.drop_count);
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <hr style="margin: 2.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- PART 2: STM32 BARE-METAL PROJECT -->
+                <div class="feature-card" style="border-left: 4px solid #10b981; margin-bottom: 2rem;">
+                    <h2>Part 2: Physical STM32 Board Project — Hardware Timer &amp; Interrupt-Driven UART CLI</h2>
+                    <p>
+                        On real hardware, blocking UART reads freeze the MCU and miss external events. Here, we implement a full <strong>Interrupt-Driven USART2 Driver with Lock-Free Circular Buffer</strong> paired with a <strong>1kHz Hardware Timer (TIM2) Periodic Scheduler</strong> on an STM32F4 Nucleo board.
+                    </p>
+                </div>
+
+                <h3>System Architecture &amp; NVIC Configuration</h3>
+                <div style="background: var(--bg-secondary); padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-family: var(--font-mono); font-size: 0.85rem; border: 1px solid var(--border-color);">
+                    [USART2 RX Pin (PA3)] --&gt; (RXNE Interrupt) --&gt; [USART2_IRQHandler] --&gt; ring_buf_put()
+                                                                                                 |
+                    [Main Superloop] &lt;-------------------------------------------------------+
+                           |
+                           +--&gt; ring_buf_get() --&gt; Command Line Parser ("led on", "status")
+                           |
+                    [TIM2 1kHz Tick] ----&gt; Non-blocking software timers for 2Hz LED heartbeat
+                </div>
+
+                <h3>Bare-Metal Implementation (<code>stm32_cli.c</code>)</h3>
+                <div class="code-block-container">
+                    <pre><code class="language-c">/**
+ * @file stm32_cli.c
+ * @brief Interrupt-Driven USART2 &amp; Hardware Timer Scheduler for STM32F401
+ */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Register Offsets */
+#define RCC_AHB1ENR   (*(volatile uint32_t *)(0x40023830UL))
+#define RCC_APB1ENR   (*(volatile uint32_t *)(0x40023840UL))
+
+#define GPIOA_MODER   (*(volatile uint32_t *)(0x40020000UL))
+#define GPIOA_AFRL    (*(volatile uint32_t *)(0x40020020UL))
+#define GPIOA_BSRR    (*(volatile uint32_t *)(0x40020018UL))
+
+#define USART2_SR     (*(volatile uint32_t *)(0x40004400UL))
+#define USART2_DR     (*(volatile uint32_t *)(0x40004404UL))
+#define USART2_BRR    (*(volatile uint32_t *)(0x40004408UL))
+#define USART2_CR1    (*(volatile uint32_t *)(0x4000440CUL))
+
+#define NVIC_ISER1    (*(volatile uint32_t *)(0xE000E104UL)) /* IRQ 32-63 */
+#define NVIC_ISER0    (*(volatile uint32_t *)(0xE000E100UL)) /* IRQ 0-31 */
+
+#define TIM2_CR1      (*(volatile uint32_t *)(0x40000000UL))
+#define TIM2_DIER     (*(volatile uint32_t *)(0x4000000CUL))
+#define TIM2_SR       (*(volatile uint32_t *)(0x40000010UL))
+#define TIM2_PSC      (*(volatile uint32_t *)(0x40000028UL))
+#define TIM2_ARR      (*(volatile uint32_t *)(0x4000002CUL))
+
+/* Circular Buffer for UART RX */
+#define UART_BUF_SIZE 64U
+typedef struct {
+    uint8_t  buf[UART_BUF_SIZE];
+    volatile uint32_t head;
+    volatile uint32_t tail;
+} uart_rx_buffer_t;
+
+static uart_rx_buffer_t g_uart_rx = { .head = 0, .tail = 0 };
+static volatile uint32_t g_system_ticks = 0; /* Incremented every 1ms by TIM2 */
+
+/* USART2 Interrupt Service Routine */
+void USART2_IRQHandler(void) {
+    /* Check if Read Data Register Not Empty (RXNE) */
+    if (USART2_SR &amp; (1UL &lt;&lt; 5)) {
+        uint8_t rx_char = (uint8_t)(USART2_DR &amp; 0xFFU);
+        uint32_t next_head = (g_uart_rx.head + 1U) % UART_BUF_SIZE;
+        if (next_head != g_uart_rx.tail) {
+            g_uart_rx.buf[g_uart_rx.head] = rx_char;
+            g_uart_rx.head = next_head;
+        }
+    }
+}
+
+/* TIM2 1kHz Tick Interrupt Service Routine */
+void TIM2_IRQHandler(void) {
+    if (TIM2_SR &amp; (1UL &lt;&lt; 0)) { /* Update Interrupt Flag */
+        TIM2_SR &amp;= ~(1UL &lt;&lt; 0);  /* Clear Flag */
+        g_system_ticks++;
+    }
+}
+
+static void uart_send_char(char c) {
+    while (!(USART2_SR &amp; (1UL &lt;&lt; 7))) { /* Wait for TXE */ }
+    USART2_DR = (uint32_t)c;
+}
+
+static void uart_send_str(const char *str) {
+    while (*str) {
+        uart_send_char(*str++);
+    }
+}
+
+static void periph_init(void) {
+    /* 1. Clocks: GPIOA, USART2, TIM2 */
+    RCC_AHB1ENR |= (1UL &lt;&lt; 0);  /* GPIOA */
+    RCC_APB1ENR |= (1UL &lt;&lt; 17); /* USART2 */
+    RCC_APB1ENR |= (1UL &lt;&lt; 0);  /* TIM2 */
+
+    /* 2. PA5 (LED) Output */
+    GPIOA_MODER &amp;= ~(3UL &lt;&lt; 10);
+    GPIOA_MODER |=  (1UL &lt;&lt; 10);
+
+    /* 3. PA2 (TX) and PA3 (RX) Alternate Function AF7 */
+    GPIOA_MODER &amp;= ~((3UL &lt;&lt; 4) | (3UL &lt;&lt; 6));
+    GPIOA_MODER |=  ((2UL &lt;&lt; 4) | (2UL &lt;&lt; 6));
+    GPIOA_AFRL  |=  ((7UL &lt;&lt; 8) | (7UL &lt;&lt; 12));
+
+    /* 4. USART2: 115200 Baud @ 16MHz APB1 Clock */
+    USART2_BRR = 0x008B; /* 16MHz / (16 * 115200) = 8.6875 -&gt; 0x8B */
+    USART2_CR1 = (1UL &lt;&lt; 13) | (1UL &lt;&lt; 3) | (1UL &lt;&lt; 2) | (1UL &lt;&lt; 5); /* UE, TE, RE, RXNEIE */
+
+    /* 5. TIM2: 1000 Hz Tick (1ms) */
+    TIM2_PSC = 16 - 1;    /* Prescale to 1MHz */
+    TIM2_ARR = 1000 - 1;  /* 1MHz / 1000 = 1kHz */
+    TIM2_DIER |= (1UL &lt;&lt; 0); /* Update Interrupt Enable */
+    TIM2_CR1  |= (1UL &lt;&lt; 0); /* Counter Enable */
+
+    /* 6. Enable Interrupts in NVIC */
+    NVIC_ISER1 |= (1UL &lt;&lt; (38 - 32)); /* USART2 is IRQ 38 */
+    NVIC_ISER0 |= (1UL &lt;&lt; 28);        /* TIM2 is IRQ 28 */
+}
+
+/* Non-blocking CLI parser executed in main superloop */
+static void process_cli(void) {
+    static char cmd_line[32];
+    static uint8_t idx = 0;
+
+    while (g_uart_rx.head != g_uart_rx.tail) {
+        char c = (char)g_uart_rx.buf[g_uart_rx.tail];
+        g_uart_rx.tail = (g_uart_rx.tail + 1U) % UART_BUF_SIZE;
+        uart_send_char(c); /* Local Echo */
+
+        if (c == '\r' || c == '\n') {
+            cmd_line[idx] = '\0';
+            uart_send_str("\r\n");
+
+            if (idx &gt; 0) {
+                if (cmd_line[0] == '1') {
+                    GPIOA_BSRR = (1UL &lt;&lt; 5);
+                    uart_send_str("[OK] LED ON\r\n&gt; ");
+                } else if (cmd_line[0] == '0') {
+                    GPIOA_BSRR = (1UL &lt;&lt; (5 + 16));
+                    uart_send_str("[OK] LED OFF\r\n&gt; ");
+                } else {
+                    uart_send_str("[ERR] Unknown: Press '1' for ON, '0' for OFF\r\n&gt; ");
+                }
+            }
+            idx = 0;
+        } else if (idx &lt; (sizeof(cmd_line) - 1U)) {
+            cmd_line[idx++] = c;
+        }
+    }
+}
+
+int main(void) {
+    periph_init();
+    uart_send_str("\r\n=== STM32 REACTIVE UART CLI READY ===\r\n&gt; ");
+
+    uint32_t last_heartbeat = 0;
+
+    while (1) {
+        /* Task 1: Non-Blocking CLI Processor */
+        process_cli();
+
+        /* Task 2: Non-Blocking Heartbeat LED Toggle every 1000 ms */
+        if ((g_system_ticks - last_heartbeat) &gt;= 1000U) {
+            last_heartbeat = g_system_ticks;
+            /* Heartbeat pulse */
+            GPIOA_BSRR = (1UL &lt;&lt; 5);
+            /* Short pulse turn-off managed without delay */
+        }
+    }
+
+    return 0;
+}</code></pre>
+                </div>
+
+                <!-- Self-Assessment MCQs -->
+                <div class="interactive-quiz">
+                    <h3>Module 3 Capstone Knowledge Check</h3>
+                    <p>Test your understanding of reactive architecture, interrupt safety, and lock-free data structures.</p>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">1. In an SPSC circular buffer with capacity equal to a power of two ($2^N$), why is <code>(head &amp; (CAPACITY - 1))</code> preferred over <code>(head % CAPACITY)</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q1" value="0"> Modulo division is invalid syntax in C99/C11.</label></li>
+                            <li><label><input type="radio" name="q1" value="1"> Bitwise AND executes in a single clock cycle, whereas integer division on microcontrollers without hardware division (or even with it) consumes multiple cycles and can stall the pipeline.</label></li>
+                            <li><label><input type="radio" name="q1" value="2"> Modulo division cannot handle unsigned integer wrapping.</label></li>
+                            <li><label><input type="radio" name="q1" value="3"> Bitwise AND automatically disables interrupts.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">2. Why is a memory barrier (<code>__atomic_thread_fence</code>) required before incrementing <code>rb-&gt;head</code> in <code>ring_buf_put()</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q2" value="0"> To ensure the compiler does not optimize away the ring buffer pointer.</label></li>
+                            <li><label><input type="radio" name="q2" value="1"> To flush the L1 instruction cache.</label></li>
+                            <li><label><input type="radio" name="q2" value="2"> To guarantee that the written data byte is committed to memory before the consumer observes the updated <code>head</code> index, preventing stale data reads.</label></li>
+                            <li><label><input type="radio" name="q2" value="3"> It is an optional hint for the linker.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">3. What is the fatal flaw of calling <code>printf()</code> inside an Interrupt Service Routine (ISR)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q3" value="0"> <code>printf()</code> is non-reentrant, heavily uses the stack, and performs blocking I/O, which can cause deadlocks or massive interrupt latency.</label></li>
+                            <li><label><input type="radio" name="q3" value="1"> <code>printf()</code> is not defined for ARM Cortex-M.</label></li>
+                            <li><label><input type="radio" name="q3" value="2"> The compiler will automatically replace <code>printf()</code> with a HardFault.</label></li>
+                            <li><label><input type="radio" name="q3" value="3"> <code>printf()</code> disables the system oscillator.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">4. Why must <code>g_system_ticks</code> be declared with the <code>volatile</code> qualifier?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q4" value="0"> To place the variable in the microcontroller's Flash memory.</label></li>
+                            <li><label><input type="radio" name="q4" value="1"> To enable floating point math on the tick counter.</label></li>
+                            <li><label><input type="radio" name="q4" value="2"> To make the variable inaccessible to other threads.</label></li>
+                            <li><label><input type="radio" name="q4" value="3"> Because it is modified asynchronously inside an ISR (<code>TIM2_IRQHandler</code>) and read in the main loop; without <code>volatile</code>, the compiler would cache it in a CPU register and create an infinite loop.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">5. In non-blocking scheduling, how should elapsed time be checked to prevent bugs when <code>g_system_ticks</code> overflows (wraps around to 0)?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q5" value="0"> <code>if (g_system_ticks &gt;= target_time)</code></label></li>
+                            <li><label><input type="radio" name="q5" value="1"> <code>if ((g_system_ticks - last_timestamp) &gt;= interval)</code> with unsigned integer arithmetic.</label></li>
+                            <li><label><input type="radio" name="q5" value="2"> By resetting <code>g_system_ticks</code> to 0 every hour.</label></li>
+                            <li><label><input type="radio" name="q5" value="3"> Unsigned integers never wrap in C.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">6. What is the consequence if the USART2 RXNE interrupt flag is NOT cleared or read inside <code>USART2_IRQHandler()</code>?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q6" value="0"> The UART baud rate resets to 9600.</label></li>
+                            <li><label><input type="radio" name="q6" value="1"> The CPU immediately enters low-power standby mode.</label></li>
+                            <li><label><input type="radio" name="q6" value="2"> The NVIC will continuously re-trigger the ISR immediately upon exit, completely starving the main thread.</label></li>
+                            <li><label><input type="radio" name="q6" value="3"> The received character is automatically sent out on the TX pin.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="0">
+                        <p class="quiz-question">7. Why is a Single-Producer Single-Consumer (SPSC) ring buffer inherently thread-safe without mutex locks?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q7" value="0"> Only the producer writes to <code>head</code>, and only the consumer writes to <code>tail</code>; as long as reads/writes to indices are atomic, no shared mutation conflict occurs.</label></li>
+                            <li><label><input type="radio" name="q7" value="1"> Because the CPU hardware enforces hardware locking on array data.</label></li>
+                            <li><label><input type="radio" name="q7" value="2"> Mutex locks are automatically injected by the ARM GCC compiler.</label></li>
+                            <li><label><input type="radio" name="q7" value="3"> SPSC buffers only hold 1 byte at a time.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="3">
+                        <p class="quiz-question">8. What occurs when a UART peripheral receives a new byte before the previous byte has been read from the Data Register?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q8" value="0"> Frame Error (FE).</label></li>
+                            <li><label><input type="radio" name="q8" value="1"> Parity Error (PE).</label></li>
+                            <li><label><input type="radio" name="q8" value="2"> Break Detection flag (BD).</label></li>
+                            <li><label><input type="radio" name="q8" value="3"> Overrun Error (ORE), causing unread data to be overwritten or lost.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="1">
+                        <p class="quiz-question">9. What is the fundamental difference between cooperative non-blocking scheduling and preemptive RTOS scheduling?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q9" value="0"> RTOS does not support timers.</label></li>
+                            <li><label><input type="radio" name="q9" value="1"> In cooperative scheduling, tasks run to completion without interruption from other tasks; in preemptive scheduling, the OS kernel can pause a running task at any instant to run a higher-priority task.</label></li>
+                            <li><label><input type="radio" name="q9" value="2"> Cooperative scheduling requires dedicated hardware co-processors.</label></li>
+                            <li><label><input type="radio" name="q9" value="3"> RTOS cannot execute C code.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="quiz-item" data-answer="2">
+                        <p class="quiz-question">10. What is 'Interrupt Latency' in embedded systems?</p>
+                        <ul class="quiz-options">
+                            <li><label><input type="radio" name="q10" value="0"> The baud rate divided by the system clock frequency.</label></li>
+                            <li><label><input type="radio" name="q10" value="1"> The time it takes for an LED to switch states.</label></li>
+                            <li><label><input type="radio" name="q10" value="2"> The time delay between a hardware interrupt signal being asserted and the first instruction of the ISR being executed.</label></li>
+                            <li><label><input type="radio" name="q10" value="3"> The time required to flash an ELF file to microcontroller memory.</label></li>
+                        </ul>
+                        <button class="check-answer-btn" onclick="checkAnswer(this)">Check Answer</button>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+
+                <!-- Hands-On Labs -->
+                <div class="labs-section">
+                    <h2>Hands-on Engineering Challenges</h2>
+                    
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 1 (Host)</div>
+                        <h3>Stress-Test Multi-Threaded SPSC Benchmark</h3>
+                        <p>Write a host program using POSIX <code>pthread</code> with one thread acting as a 100kHz producer and another as a consumer. Push 10,000,000 uint32 integers through the ring buffer and verify zero data corruption or dropped items.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 2 (Host)</div>
+                        <h3>Priority Callback Event Queue</h3>
+                        <p>Implement an event scheduler in C where events have priority levels (<code>HIGH</code>, <code>MEDIUM</code>, <code>LOW</code>). When multiple events are queued, the dispatcher always fires high-priority callbacks first.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 3 (STM32)</div>
+                        <h3>DMA-Assisted Circular UART Reception</h3>
+                        <p>Upgrade the STM32 UART receiver to use Direct Memory Access (DMA1 Stream 5) in circular mode. This moves characters from the UART data register directly into memory with zero CPU interrupt overhead.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 4 (STM32)</div>
+                        <h3>Non-Blocking Rotary Encoder Quadrature Decoder</h3>
+                        <p>Configure STM32 TIM3 in Encoder Mode (quadrature interface on PA6/PA7). In the non-blocking superloop, sample encoder ticks and adjust an LED PWM brightness without any busy-wait polling.</p>
+                    </div>
+
+                    <div class="lab-card">
+                        <div class="lab-badge">Challenge 5 (Host + Hardware)</div>
+                        <h3>Interactive Telemetry Dashboard CLI</h3>
+                        <p>Extend the CLI parser to support commands: <code>uptime</code> (returns millis), <code>temp</code> (returns simulated sensor data), and <code>reboot</code> (triggers software reset via NVIC AIRCR register).</p>
+                    </div>
+                </div>
+
+                <!-- References -->
+                <div class="references-section">
+                    <h2>Further Technical Reading</h2>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Whitepaper</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Embedded.com</span>
+                            </div>
+                            <h4>Lock-Free Ring Buffers for Real-Time Systems</h4>
+                            <p>Formal mathematical analysis of single-producer single-consumer circular buffers and memory barrier ordering.</p>
+                            <a href="https://www.embedded.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Silicon Architecture</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Arm Developer</span>
+                            </div>
+                            <h4>Cortex-M Nested Vectored Interrupt Controller (NVIC)</h4>
+                            <p>Detailed technical guide covering interrupt tail-chaining, late arrival, preemption priority, and ISR stacking.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_14.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 14: Non-Blocking Firmware Design</span>
+                </a>
+                <a href="topic_15.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 15: Naming Conventions &amp; Style</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

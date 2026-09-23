@@ -1,4 +1,571 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>objdump size nm and GDB</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_08.html">objdump, size, nm &amp; GDB</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 8</span><h1><code>objdump</code>, <code>size</code>, <code>nm</code>, and GDB</h1><ul><li><code>size</code> reports text, data, and BSS footprint.</li><li><code>nm</code> lists symbols and addresses.</li><li><code>objdump</code> shows sections and disassembly.</li><li><code>gdb</code> provides breakpoints, watchpoints, stacks, registers, and stepping.</li></ul><pre><code>size firmware.elf
-nm firmware.elf
-objdump -h -d firmware.elf
-gdb ./host_test</code></pre></article><footer class="page-navigation"><a class="nav-button prev" href="topic_07.html">GCC</a><a class="nav-button next" href="topic_09.html">Make &amp; CMake</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 8: objdump, size, nm &amp; GDB - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li class="active"><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 8</span>
+                <h1>objdump, size, nm &amp; GDB</h1>
+
+                <p>
+                    Compiling C source code produces an Executable and Linkable Format (<strong>ELF</strong>) binary. An ELF file is not a black box: it contains complete metadata regarding physical memory section layouts, function and variable symbol tables, and DWARF debugging information.
+                </p>
+
+                <p>
+                    Proficient firmware engineers do not guess where memory is being consumed or why code crashes; they inspect the binary directly using <strong>GNU Binutils</strong>:
+                    <code>size</code> to monitor Flash and SRAM footprints, <code>nm</code> to identify memory-hogging variables, <code>objdump</code> to verify emitted assembly instructions, and <strong>GDB</strong> paired with hardware debug probes (JTAG/SWD) to inspect live registers and set non-intrusive hardware watchpoints.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 8.1 -->
+                <h2>8.1 Memory Footprint Auditing with 'size'</h2>
+                <p>
+                    The <code>size</code> utility reports the byte allocation across ELF sections. Understanding how the numbers map to physical microcontroller memory is essential:
+                </p>
+                <pre><code class="language-bash">$ arm-none-eabi-size -B firmware.elf
+   text    data     bss     dec     hex filename
+  24576    1024    4096   29696    7400 firmware.elf</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 8.1: Standard Output of GNU size Utility</div>
+
+                <!-- Table 8.1 -->
+                <div style="overflow-x: auto; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; border: 1px solid var(--border-color);">
+                        <thead>
+                            <tr style="background-color: var(--accent); color: #ffffff;">
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Section</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Physical Memory Location</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Calculation for Total Hardware Usage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">text</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Non-volatile Flash / ROM</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Machine instructions + vector table + const read-only data (.rodata).</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">data</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><strong>Both Flash &amp; SRAM</strong></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Consumes Flash for initial values; consumes SRAM at runtime.</td>
+                            </tr>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">bss</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Volatile SRAM only</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Zero-initialized variables. Consumes 0 bytes of Flash!</td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color); font-weight: 700; color: var(--accent);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">TOTALS</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><strong>Flash = text + data</strong></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><strong>SRAM = data + bss (+ stack &amp; heap)</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 8.2 -->
+                <h2>8.2 Symbol Table Exploration with 'nm'</h2>
+                <p>
+                    When SRAM is running low, the <code>nm</code> utility locates the exact variables consuming the most memory by sorting symbols by byte size:
+                    <br><code>arm-none-eabi-nm --size-sort --print-size --radix=d firmware.elf</code>
+                </p>
+
+                <p>
+                    Common symbol types reported by <code>nm</code>:
+                </p>
+                <ul>
+                    <li><code>T / t</code>: Code section symbol (Function in <code>.text</code>). Capital <code>T</code> = global; lowercase <code>t</code> = static private.</li>
+                    <li><code>D / d</code>: Initialized data symbol (resides in <code>.data</code>).</li>
+                    <li><code>B / b</code>: Uninitialized symbol (resides in <code>.bss</code>).</li>
+                    <li><code>R / r</code>: Read-only data symbol (resides in <code>.rodata</code> Flash).</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 8.3 -->
+                <h2>8.3 Disassembly with 'objdump -d -S'</h2>
+                <p>
+                    The <code>objdump</code> utility converts binary machine code back into assembly. When compiled with debug symbols (<code>-g</code>), the <code>-S</code> flag interleaves original C source lines directly with emitted assembly instructions:
+                    <br><code>arm-none-eabi-objdump -d -S -C firmware.elf &gt; firmware.asm</code>
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 8.4 GDB -->
+                <h2>8.4 Remote Hardware Debugging with GDB</h2>
+                <p>
+                    To debug physical silicon, GDB connects to an in-circuit debug server (OpenOCD, J-Link, pyOCD) over a TCP socket (typically port 3333):
+                </p>
+
+                <!-- Figure 8.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 280" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-tcp" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                            </marker>
+                            <marker id="arrow-swd" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Host GDB Client (Left) -->
+                        <rect x="30" y="30" width="240" height="120" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="150" y="58" fill="#93c5fd" font-size="13" font-weight="700" text-anchor="middle">arm-none-eabi-gdb</text>
+                        <text x="150" y="78" fill="#f8fafc" font-size="11" text-anchor="middle">Host Command-Line or IDE</text>
+                        <rect x="45" y="92" width="210" height="42" rx="4" fill="#0f172a" stroke="#334155"/>
+                        <text x="150" y="110" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Reads symbols from firmware.elf</text>
+                        <text x="150" y="125" fill="#a7f3d0" font-size="9" font-family="monospace" text-anchor="middle">(gdb) target remote :3333</text>
+
+                        <!-- Two-way TCP Arrow -->
+                        <line x1="270" y1="80" x2="350" y2="80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-tcp)"/>
+                        <line x1="350" y1="90" x2="270" y2="90" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-tcp)"/>
+                        <rect x="272" y="55" width="76" height="18" rx="3" fill="#0f172a" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="310" y="68" fill="#93c5fd" font-size="8.5" font-weight="600" text-anchor="middle">TCP :3333</text>
+
+                        <!-- GDB Server (Center-Right Top) -->
+                        <rect x="355" y="30" width="435" height="65" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                        <text x="572" y="53" fill="#c4b5fd" font-size="13" font-weight="700" text-anchor="middle">OpenOCD / J-Link GDB Server</text>
+                        <text x="572" y="72" fill="#cbd5e1" font-size="10" text-anchor="middle">Translates GDB Remote Serial Protocol (RSP) into hardware probe primitives</text>
+
+                        <!-- USB Arrow down -->
+                        <line x1="572" y1="95" x2="572" y2="125" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow-tcp)"/>
+                        <rect x="525" y="102" width="94" height="18" rx="3" fill="#0f172a" stroke="#f59e0b" stroke-width="1"/>
+                        <text x="572" y="115" fill="#fde68a" font-size="8.5" font-weight="600" text-anchor="middle">USB Cable</text>
+
+                        <!-- Hardware Debug Probe (Center-Right Middle) -->
+                        <rect x="355" y="130" width="435" height="60" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="572" y="153" fill="#fde68a" font-size="12" font-weight="700" text-anchor="middle">Hardware Debug Probe (ST-LINK V2/V3 &bull; SEGGER J-Link &bull; CMSIS-DAP)</text>
+                        <text x="572" y="172" fill="#cbd5e1" font-size="10" text-anchor="middle">Dedicated microcontroller handling electrical level-shifting and clocking</text>
+
+                        <!-- SWD Arrow down -->
+                        <line x1="572" y1="190" x2="572" y2="218" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-swd)"/>
+                        <rect x="495" y="197" width="154" height="18" rx="3" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+                        <text x="572" y="210" fill="#a7f3d0" font-size="8.5" font-weight="600" text-anchor="middle">SWD: SWDIO, SWCLK, nRST</text>
+
+                        <!-- Target Microcontroller (Center-Right Bottom) -->
+                        <rect x="355" y="222" width="435" height="52" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="572" y="244" fill="#6ee7b7" font-size="12" font-weight="700" text-anchor="middle">Target Microcontroller (ARM Cortex-M Silicon)</text>
+                        <text x="572" y="260" fill="#cbd5e1" font-size="9.5" text-anchor="middle">CoreSight DAP &bull; Breakpoint Unit (FPB) &bull; Data Watchpoint (DWT)</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 8.1: Remote Embedded Debugging Architecture with GDB and OpenOCD</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 8.5 Code Implementations -->
+                <h2>8.5 Hands-On Code Implementations</h2>
+                <p>
+                    The following GDB script automates connecting to an OpenOCD target, loading an ELF binary into Flash, resetting the CPU, and halting at <code>main()</code>:
+                </p>
+
+                <pre><code class="language-c"># GDB Remote Debugging Automation Script
+# Usage: arm-none-eabi-gdb -x debug.gdb firmware.elf
+
+# 1. Connect to OpenOCD GDB server running on localhost
+target extended-remote localhost:3333
+
+# 2. Reset and halt the microcontroller core
+monitor reset halt
+
+# 3. Flash the compiled ELF binary into on-chip microcontroller Flash
+load
+
+# 4. Set hardware breakpoint at main()
+b main
+
+# 5. Set hardware data write watchpoint on a memory address to catch corruption
+# watch *0x20000004
+
+# 6. Resume execution until main() is reached
+continue
+
+# Useful GDB inspection commands during active debug session:
+# info registers           - Print all CPU core registers (R0-R15, xPSR, MSP, PSP)
+# x/16xw 0x20000000        - Examine 16 words in hexadecimal from SRAM start
+# print/x *GPIOA           - Print peripheral register struct contents
+# bt                       - Backtrace call stack frames
+# stepi                    - Single-step a single assembly instruction</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 8.2: Automated GDB Remote Session Configuration Script</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>8.6 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    When a variable experiences random memory corruption, standard printfs fail to catch the culprit. GDB hardware watchpoints allow zero-overhead trapping the exact instant the memory location is written.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        In this code, an out-of-bounds array write in <code>uart_driver.c</code> silently corrupts the neighboring <code>system_state</code> variable in SRAM:
+                    </p>
+                    <pre><code class="language-c">/* IN uart_driver.c: Off-by-one buffer overflow */
+uint8_t rx_buffer[16];
+/* IN main.c: Located immediately adjacent to rx_buffer in SRAM */
+volatile uint32_t system_state = 0x01; 
+
+void bad_uart_isr(void) {
+    /* Bug: Writes past index 15, corrupting system_state at index 16! */
+    for (int i = 0; i &lt;= 16; i++) {
+        rx_buffer[i] = 0xFF; /* Overwrites system_state! */
+    }
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 8.3-A: Silent Adjacent Memory Corruption</div>
+                </details>
+
+                <p>
+                    Setting a GDB watchpoint <code>watch system_state</code> traps the exact assembly instruction and call stack that committed the invalid write:
+                </p>
+
+                <pre><code class="language-bash">(gdb) watch system_state
+Hardware watchpoint 1: system_state
+(gdb) continue
+Hardware watchpoint 1: system_state
+Old value = 1
+New value = 255
+bad_uart_isr () at uart_driver.c:8
+8           rx_buffer[i] = 0xFF;
+(gdb) bt
+#0  bad_uart_isr () at uart_driver.c:8
+#1  &lt;signal handler called&gt;</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 8.3-B: Pinpointing Corruption via GDB Hardware Watchpoint</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your ability to inspect binaries, audit memory sections, and debug with GDB.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. When reviewing the output of 'size firmware.elf', how do you calculate total Flash memory consumption?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Flash = text + bss</li>
+                        <li class="mcq-option" data-correct="true">Flash = text + data</li>
+                        <li class="mcq-option" data-correct="false">Flash = data + bss</li>
+                        <li class="mcq-option" data-correct="false">Flash = text + data + bss</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Flash holds executable instructions (.text) and the non-volatile initial values for mutable variables (.data). .bss consumes zero Flash.">Flash holds executable instructions (.text) and the non-volatile initial values for mutable variables (.data). .bss consumes zero Flash.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. When reviewing the output of 'size firmware.elf', how do you calculate minimum SRAM memory consumption?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">SRAM = text + data</li>
+                        <li class="mcq-option" data-correct="false">SRAM = text + bss</li>
+                        <li class="mcq-option" data-correct="true">SRAM = data + bss (+ stack and heap reserve)</li>
+                        <li class="mcq-option" data-correct="false">SRAM = dec - hex</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Static SRAM is consumed by initialized globals (.data) plus zero-initialized globals (.bss). The remaining SRAM hosts the stack and heap.">Static SRAM is consumed by initialized globals (.data) plus zero-initialized globals (.bss). The remaining SRAM hosts the stack and heap.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What does symbol type 'B' represent in the output of the 'nm' utility?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A function in the Bootloader.</li>
+                        <li class="mcq-option" data-correct="true">A global variable residing in the uninitialized .bss section of SRAM.</li>
+                        <li class="mcq-option" data-correct="false">A breakpoint.</li>
+                        <li class="mcq-option" data-correct="false">A read-only binary constant.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="In nm, 'B' indicates a global uninitialized symbol in the .bss section; lowercase 'b' indicates a static local variable in .bss.">In nm, 'B' indicates a global uninitialized symbol in the .bss section; lowercase 'b' indicates a static local variable in .bss.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. Which flag passed to 'objdump' interleaves original C source code lines with the emitted disassembly?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">-x</li>
+                        <li class="mcq-option" data-correct="false">-t</li>
+                        <li class="mcq-option" data-correct="true">-S (source interleave)</li>
+                        <li class="mcq-option" data-correct="false">-r</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="-S displays source code intermixed with disassembly, provided the binary was compiled with debug information (-g).">-S displays source code intermixed with disassembly, provided the binary was compiled with debug information (-g).</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What is the fundamental difference between a GDB breakpoint and a GDB watchpoint?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Breakpoints run in Flash; watchpoints run in RAM.</li>
+                        <li class="mcq-option" data-correct="true">A breakpoint halts execution when an instruction address is reached; a watchpoint halts execution when a memory location is read or written.</li>
+                        <li class="mcq-option" data-correct="false">Watchpoints only work on simulated CPUs.</li>
+                        <li class="mcq-option" data-correct="false">Breakpoints require an oscilloscope.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Watchpoints monitor data access (reads/writes) using hardware comparator registers, while breakpoints monitor program counter instruction fetch addresses.">Watchpoints monitor data access (reads/writes) using hardware comparator registers, while breakpoints monitor program counter instruction fetch addresses.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What GDB command examines 16 consecutive 32-bit words in hexadecimal starting at address 0x20000000?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">show memory 16 0x20000000</li>
+                        <li class="mcq-option" data-correct="true">x/16xw 0x20000000</li>
+                        <li class="mcq-option" data-correct="false">print 16 words 0x20000000</li>
+                        <li class="mcq-option" data-correct="false">dump ram 16</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="x/16xw stands for: eXamine / 16 count, in heXadecimal, Words (32-bit).">x/16xw stands for: eXamine / 16 count, in heXadecimal, Words (32-bit).</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Why are hardware breakpoints limited in number (typically 4 to 8) on ARM Cortex-M microcontrollers?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">GDB licenses restrict breakpoints.</li>
+                        <li class="mcq-option" data-correct="true">They rely on dedicated physical hardware comparator registers inside the Flash Patch and Breakpoint (FPB) unit on the silicon.</li>
+                        <li class="mcq-option" data-correct="false">Flash memory cannot hold more than 4 functions.</li>
+                        <li class="mcq-option" data-correct="false">The SWD cable has only 4 wires.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Cortex-M FPB units implement a fixed number of silicon address comparator registers (e.g. 6 in Cortex-M4), bounding the number of simultaneous hardware breakpoints in Flash.">Cortex-M FPB units implement a fixed number of silicon address comparator registers (e.g. 6 in Cortex-M4), bounding the number of simultaneous hardware breakpoints in Flash.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What GDB command single-steps a single assembly machine instruction rather than an entire C source line?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">next</li>
+                        <li class="mcq-option" data-correct="false">step</li>
+                        <li class="mcq-option" data-correct="true">stepi (or nexti)</li>
+                        <li class="mcq-option" data-correct="false">continue</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="stepi executes exactly one machine instruction, allowing precise stepping through assembly startup sequences and register updates.">stepi executes exactly one machine instruction, allowing precise stepping through assembly startup sequences and register updates.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What does the GDB command 'backtrace' (or 'bt') display?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The historical Git commit log.</li>
+                        <li class="mcq-option" data-correct="true">The current chain of function call stack frames leading up to the active execution point.</li>
+                        <li class="mcq-option" data-correct="false">The list of linker memory sections.</li>
+                        <li class="mcq-option" data-correct="false">The Flash wear-leveling status.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="backtrace unwinds stack frames using the Link Register (LR) and stack pointers to show which functions called the current function.">backtrace unwinds stack frames using the Link Register (LR) and stack pointers to show which functions called the current function.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. What GNU Binutils tool is used to extract a raw binary (.bin) or Intel Hex (.hex) file from an ELF binary for flashing?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">arm-none-eabi-nm</li>
+                        <li class="mcq-option" data-correct="false">arm-none-eabi-readelf</li>
+                        <li class="mcq-option" data-correct="true">arm-none-eabi-objcopy</li>
+                        <li class="mcq-option" data-correct="false">arm-none-eabi-ar</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="objcopy converts between object formats, stripping debug symbols and producing raw binary images ready to be written into Flash memory.">objcopy converts between object formats, stripping debug symbols and producing raw binary images ready to be written into Flash memory.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master binary inspection and live silicon debugging.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Largest Symbol Identification</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Run <code class="keyword-hl">arm-none-eabi-nm --size-sort -C -r firmware.elf</code> on your project binary. Identify the top 5 largest functions in <code class="keyword-hl">.text</code> and the top 5 largest data buffers in SRAM. Document their exact byte sizes.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Disassembly Source Interleaving</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Compile a C file with <code class="keyword-hl">-O2 -g</code>. Run <code class="keyword-hl">arm-none-eabi-objdump -d -S firmware.elf &gt; disassembly.txt</code>. Open the text file and locate a for-loop. Analyze how the compiler unrolled the loop and which CPU registers were allocated to loop index variables.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Hardware Data Watchpoint Trap</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Connect to your target using GDB via OpenOCD. Set a hardware watchpoint on a global variable: <code class="keyword-hl">watch g_counter</code>. Run <code class="keyword-hl">continue</code>. When GDB halts, inspect the old and new value, print the active registers with <code class="keyword-hl">info registers</code>, and verify the line number.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Raw Binary Extraction and Size Verification</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Use <code class="keyword-hl">arm-none-eabi-objcopy -O binary firmware.elf firmware.bin</code>. Check the exact file size on disk using <code class="keyword-hl">ls -l firmware.bin</code>. Compare this number to the sum of <code class="keyword-hl">text + data</code> from <code class="keyword-hl">size</code> and explain why they match identically.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Live Peripheral Register Inspection via GDB</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> In an active GDB session halted at a breakpoint, read the 32-bit hardware value of GPIOA Port Output Data Register (<code class="keyword-hl">x/1xw 0x40020014</code>). Then use GDB's <code class="keyword-hl">set</code> command to force a bit high (<code class="keyword-hl">set *(uint32_t*)0x40020014 = 0x20</code>) and verify that the physical LED illuminates immediately on the board.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">GNU Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">GNU Binutils</span>
+                            </div>
+                            <h4>GNU Binary Utilities Reference Manual</h4>
+                            <p>Complete documentation for nm, objdump, size, objcopy, and readelf command syntax and section inspection flags.</p>
+                            <a href="https://sourceware.org/binutils/docs/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">GDB Manual</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Free Software Foundation</span>
+                            </div>
+                            <h4>Debugging with GDB: The GNU Source-Level Debugger</h4>
+                            <p>Authoritative guide on remote targets, remote serial protocol (RSP), memory inspection, and hardware watchpoints.</p>
+                            <a href="https://sourceware.org/gdb/current/onlinedocs/gdb/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">OpenOCD Guide</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">OpenOCD Community</span>
+                            </div>
+                            <h4>Open On-Chip Debugger (OpenOCD) User Guide</h4>
+                            <p>Architecture and configuration of JTAG/SWD debug probes, target flash drivers, and GDB server integration.</p>
+                            <a href="https://openocd.org/doc/html/index.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_07.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 7: GCC &amp; Cross-Compilers</span>
+                </a>
+                <a href="topic_09.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 9: Make &amp; CMake Basics</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

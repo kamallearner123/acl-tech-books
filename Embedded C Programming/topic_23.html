@@ -1,1 +1,663 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reusable Components</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_23.html">Reusable Components</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 23</span><h1>Reusable Components</h1><p>Reusable firmware components have narrow APIs, explicit context, bounded storage, no hidden hardware assumptions, and host tests. Ring buffers, timers, CRC utilities, debouncers, and protocol parsers are common examples.</p><p>Parameterize capacity and policy rather than copying nearly identical modules. Reuse should reduce risk, not hide important behavior.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_22.html">APIs &amp; Abstraction</a><a class="nav-button next" href="topic_24.html">Layers</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 23: Reusable Components - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li class="active"><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 23</span>
+                <h1>Reusable Software Components in Embedded C</h1>
+
+                <p>
+                    In typical embedded engineering organizations, firmware developers reinvent the wheel on every project: rewriting circular ring buffers, button debouncers, CRC generators, and packet parsers from scratch. Invariably, subtle race conditions, off-by-one errors, and buffer overflow bugs are reintroduced each time.
+                </p>
+
+                <p>
+                    A <strong>Reusable Embedded Component</strong> is a hardened, self-contained software module designed to operate seamlessly across different microcontroller families (ARM Cortex-M, RISC-V, AVR, ESP32) and host test environments. It enforces zero reliance on dynamic memory allocation, operates without global variables, and achieves mathematical reentrancy.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 23.1 -->
+                <h2>23.1 The 4 Laws of Reusable Firmware Architecture</h2>
+                <p>
+                    For a C component to achieve true portability and reusability, it must strictly comply with four architectural rules:
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 240" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <rect x="30" y="25" width="340" height="85" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="50" y="55" fill="#f8fafc" font-size="13" font-weight="700">1. Zero Silicon Coupling</text>
+                        <text x="50" y="75" fill="#94a3b8" font-size="11">No #include &lt;stm32f4xx.h&gt; or register addresses.</text>
+                        <text x="50" y="93" fill="#93c5fd" font-size="10">Pure algorithmic and data transformation logic.</text>
+
+                        <rect x="430" y="25" width="340" height="85" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="450" y="55" fill="#f8fafc" font-size="13" font-weight="700">2. External Storage Injection</text>
+                        <text x="450" y="75" fill="#94a3b8" font-size="11">No hidden static arrays, no malloc().</text>
+                        <text x="450" y="93" fill="#a7f3d0" font-size="10">Caller supplies storage buffer and capacity at init.</text>
+
+                        <rect x="30" y="130" width="340" height="85" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="50" y="160" fill="#f8fafc" font-size="13" font-weight="700">3. Context Instance Handles</text>
+                        <text x="50" y="180" fill="#94a3b8" font-size="11">Supports unlimited simultaneous instances.</text>
+                        <text x="50" y="198" fill="#fde68a" font-size="10">Every API takes pointer to instance control block.</text>
+
+                        <rect x="430" y="130" width="340" height="85" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                        <text x="450" y="160" fill="#f8fafc" font-size="13" font-weight="700">4. Reentrancy &amp; Thread Safety</text>
+                        <text x="450" y="180" fill="#94a3b8" font-size="11">Safe across ISR and thread contexts.</text>
+                        <text x="450" y="198" fill="#c4b5fd" font-size="10">Lock-free algorithms with memory barrier guarantees.</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 23.1: The Four Pillars of Reusable Embedded Component Design</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 23.2 -->
+                <h2>23.2 Canonical Component 1: The Lock-Free SPSC Ring Buffer</h2>
+                <p>
+                    A Circular Ring Buffer is the primary data structure bridging asynchronous hardware Interrupt Service Routines (ISRs) to background superloop tasks.
+                </p>
+
+                <h3>Power-of-Two Masking Optimization</h3>
+                <p>
+                    Standard ring buffers compute index advancement using the modulo operator: <code>head = (head + 1) % capacity</code>. On microcontroller cores lacking hardware integer division (such as ARM Cortex-M0 and Cortex-M0+), integer division requires an expensive software runtime routine consuming <strong>40 to 80 CPU clock cycles</strong>!
+                </p>
+
+                <p>
+                    By enforcing that buffer capacity is strictly a power of two ($2^N$), modulo division is replaced by a lightning-fast bitwise AND operation executing in <strong>1 single clock cycle</strong>:
+                </p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 0.75rem 1.5rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid var(--accent); font-family: var(--font-mono);">
+                    index = (index + 1U) &amp; (capacity - 1U); /* Power of Two Optimization */
+                </div>
+
+                <h3>Production Implementation (MISRA-Compliant)</h3>
+                <pre><code class="language-c">/* ring_buffer.h */
+#ifndef RING_BUFFER_H
+#define RING_BUFFER_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef struct {
+    uint8_t *p_buffer;
+    size_t   capacity;
+    size_t   mask;
+    volatile size_t head; /* Modified only by Producer */
+    volatile size_t tail; /* Modified only by Consumer */
+} RingBuffer_t;
+
+typedef enum {
+    RING_BUF_OK = 0,
+    RING_BUF_ERR_NULL_PTR,
+    RING_BUF_ERR_INVALID_SIZE,
+    RING_BUF_FULL,
+    RING_BUF_EMPTY
+} RingBufStatus_t;
+
+RingBufStatus_t ring_buffer_init(RingBuffer_t * const p_rb, uint8_t * const p_storage, const size_t capacity);
+RingBufStatus_t ring_buffer_put(RingBuffer_t * const p_rb, const uint8_t data);
+RingBufStatus_t ring_buffer_get(RingBuffer_t * const p_rb, uint8_t * const p_data);
+size_t          ring_buffer_get_count(const RingBuffer_t * const p_rb);
+bool            ring_buffer_is_empty(const RingBuffer_t * const p_rb);
+bool            ring_buffer_is_full(const RingBuffer_t * const p_rb);
+
+#endif /* RING_BUFFER_H */</code></pre>
+                <div class="code-caption">Program 23.1: Reusable SPSC Ring Buffer Header Interface</div>
+
+                <pre><code class="language-c">/* ring_buffer.c */
+#include "ring_buffer.h"
+
+static bool is_power_of_two(const size_t val) {
+    return ((val &gt; 0U) &amp;&amp; ((val &amp; (val - 1U)) == 0U));
+}
+
+RingBufStatus_t ring_buffer_init(
+    RingBuffer_t * const p_rb, 
+    uint8_t * const      p_storage, 
+    const size_t         capacity) 
+{
+    if ((p_rb == NULL) || (p_storage == NULL)) {
+        return RING_BUF_ERR_NULL_PTR;
+    }
+    if (!is_power_of_two(capacity)) {
+        return RING_BUF_ERR_INVALID_SIZE;
+    }
+
+    p_rb-&gt;p_buffer = p_storage;
+    p_rb-&gt;capacity = capacity;
+    p_rb-&gt;mask     = capacity - 1U;
+    p_rb-&gt;head     = 0U;
+    p_rb-&gt;tail     = 0U;
+
+    return RING_BUF_OK;
+}
+
+RingBufStatus_t ring_buffer_put(RingBuffer_t * const p_rb, const uint8_t data) {
+    if (p_rb == NULL) return RING_BUF_ERR_NULL_PTR;
+
+    const size_t current_head = p_rb-&gt;head;
+    const size_t next_head = (current_head + 1U) &amp; p_rb-&gt;mask;
+
+    /* If next head reaches tail, buffer is full */
+    if (next_head == p_rb-&gt;tail) {
+        return RING_BUF_FULL;
+    }
+
+    p_rb-&gt;p_buffer[current_head] = data;
+    __DMB(); /* ARM Cortex Data Memory Barrier ensures data write finishes */
+    p_rb-&gt;head = next_head;
+
+    return RING_BUF_OK;
+}
+
+RingBufStatus_t ring_buffer_get(RingBuffer_t * const p_rb, uint8_t * const p_data) {
+    if ((p_rb == NULL) || (p_data == NULL)) return RING_BUF_ERR_NULL_PTR;
+
+    const size_t current_tail = p_rb-&gt;tail;
+
+    /* If tail equals head, buffer is empty */
+    if (current_tail == p_rb-&gt;head) {
+        return RING_BUF_EMPTY;
+    }
+
+    *p_data = p_rb-&gt;p_buffer[current_tail];
+    __DMB();
+    p_rb-&gt;tail = (current_tail + 1U) &amp; p_rb-&gt;mask;
+
+    return RING_BUF_OK;
+}</code></pre>
+                <div class="code-caption">Program 23.2: Lock-Free Single-Producer Single-Consumer FIFO Implementation</div>
+
+                <div class="callout callout-info" style="margin: 1.5rem 0;">
+                    <h4 style="margin-top:0;">Single-Producer Single-Consumer (SPSC) Lock-Free Safety</h4>
+                    <p>
+                        In Program 23.2, the <strong>Producer</strong> (e.g. UART RX ISR) only modifies <code>head</code> and only reads <code>tail</code>. The <strong>Consumer</strong> (e.g. main loop) only modifies <code>tail</code> and only reads <code>head</code>. Because 32-bit aligned reads and writes are atomic on ARM Cortex-M processors and memory barriers (<code>__DMB()</code>) prevent CPU pipeline reordering, <strong>no critical section (disabling interrupts) is required</strong>!
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 23.3 -->
+                <h2>23.3 Canonical Component 2: Hardware-Agnostic CRC-16 Engine</h2>
+                <p>
+                    Data integrity verification over communication links (UART, SPI, CAN) requires Cyclic Redundancy Checks (CRC). Below is a fast table-driven CRC-16-CCITT ($x^{16} + x^{12} + x^5 + 1$) engine:
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stddef.h&gt;
+
+/* 256-word Lookup Table in Flash ROM (.rodata) */
+static const uint16_t s_crc16_table[256] = {
+    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
+    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
+    /* ... 240 additional precomputed polynomial coefficients ... */
+};
+
+uint16_t crc16_ccitt_compute(
+    const uint8_t * const p_data, 
+    const size_t          len_bytes, 
+    uint16_t              seed) 
+{
+    if (p_data == NULL) return 0U;
+
+    uint16_t crc = seed;
+    for (size_t i = 0; i &lt; len_bytes; ++i) {
+        const uint8_t tbl_idx = (uint8_t)((crc &gt;&gt; 8) ^ p_data[i]);
+        crc = (uint16_t)((crc &lt;&lt; 8) ^ s_crc16_table[tbl_idx]);
+    }
+
+    return crc;
+}</code></pre>
+                <div class="code-caption">Program 23.3: High-Speed Reusable CRC-16 Calculation Engine</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 23.4 -->
+                <h2>23.4 Canonical Component 3: Parallel Bit-Shift Debouncer</h2>
+                <p>
+                    Mechanical push buttons bounce for 5 to 20 ms. While novice code uses blocking delays, a professional reusable debouncer uses an 8-bit shift register integrator sampled periodically (e.g. every 5 ms):
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef struct {
+    uint8_t shift_reg;
+    bool    stable_state;
+    bool    edge_pressed;
+    bool    edge_released;
+} DebounceChannel_t;
+
+void debouncer_update(DebounceChannel_t * const p_btn, const bool raw_pin_level) {
+    if (p_btn == NULL) return;
+
+    /* Shift history and insert latest raw physical sample */
+    p_btn-&gt;shift_reg = (uint8_t)((p_btn-&gt;shift_reg &lt;&lt; 1) | (raw_pin_level ? 1U : 0U));
+
+    /* Reset edge flags */
+    p_btn-&gt;edge_pressed  = false;
+    p_btn-&gt;edge_released = false;
+
+    /* 8 consecutive identical samples confirm state transition */
+    if ((p_btn-&gt;shift_reg == 0xFFU) &amp;&amp; (!p_btn-&gt;stable_state)) {
+        p_btn-&gt;stable_state  = true;
+        p_btn-&gt;edge_pressed  = true;  /* Clean debounced rising edge */
+    } else if ((p_btn-&gt;shift_reg == 0x00U) &amp;&amp; (p_btn-&gt;stable_state)) {
+        p_btn-&gt;stable_state  = false;
+        p_btn-&gt;edge_released = true; /* Clean debounced falling edge */
+    }
+}</code></pre>
+                <div class="code-caption">Program 23.4: Reusable Shift-Register Debounce Engine</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>23.5 Code Comparison: Hardcoded vs. Reusable Component</h2>
+                <p>
+                    Compare a hardcoded UART ring buffer with a reusable, multi-instance component.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Architecture: Circular Buffer Implementation</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Hardcoded &amp; Non-Reusable</h4>
+                            <pre><code class="language-c">/* Fixed buffer inside C file */
+static uint8_t buf[100];
+static int head = 0;
+static int tail = 0;
+
+void uart_put(uint8_t c) {
+    /* Slow division modulo */
+    head = (head + 1) % 100;
+    buf[head] = c;
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Flaws:</strong> Cannot be reused for UART2 or SPI (only 1 global instance exists). Uses slow division modulo. Fixed 100-byte size cannot be adjusted without editing driver code.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Reusable Multi-Instance Component</h4>
+                            <pre><code class="language-c">/* Unlimited instances; caller injects storage */
+RingBuffer_t uart1_rb;
+RingBuffer_t uart2_rb;
+uint8_t mem1[256];
+uint8_t mem2[64];
+
+ring_buffer_init(&amp;uart1_rb, mem1, 256);
+ring_buffer_init(&amp;uart2_rb, mem2, 64);
+
+ring_buffer_put(&amp;uart1_rb, 0x55);
+ring_buffer_put(&amp;uart2_rb, 0xAA);</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Safety:</strong> Supports multiple independent channels, zero heap allocation, power-of-two bitwise masking, verified lock-free reentrancy.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>23.6 Interactive Knowledge Check</h2>
+                <p>Test your understanding of reusable embedded components, buffer math, and reentrant data structures.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. Why should circular ring buffer capacities always be sized to a power of two (e.g. 64, 128, 256)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because silicon Flash sectors are always 64 bytes.</li>
+                        <li class="mcq-option" data-correct="true">It allows replacing slow software integer division modulo (%) with a 1-cycle bitwise AND operation: <code>(idx + 1) &amp; (cap - 1)</code>.</li>
+                        <li class="mcq-option" data-correct="false">Because C compilers reject arrays that are not powers of two.</li>
+                        <li class="mcq-option" data-correct="false">To enable DMA burst transfers of 1024 bytes.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> On Cortex-M0/M0+ cores without a hardware divide instruction, modulo <code>%</code> requires a multi-cycle subroutine. Bitwise masking executes in 1 clock cycle.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. What does "Storage Injection" mean in reusable component design?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Writing directly to external SD cards.</li>
+                        <li class="mcq-option" data-correct="true">The component allocates no internal buffers or heap; instead, the caller passes an allocated memory buffer and size during initialization.</li>
+                        <li class="mcq-option" data-correct="false">Injecting SQL queries into EEPROM.</li>
+                        <li class="mcq-option" data-correct="false">Using the linker script to erase RAM.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Storage injection allows the caller to determine buffer sizing and memory placement (e.g. fast DTCM RAM vs slow external SRAM) without modifying component code.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. In a lock-free Single-Producer Single-Consumer (SPSC) ring buffer, why are mutexes or interrupt disables unnecessary?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because Cortex-M CPUs execute all code in parallel.</li>
+                        <li class="mcq-option" data-correct="true">Because the Producer only modifies <code>head</code> and only reads <code>tail</code>, while the Consumer only modifies <code>tail</code> and only reads <code>head</code>, with atomic 32-bit index access.</li>
+                        <li class="mcq-option" data-correct="false">Because interrupts are automatically masked by the C preprocessor.</li>
+                        <li class="mcq-option" data-correct="false">Ring buffers are never used in interrupts.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> SPSC separation ensures neither context ever writes to the other's pointer, eliminating write races and avoiding expensive interrupt disabling.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What is the role of the ARM <code>__DMB()</code> (Data Memory Barrier) instruction inside the ring buffer <code>put</code> and <code>get</code> functions?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To flush the display screen.</li>
+                        <li class="mcq-option" data-correct="true">To ensure that payload data is completely written into memory before the index pointer is updated and observed by the other context.</li>
+                        <li class="mcq-option" data-correct="false">To clear the watchdog timer.</li>
+                        <li class="mcq-option" data-correct="false">To put the CPU into deep sleep.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Out-of-order execution or write buffering could update the <code>head</code> pointer before the byte is physically written to RAM. <code>__DMB()</code> enforces strict memory ordering.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. How many distinct switch press events does an 8-bit shift register debouncer require before confirming a state change?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">1 sample.</li>
+                        <li class="mcq-option" data-correct="true">8 consecutive identical samples (register equals 0xFF for press, 0x00 for release).</li>
+                        <li class="mcq-option" data-correct="false">256 samples.</li>
+                        <li class="mcq-option" data-correct="false">Exactly 1000 samples.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Shifting pin states into an 8-bit register requires 8 consecutive high samples (0xFF) to accept a press, cleanly rejecting contact chatter.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is the primary difference between a checksum (like Fletcher-16) and a CRC (like CRC-16)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Checksums are 64-bit; CRCs are 8-bit.</li>
+                        <li class="mcq-option" data-correct="true">CRCs use polynomial division, providing superior mathematical detection of burst bit errors compared to additive checksums.</li>
+                        <li class="mcq-option" data-correct="false">Checksums can only be computed in hardware.</li>
+                        <li class="mcq-option" data-correct="false">CRCs require floating point math.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> CRCs treat data as binary polynomial coefficients, providing strong guarantees against burst noise errors common in industrial electrical environments.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. Why must reusable C components avoid defining variables with <code>static</code> storage duration inside functions?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because static variables are placed in Flash ROM.</li>
+                        <li class="mcq-option" data-correct="true">Function-local static variables make the function non-reentrant, preventing multiple instances from functioning independently.</li>
+                        <li class="mcq-option" data-correct="false">Because the GCC compiler deletes static local variables.</li>
+                        <li class="mcq-option" data-correct="false">To reduce MCU clock speed.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> A local <code>static</code> variable is shared across all callers. If two instances call the function, they corrupt each other's state.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. What framing technique replaces delimiter bytes (like 0x00) with offset pointers to guarantee zero-overhead packet demarcation?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Base64 encoding.</li>
+                        <li class="mcq-option" data-correct="true">Consistent Overhead Byte Stuffing (COBS).</li>
+                        <li class="mcq-option" data-correct="false">Manchester encoding.</li>
+                        <li class="mcq-option" data-correct="false">RSA encryption.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> COBS encodes packets so that byte 0x00 never appears inside the payload, allowing 0x00 to serve as an unambiguous end-of-packet delimiter with minimal overhead.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. In the ring buffer in Program 23.2, why is one slot reserved as empty (usable capacity is $N - 1$)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To store the buffer checksum.</li>
+                        <li class="mcq-option" data-correct="true">To unambiguously distinguish between the buffer being completely EMPTY (head == tail) and completely FULL ((head + 1) == tail).</li>
+                        <li class="mcq-option" data-correct="false">To prevent stack collisions.</li>
+                        <li class="mcq-option" data-correct="false">Because ARM architecture requires odd memory addresses.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Without an explicit count variable, reserving one empty slot differentiates the empty condition (<code>head == tail</code>) from the full condition.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. How should a reusable component report operational errors to the caller?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">By printing error text directly to the UART console.</li>
+                        <li class="mcq-option" data-correct="true">By returning an explicit enumeration status code (e.g. <code>STATUS_OK</code>, <code>STATUS_FULL</code>) allowing the caller to decide the recovery policy.</li>
+                        <li class="mcq-option" data-correct="false">By calling <code>exit(1)</code>.</li>
+                        <li class="mcq-option" data-correct="false">By asserting a hardware CPU reset.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> A library component must never dictate recovery policy or assume a UART console exists; it must return typed status codes to the calling application.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>23.7 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to construct a verified repository of reusable embedded firmware components.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Multi-Channel Ring Buffer Stress Harness</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Instantiate four independent ring buffers (sizes: 16, 64, 128, 512 bytes). Write a host test program with two threads (one simulated ISR producer, one background consumer) pushing and pulling 10,000,000 random bytes. Verify zero data corruption, zero lost bytes, and correct boundary flags.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Bit-Parallel 8-Button Debounce Engine</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement vertical counter debouncing where an entire 8-bit GPIO port (8 mechanical pushbuttons) is sampled and debounced simultaneously in parallel using bitwise logic (<code>AND</code>, <code>OR</code>, <code>XOR</code>) in less than 10 CPU clock cycles.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: CRC-16 Table Generator &amp; Benchmark</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a C utility that generates the 256-entry lookup table for the CRC-16-CCITT polynomial and outputs it as formatted C code. Benchmark the table-driven algorithm against bit-by-bit calculation on an ARM microcontroller and record the execution speedup.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Reusable COBS Packet Framer</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a pair of reusable functions: <code>cobs_encode(dst, src, len)</code> and <code>cobs_decode(dst, src, len)</code>. Verify with test packets containing arbitrary binary data (including multiple 0x00 bytes) and confirm that encoded frames are cleanly separated by 0x00 delimiters.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Fixed-Block Memory Pool Allocator</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build a reusable, deterministic block pool manager: <code>pool_init(pool, storage, block_size, num_blocks)</code>, <code>pool_alloc(pool)</code>, and <code>pool_free(pool, p_block)</code>. Guarantee $O(1)$ constant allocation time, zero fragmentation, and MISRA-C Rule 21.3 compliance.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Algorithm</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Stuart Cheshire &amp; Mary Baker</span>
+                            </div>
+                            <h4>Consistent Overhead Byte Stuffing (COBS)</h4>
+                            <p>Seminal IEEE/ACM Transactions on Networking paper detailing the COBS algorithm for reliable byte framing.</p>
+                            <a href="https://ieeexplore.ieee.org/document/769765" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Technique</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Jack Ganssle</span>
+                            </div>
+                            <h4>A Guide to Debouncing (Part 2: Software Algorithms)</h4>
+                            <p>Authoritative empirical study of mechanical switch bounce behavior and bit-shift debounce filters.</p>
+                            <a href="http://www.ganssle.com/debouncing-pt2.htm" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architecture Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+                            </div>
+                            <h4>ARM Architecture Reference Manual: Memory Barriers &amp; Synchronization</h4>
+                            <p>Technical reference for DMB, DSB, and ISB instructions governing multi-context lock-free data structures.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_22.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 22: Interfaces &amp; Abstraction</span>
+                </a>
+                <a href="topic_24.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 24: App, Driver, HAL &amp; BSP</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

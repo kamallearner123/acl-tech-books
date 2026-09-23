@@ -1,1 +1,607 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Documentation Practices</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_17.html">Documentation Practices</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 17</span><h1>Documentation Practices</h1><p>Document why a constraint exists and state the API contract: units, valid ranges, ownership, lifetime, blocking behavior, execution context, side effects, errors, and reset behavior.</p><p>A README should show how to build, test, inspect warnings, reproduce a failure, and configure the target. Keep diagrams and state tables close to the code they explain.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_16.html">Defensive Programming</a><a class="nav-button next" href="topic_18.html">MISRA-C</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 17: Documentation &amp; Doxygen - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li class="active"><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 17</span>
+                <h1>Documentation Practices &amp; Doxygen</h1>
+
+                <p>
+                    In firmware engineering, code comments must never merely paraphrase the C syntax: writing <code>i++; /* increment i */</code> is worse than useless, as it adds visual noise without conveying design intent. A firmware developer needs to know the <strong>invisible contract</strong>: Is this function safe to call from an Interrupt Service Routine (ISR)? Does it block? Which hardware registers does it touch? What are the valid input ranges and electrical timing prerequisites?
+                </p>
+
+                <p>
+                    This chapter establishes professional firmware documentation standards utilizing <strong>Doxygen</strong>, the industry-standard documentation extraction tool, alongside <strong>Architecture Decision Records (ADRs)</strong> to capture technical rationale that code alone cannot express.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 17.1 -->
+                <h2>17.1 The Doxygen Tag Taxonomy</h2>
+                <p>
+                    Doxygen comments begin with the block marker <code>/**</code> or the line marker <code>///</code>. The core tags used in embedded software interfaces include:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background-color: var(--sidebar-bg);">
+                            <th style="padding: 0.75rem 1rem;">Tag</th>
+                            <th style="padding: 0.75rem 1rem;">Purpose</th>
+                            <th style="padding: 0.75rem 1rem;">Embedded Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@file</code></td>
+                            <td style="padding: 0.75rem 1rem;">File banner &amp; overview</td>
+                            <td style="padding: 0.75rem 1rem;">Declares the driver module, copyright, version, and hardware target.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@brief</code></td>
+                            <td style="padding: 0.75rem 1rem;">Single-sentence summary</td>
+                            <td style="padding: 0.75rem 1rem;">Displayed in IDE hover tooltips and table-of-contents listings.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@param[in,out]</code></td>
+                            <td style="padding: 0.75rem 1rem;">Parameter direction &amp; constraints</td>
+                            <td style="padding: 0.75rem 1rem;">Specifies pointer ownership, physical units, and allowed value ranges.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@return</code> / <code>@retval</code></td>
+                            <td style="padding: 0.75rem 1rem;">Return value specification</td>
+                            <td style="padding: 0.75rem 1rem;">Documents exact status enum meanings, error conditions, and error recovery.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@pre</code></td>
+                            <td style="padding: 0.75rem 1rem;">Precondition requirement</td>
+                            <td style="padding: 0.75rem 1rem;">Prerequisite hardware clocks, PLL locks, or initialized peripherals.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@post</code></td>
+                            <td style="padding: 0.75rem 1rem;">Postcondition guarantee</td>
+                            <td style="padding: 0.75rem 1rem;">State of peripheral or buffers after successful execution.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><code>@warning</code></td>
+                            <td style="padding: 0.75rem 1rem;">Critical safety warnings</td>
+                            <td style="padding: 0.75rem 1rem;">Highlights electrical danger, non-reentrancy, or blocking behavior.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem;"><code>@note</code></td>
+                            <td style="padding: 0.75rem 1rem;">Silicon errata / design notes</td>
+                            <td style="padding: 0.75rem 1rem;">References chip silicon errata or hardware revision specifics.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 17.2 -->
+                <h2>17.2 The Firmware Execution Context Contract</h2>
+                <p>
+                    One of the most catastrophic defects in embedded software occurs when a function that is <strong>non-reentrant</strong> or contains <strong>blocking delays</strong> is mistakenly invoked from inside a hardware Interrupt Service Routine (ISR).
+                </p>
+
+                <p>
+                    Every firmware API header must explicitly declare the function's <strong>Execution Context</strong> using custom or standardized Doxygen sections:
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 220" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <rect x="30" y="30" width="220" height="85" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="140" y="58" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">ISR-Safe (Callable)</text>
+                        <text x="140" y="78" fill="#94a3b8" font-size="11" text-anchor="middle">Execution: &lt; 2 &mu;s</text>
+                        <text x="140" y="98" fill="#cbd5e1" font-size="10" text-anchor="middle">Non-blocking, Reentrant, Lock-free</text>
+
+                        <rect x="290" y="30" width="220" height="85" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="400" y="58" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Task / Thread Only</text>
+                        <text x="400" y="78" fill="#94a3b8" font-size="11" text-anchor="middle">Execution: Bounded ms</text>
+                        <text x="400" y="98" fill="#cbd5e1" font-size="10" text-anchor="middle">May take mutexes or yield</text>
+
+                        <rect x="550" y="30" width="220" height="85" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="660" y="58" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Init / Boot Context</text>
+                        <text x="660" y="78" fill="#94a3b8" font-size="11" text-anchor="middle">Execution: Unbounded ms</text>
+                        <text x="660" y="98" fill="#cbd5e1" font-size="10" text-anchor="middle">Runs prior to interrupts enabled</text>
+
+                        <path d="M 140 115 L 140 170 L 660 170 L 660 115" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="6,4"/>
+                        <text x="400" y="160" fill="#94a3b8" font-size="11" text-anchor="middle">Violating Execution Context Triggers Priority Inversion or Deadlock</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 17.1: Firmware Execution Context Categories</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 17.3 -->
+                <h2>17.3 Production Header Documentation Example</h2>
+                <p>
+                    The following complete C header demonstrates production-grade Doxygen documentation for a non-volatile SPI Flash driver:
+                </p>
+
+                <pre><code class="language-c">/**
+ * @file      spi_flash.h
+ * @brief     Driver interface for Winbond W25Q64 64M-bit SPI NOR Flash memory.
+ * @details   Implements sector erase, page programming, and high-speed DMA read.
+ *            Compliant with JEDEC JESD216 standard.
+ *
+ * @author    Embedded Firmware Engineering Team
+ * @copyright (c) 2026 Apt Computing Labs. All rights reserved.
+ * @version   2.1.0
+ */
+
+#ifndef SPI_FLASH_H
+#define SPI_FLASH_H
+
+#include &lt;stdint.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdbool.h&gt;
+
+/**
+ * @brief SPI Flash status return codes.
+ */
+typedef enum {
+    SPI_FLASH_OK = 0,               /**&lt; Operation completed successfully. */
+    SPI_FLASH_ERR_NULL_PTR,         /**&lt; Provided buffer pointer was NULL. */
+    SPI_FLASH_ERR_ADDR_OUT_OF_BOUNDS,/**&lt; Byte address exceeds 8 MByte capacity. */
+    SPI_FLASH_ERR_TIMEOUT,          /**&lt; Flash status register busy timeout. */
+    SPI_FLASH_ERR_BUSY              /**&lt; Write/Erase cycle currently active. */
+} SpiFlashStatus_t;
+
+/**
+ * @brief Erases a 4 Kilobyte sector in NOR Flash memory.
+ *
+ * @details Sends the 0x20 Sector Erase opcode followed by the 24-bit sector
+ *          address. This function triggers an internal high-voltage erase
+ *          operation lasting between 45 ms (typical) and 400 ms (maximum).
+ *
+ * @param[in] sector_address  Byte address within the sector to erase. Must be
+ *                            4096-byte aligned (bits [11:0] == 0).
+ *
+ * @pre   The SPI peripheral must be initialized via spi_master_init().
+ * @pre   The write-enable latch must be active (spi_flash_write_enable()).
+ * @post  All 4096 bytes in the target sector are reset to 0xFF.
+ *
+ * @warning This function is NOT safe to invoke from an ISR context because
+ *          it polls the internal WIP (Write-In-Progress) bit with a timeout.
+ * @warning Sector erases wear flash cells; maximum endurance is 100,000 cycles.
+ *
+ * @retval SPI_FLASH_OK                 Sector erased successfully.
+ * @retval SPI_FLASH_ERR_ADDR_OUT_OF_BOUNDS Address &gt;= 0x00800000UL or unaligned.
+ * @retval SPI_FLASH_ERR_TIMEOUT        Hardware did not clear WIP within 500 ms.
+ */
+SpiFlashStatus_t spi_flash_sector_erase_4k(const uint32_t sector_address);
+
+#endif /* SPI_FLASH_H */</code></pre>
+                <div class="code-caption">Program 17.1: Production Doxygen C Header File Specification</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 17.4 -->
+                <h2>17.4 Architecture Decision Records (ADRs)</h2>
+                <p>
+                    Code documentation explains <em>how</em> a function operates; an <strong>Architecture Decision Record (ADR)</strong> captures <em>why</em> a fundamental architectural choice was made over alternative designs.
+                </p>
+
+                <p>
+                    ADRs are short text/markdown documents maintained directly within the Git repository (e.g. <code>docs/adr/0004-use-cooperative-superloop.md</code>). The standard lightweight format includes:
+                </p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; border: 1px solid var(--border-color); font-size: 0.95rem;">
+                    <h3 style="margin-top: 0; color: var(--accent);">ADR 0004: Cooperative Superloop vs Preemptive RTOS</h3>
+                    <p><strong>Status:</strong> Accepted</p>
+                    <p><strong>Context:</strong> Our battery-powered cardiac sensor uses an ARM Cortex-M0+ with 16 KB SRAM. We evaluated whether to introduce FreeRTOS or implement a cooperative run-to-completion superloop.</p>
+                    <p><strong>Decision:</strong> We selected a cooperative superloop with SysTick delta timing.</p>
+                    <p><strong>Consequences:</strong>
+                        <ul style="margin-bottom: 0;">
+                            <li><strong>Positive:</strong> Zero RTOS context-switch overhead, saves ~6 KB SRAM in task stack allocations, deterministic execution order eliminates race conditions.</li>
+                            <li><strong>Negative:</strong> Every driver must guarantee run-to-completion execution under 1.5 ms; long tasks cannot preemptively yield without state machines.</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>17.5 Code Comparison: Cryptic vs. Fully Specified Header</h2>
+                <p>
+                    Observe the contrast between a header that forces the user to guess hardware behavior and one that provides a bulletproof contract.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Header Documentation: Motor Speed Controller</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Cryptic &amp; Hazardous</h4>
+                            <pre><code class="language-c">/* Set motor speed */
+int set_speed(int s);
+
+/* Read sensor */
+int read_sensor();</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Questions Unanswered:</strong> What are the units of <code>s</code> (RPM, PWM duty cycle percent, raw timer counts)? What happens if <code>s &lt; 0</code>? Can this be called from a timer interrupt?
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Doxygen Contract</h4>
+                            <pre><code class="language-c">/**
+ * @brief Sets target rotational velocity.
+ * @param[in] target_rpm Target speed [0..6000].
+ * @pre   PWM timer initialized via bsp_pwm_init().
+ * @note  Thread-safe; updates atomic compare register.
+ * @retval STATUS_OK Target speed applied.
+ * @retval STATUS_ERR_OUT_OF_RANGE Speed &gt; 6000.
+ */
+MotorStatus_t motor_set_velocity_rpm(
+    const uint16_t target_rpm);</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Precision:</strong> Units, boundaries, prerequisites, thread safety, and return codes are completely defined.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>17.6 Interactive Knowledge Check</h2>
+                <p>Test your understanding of Doxygen syntax, firmware documentation contracts, and ADR structures.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. What is the fundamental difference between <code>@param[in]</code> and <code>@param[out]</code> in Doxygen?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>@param[in]</code> variables must be floats; <code>@param[out]</code> variables must be integers.</li>
+                        <li class="mcq-option" data-correct="true"><code>@param[in]</code> indicates read-only input data supplied by caller; <code>@param[out]</code> indicates pointer memory populated by the function as a return payload.</li>
+                        <li class="mcq-option" data-correct="false"><code>@param[in]</code> applies only to registers; <code>@param[out]</code> applies only to stack variables.</li>
+                        <li class="mcq-option" data-correct="false">There is no difference; they are interchangeable.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Explicit parameter directional tags clarify pointer ownership and caller responsibilities for memory allocation.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. Why is documenting the "Execution Context" (e.g., ISR vs Task) vital in embedded systems?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To instruct the linker which Flash memory sector to use.</li>
+                        <li class="mcq-option" data-correct="true">Calling a blocking, mutex-locking, or non-reentrant function from an ISR causes deadlocks, crashes, or severe interrupt latency spikes.</li>
+                        <li class="mcq-option" data-correct="false">Because Doxygen will fail to compile if context is missing.</li>
+                        <li class="mcq-option" data-correct="false">To enable automatic hardware acceleration.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> ISRs run with elevated CPU priority and cannot block on mutexes or sleep. Marking an API as "ISR-Safe" or "Thread-Only" prevents catastrophic runtime deadlocks.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What Doxygen tag is used to document a specific return value and its corresponding meaning?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>@output</code></li>
+                        <li class="mcq-option" data-correct="true"><code>@retval</code></li>
+                        <li class="mcq-option" data-correct="false"><code>@result_code</code></li>
+                        <li class="mcq-option" data-correct="false"><code>@status</code></li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>@retval &lt;value&gt; &lt;description&gt;</code> generates clean tabular documentation of each specific return code.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What is the primary purpose of an Architecture Decision Record (ADR)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To track developer hourly billing rates.</li>
+                        <li class="mcq-option" data-correct="true">To record the context, technical rationale, and trade-offs of significant architectural decisions for future maintainers.</li>
+                        <li class="mcq-option" data-correct="false">To replace unit test suites.</li>
+                        <li class="mcq-option" data-correct="false">To store compiler optimization flags.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> ADRs document <em>why</em> a particular design was chosen over alternatives, preventing future engineers from unwittingly undoing intentional design choices.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. What Doxygen comment syntax documents an enum field or struct member on the same line?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true"><code>/**&lt; Description */</code></li>
+                        <li class="mcq-option" data-correct="false"><code>/*&gt; Description */</code></li>
+                        <li class="mcq-option" data-correct="false"><code>//&lt; Description</code></li>
+                        <li class="mcq-option" data-correct="false"><code>#pragma doc Description</code></li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> The <code>&lt;</code> character tells Doxygen that the comment applies to the preceding member on the same line.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is a <code>@pre</code> precondition tag used for in a hardware driver header?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To specify the price of the microcontroller.</li>
+                        <li class="mcq-option" data-correct="true">To specify conditions that must be true prior to invoking the function (e.g., peripheral clock enabled, interrupts disabled).</li>
+                        <li class="mcq-option" data-correct="false">To list the author's previous projects.</li>
+                        <li class="mcq-option" data-correct="false">To define the C compiler preprocessor mode.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>@pre</code> explicitly states necessary prerequisites, such as requiring peripheral clock initialization before calling communication APIs.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. Why should silicon errata workarounds be explicitly tagged with <code>@note</code> or <code>@warning</code> in firmware source code?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To prevent the compiler from generating Thumb-2 instructions.</li>
+                        <li class="mcq-option" data-correct="true">To explain seemingly illogical code sequences (e.g., extra dummy reads or delays) so future maintainers do not delete them as "redundant".</li>
+                        <li class="mcq-option" data-correct="false">Silicon errata do not affect firmware.</li>
+                        <li class="mcq-option" data-correct="false">To automatically register the issue with the semiconductor foundry.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Errata workarounds often look bizarre (e.g., clearing a bit twice or inserting two NOPs). Without clear notes citing the manufacturer's silicon errata notice, an optimizer or developer will delete them.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. In Doxygen, what command generates a clickable cross-reference to another function or structure?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>@goto</code></li>
+                        <li class="mcq-option" data-correct="true"><code>@see</code> (or <code>@ref</code>)</li>
+                        <li class="mcq-option" data-correct="false"><code>@jump</code></li>
+                        <li class="mcq-option" data-correct="false"><code>@link_extern</code></li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>@see</code> and <code>@ref</code> create hyperlinks in the generated HTML and PDF manuals to related functions, structures, and documents.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is the danger of writing documentation comments that explain "how" instead of "why"?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">The "how" quickly goes out of sync as the code is refactored, while failing to convey the underlying design motivation and safety constraints.</li>
+                        <li class="mcq-option" data-correct="false">Doxygen will produce binary executable files instead of HTML.</li>
+                        <li class="mcq-option" data-correct="false">Comments consume flash memory on the target microcontroller.</li>
+                        <li class="mcq-option" data-correct="false">The GCC compiler will generate extra assembly instructions.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> The C code itself already demonstrates <em>how</em> the algorithm works. Documentation must explain <em>why</em> constraints exist, what trade-offs were made, and the safety rationale.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. Which Doxygen configuration option must be enabled in the <code>Doxyfile</code> to produce warnings when public API functions lack documentation?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>OPTIMIZE_FOR_FORTRAN = YES</code></li>
+                        <li class="mcq-option" data-correct="true"><code>WARN_IF_UNDOCUMENTED = YES</code></li>
+                        <li class="mcq-option" data-correct="false"><code>GENERATE_TREEVIEW = NO</code></li>
+                        <li class="mcq-option" data-correct="false"><code>DISABLE_INDEX = YES</code></li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Setting <code>WARN_IF_UNDOCUMENTED = YES</code> allows continuous integration (CI) build pipelines to fail if a developer merges undocumented APIs.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>17.7 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master automated documentation pipelines and architectural contract design.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Automated Doxygen Pipeline Setup</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Generate a production <code>Doxyfile</code> using <code>doxygen -g</code>. Configure it to extract documentation for C code, include call graphs via Graphviz Dot (<code>HAVE_DOT = YES</code>), and fail on warnings (<code>WARN_AS_ERROR = YES</code>). Generate the HTML output and verify the resulting navigation tree.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Driver Header Contract Refactoring</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take an undocumented I2C temperature sensor header. Write full Doxygen documentation for all functions, enums, and structs. Explicitly include <code>@pre</code>, <code>@post</code>, <code>@param[in,out]</code>, <code>@retval</code>, and state whether each function is safe for ISR execution.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Architecture Decision Record (ADR) Authoring</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Author an ADR in Markdown evaluating whether to use a DMA circular ring buffer versus byte-by-byte interrupt reception for an incoming 115200 baud UART GPS stream. Document the Context, Decision, Consequences, and latency/RAM trade-offs.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Silicon Errata Documentation &amp; Defensive Guard</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Research an actual STM32 or NXP erratum (e.g., STM32F4 I2C bus lockup when transmitting the address byte). Write a C recovery routine with full Doxygen citations referencing the exact manufacturer errata document number, date, and workaround steps.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: CI Linting for Missing Documentation</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a shell script or Makefile target <code>make doc-check</code> that executes Doxygen and parses stderr. Intentionally add an undocumented public function to a header and verify that the build script detects the warning and exits with non-zero exit code.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Tooling Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Dimitri van Heesch</span>
+                            </div>
+                            <h4>Doxygen Manual: Source Code Documentation Engine</h4>
+                            <p>Authoritative documentation for code extraction, special commands, tag formatting, and Markdown integration in C/C++.</p>
+                            <a href="https://www.doxygen.nl/manual/index.html" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architecture Practice</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Michael Nygard</span>
+                            </div>
+                            <h4>Documenting Architecture Decisions (ADR Standard)</h4>
+                            <p>Foundational paper outlining the structure and lifecycle of lightweight architecture decision records in engineering projects.</p>
+                            <a href="https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Coding Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Barr Group</span>
+                            </div>
+                            <h4>Embedded C Coding Standard: Comments &amp; Contracts</h4>
+                            <p>Formal rules for commenting hardware interfaces, reentrancy declarations, and prohibiting obvious or obsolete comments.</p>
+                            <a href="https://barrgroup.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_16.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 16: Defensive Programming</span>
+                </a>
+                <a href="topic_18.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 18: MISRA-C Concepts</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

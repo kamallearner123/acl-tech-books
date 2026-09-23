@@ -1,2 +1,561 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Callbacks and Timers</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_13.html">Callbacks &amp; Timers</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 13</span><h1>Callbacks and Timers</h1><p>A callback is a function pointer supplied by a caller. Timers use callbacks or events to notify application code without owning application policy.</p><pre><code>typedef void (*timer_callback_t)(void *context);
-struct Timer { uint32_t deadline; timer_callback_t callback; void *context; };</code></pre><p>Document callback lifetime, context ownership, execution context, repetition, and whether blocking is allowed.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_12.html">Polling vs Interrupts</a><a class="nav-button next" href="topic_14.html">Non-Blocking Design</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 13: Callbacks &amp; Timers - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li class="active"><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 13</span>
+                <h1>Callbacks &amp; Timers</h1>
+
+                <p>
+                    A modular firmware driver should never have hardcoded dependencies on application business logic. A UART driver, button debouncer, or hardware timer module should not directly call <code>update_motor_speed()</code> or <code>turn_on_heater()</code>; doing so couples the peripheral driver to a specific application, preventing reuse across projects.
+                </p>
+
+                <p>
+                    The standard architectural solution in C is the <strong>Callback Pattern</strong> utilizing <strong>Function Pointers</strong>. A driver provides registration APIs allowing higher-level application components to register callback functions that are invoked automatically when hardware events occur. Paired with hardware timer interrupts, this pattern enables building flexible, multi-instance <strong>Software Timer Services</strong> that manage dozens of independent periodic tasks from a single hardware timer.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 13.1 -->
+                <h2>13.1 Function Pointers in C: Syntax &amp; Usage</h2>
+                <p>
+                    A function pointer stores the physical entry point address of executable code in Flash memory. In C, declaring a function pointer type requires explicit parentheses around the pointer name to differentiate it from a function returning a pointer:
+                </p>
+
+                <pre><code class="language-c">/* Typedef for a callback taking a void* context pointer and uint32_t event data */
+typedef void (*TimerCallback_t)(void *context, uint32_t elapsed_ms);
+
+/* Declaration of a function pointer variable */
+TimerCallback_t on_timer_expire = NULL;</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 13.1: Defining and Declaring Typed Function Pointers in C</div>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px;">
+                    <strong>Defensive Tip:</strong> Never invoke a function pointer without an explicit NULL check! Invoking a NULL function pointer attempts to execute address <code>0x00000000</code>, instantly triggering an ARM Cortex-M HardFault or executing the vector table as code!
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 13.2 -->
+                <h2>13.2 Hardware Timers to Software Timers</h2>
+                <p>
+                    A typical microcontroller contains 4 to 8 physical hardware timers. However, real-world firmware often requires dozens of concurrent periodic intervals: blinking an LED at 1 Hz, sampling a temperature sensor at 10 Hz, polling a keypad at 50 Hz, and sending a telemetry heartbeat every 5 seconds.
+                </p>
+
+                <!-- Figure 13.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 270" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-timer" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Top: Hardware Timer -->
+                        <rect x="220" y="20" width="380" height="60" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="410" y="44" fill="#93c5fd" font-size="13" font-weight="700" text-anchor="middle">1 kHz ARM SysTick Hardware Interrupt</text>
+                        <text x="410" y="62" fill="#cbd5e1" font-size="10" text-anchor="middle">Asserts Periodic 1.0 ms Hardware ISR Tick</text>
+
+                        <!-- Downward Multiplexer Arrows -->
+                        <line x1="410" y1="80" x2="410" y2="115" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-timer)"/>
+                        <rect x="260" y="90" width="300" height="20" rx="4" fill="#0f172a" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="410" y="104" fill="#93c5fd" font-size="9" font-weight="600" text-anchor="middle">Timer Service decrements software counter array</text>
+
+                        <!-- Bottom: Virtual Software Timers Container -->
+                        <rect x="30" y="125" width="760" height="135" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="50" y="148" fill="#6ee7b7" font-size="12" font-weight="700">Software Timer Engine (Virtual Timers Multiplexed onto 1 Hardware Clock)</text>
+
+                        <!-- 4 Virtual Timer Cards -->
+                        <g transform="translate(45, 160)">
+                            <!-- Timer 0 -->
+                            <rect x="0" y="0" width="170" height="85" rx="6" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
+                            <text x="12" y="22" fill="#93c5fd" font-size="11" font-weight="700">Timer 0: LED</text>
+                            <text x="12" y="40" fill="#cbd5e1" font-size="9.5">Period: 500 ms</text>
+                            <text x="12" y="56" fill="#94a3b8" font-size="8.5">Mode: Periodic Auto</text>
+                            <text x="12" y="73" fill="#a7f3d0" font-size="8.5" font-family="monospace">&rarr; cb_led_toggle()</text>
+
+                            <!-- Timer 1 -->
+                            <rect x="185" y="0" width="170" height="85" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+                            <text x="197" y="22" fill="#fde68a" font-size="11" font-weight="700">Timer 1: Sensors</text>
+                            <text x="197" y="40" fill="#cbd5e1" font-size="9.5">Period: 100 ms</text>
+                            <text x="197" y="56" fill="#94a3b8" font-size="8.5">Mode: Periodic Auto</text>
+                            <text x="197" y="73" fill="#fde68a" font-size="8.5" font-family="monospace">&rarr; cb_sample_adc()</text>
+
+                            <!-- Timer 2 -->
+                            <rect x="370" y="0" width="170" height="85" rx="6" fill="#0f172a" stroke="#8b5cf6" stroke-width="1.5"/>
+                            <text x="382" y="22" fill="#c4b5fd" font-size="11" font-weight="700">Timer 2: Debounce</text>
+                            <text x="382" y="40" fill="#cbd5e1" font-size="9.5">Period: 25 ms</text>
+                            <text x="382" y="56" fill="#94a3b8" font-size="8.5">Mode: One-Shot</text>
+                            <text x="382" y="73" fill="#c4b5fd" font-size="8.5" font-family="monospace">&rarr; cb_key_scan()</text>
+
+                            <!-- Timer 3 -->
+                            <rect x="555" y="0" width="175" height="85" rx="6" fill="#0f172a" stroke="#ec4899" stroke-width="1.5"/>
+                            <text x="567" y="22" fill="#f472b6" font-size="11" font-weight="700">Timer 3: Heartbeat</text>
+                            <text x="567" y="40" fill="#cbd5e1" font-size="9.5">Period: 5000 ms</text>
+                            <text x="567" y="56" fill="#94a3b8" font-size="8.5">Mode: Periodic Auto</text>
+                            <text x="567" y="73" fill="#f472b6" font-size="8.5" font-family="monospace">&rarr; cb_send_can()</text>
+                        </g>
+                    </svg>
+                    <div class="diagram-caption">Figure 13.1: Multiplexing a Single Hardware Tick into Multiple Software Timers</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 13.3 Code Implementations -->
+                <h2>13.3 Hands-On Code Implementations</h2>
+                <p>
+                    The following complete module provides a production-grade Software Timer Engine supporting one-shot and periodic callback execution:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 13.2: Multi-Instance Software Timer Service with Callbacks
+ * File: soft_timer.c
+ */
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdio.h&gt;
+
+typedef void (*SoftTimerCallback_t)(void *context);
+
+typedef struct {
+    uint32_t            period_ticks;
+    uint32_t            remaining_ticks;
+    SoftTimerCallback_t callback;
+    void               *context;
+    bool                is_periodic;
+    bool                is_active;
+} SoftTimer_t;
+
+#define MAX_SOFT_TIMERS 8U
+static SoftTimer_t s_timers[MAX_SOFT_TIMERS];
+
+void soft_timer_init(void) {
+    for (size_t i = 0; i &lt; MAX_SOFT_TIMERS; ++i) {
+        s_timers[i].is_active = false;
+        s_timers[i].callback  = NULL;
+    }
+}
+
+int32_t soft_timer_start(uint32_t period_ticks, bool periodic, SoftTimerCallback_t cb, void *ctx) {
+    if ((cb == NULL) || (period_ticks == 0U)) return -1;
+
+    for (size_t i = 0; i &lt; MAX_SOFT_TIMERS; ++i) {
+        if (!s_timers[i].is_active) {
+            s_timers[i].period_ticks    = period_ticks;
+            s_timers[i].remaining_ticks = period_ticks;
+            s_timers[i].is_periodic     = periodic;
+            s_timers[i].callback        = cb;
+            s_timers[i].context         = ctx;
+            s_timers[i].is_active       = true;
+            return (int32_t)i; /* Return timer handle */
+        }
+    }
+    return -2; /* Out of timer slots */
+}
+
+/**
+ * @brief Called every 1 ms from hardware SysTick ISR or timer tick.
+ */
+void soft_timer_tick_isr(void) {
+    for (size_t i = 0; i &lt; MAX_SOFT_TIMERS; ++i) {
+        if (s_timers[i].is_active) {
+            s_timers[i].remaining_ticks--;
+            if (s_timers[i].remaining_ticks == 0U) {
+                /* Execute registered callback */
+                if (s_timers[i].callback != NULL) {
+                    s_timers[i].callback(s_timers[i].context);
+                }
+                
+                if (s_timers[i].is_periodic) {
+                    s_timers[i].remaining_ticks = s_timers[i].period_ticks;
+                } else {
+                    s_timers[i].is_active = false; /* One-shot expired */
+                }
+            }
+        }
+    }
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 13.2: Multi-Instance Software Timer Service with Callbacks in C</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>13.4 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Invoking heavy business logic directly from an ISR callback violates real-time deadlines and causes unpredictable interrupt preemption lockups.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        The callback executes heavy mathematics, Flash erasing, and serial I/O directly in the hardware timer ISR context, locking the CPU:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY: Heavy blocking computation inside timer callback */
+void on_timer_expire_bad(void *ctx) {
+    /* Runs in ISR context! Blocking for 250 ms will starve all other hardware! */
+    spi_flash_sector_erase(0x1000); 
+    printf("Erase finished\n");
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 13.3-A: Heavy Blocking Execution Inside Timer Callback</div>
+                </details>
+
+                <p>
+                    The safe pattern sets a lightweight atomic event flag or posts an event, deferring heavy computation to the non-interrupt background thread:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: Non-blocking flag setting in ISR callback */
+static volatile bool s_erase_requested = false;
+
+void on_timer_expire_safe(void *ctx) {
+    /* Fast non-blocking flag: takes 2 clock cycles in ISR */
+    s_erase_requested = true;
+}
+
+void main_superloop(void) {
+    while (1) {
+        if (s_erase_requested) {
+            s_erase_requested = false;
+            /* Heavy operation executes safely in background thread */
+            spi_flash_sector_erase(0x1000);
+        }
+    }
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 13.3-B: Deferred Background Execution Pattern</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your understanding of function pointers, callback architectures, and timer services.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. In C, what does the typedef 'typedef void (*ButtonCallback_t)(uint8_t pin);' declare?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A function returning a pointer to a button.</li>
+                        <li class="mcq-option" data-correct="true">A pointer type to a function that accepts an 8-bit unsigned integer argument and returns void.</li>
+                        <li class="mcq-option" data-correct="false">A struct containing an 8-bit integer.</li>
+                        <li class="mcq-option" data-correct="false">An array of 8 buttons.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The syntax defines ButtonCallback_t as a function pointer type matching signatures: void func(uint8_t pin).">The syntax defines ButtonCallback_t as a function pointer type matching signatures: void func(uint8_t pin).</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. What happens if firmware invokes a function pointer that holds a NULL address?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The function returns 0.</li>
+                        <li class="mcq-option" data-correct="true">The CPU attempts to fetch instructions from address 0x00000000, triggering an instant HardFault exception.</li>
+                        <li class="mcq-option" data-correct="false">The compiler emits a warning at runtime.</li>
+                        <li class="mcq-option" data-correct="false">Execution pauses for 1 ms.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Branching to NULL (0x0) executes memory outside valid code regions, causing the processor to generate an invalid instruction or memory fault.">Branching to NULL (0x0) executes memory outside valid code regions, causing the processor to generate an invalid instruction or memory fault.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. Why do professional callback registration interfaces accept a 'void *context' user parameter?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To enable dynamic memory allocation.</li>
+                        <li class="mcq-option" data-correct="true">To allow callers to pass instance-specific state data to the callback without relying on messy global variables.</li>
+                        <li class="mcq-option" data-correct="false">To measure execution time.</li>
+                        <li class="mcq-option" data-correct="false">It is required by the C standard.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Passing a context pointer provides an object-oriented 'this' pointer in C, allowing a single callback function to manage multiple hardware instances.">Passing a context pointer provides an object-oriented 'this' pointer in C, allowing a single callback function to manage multiple hardware instances.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What is the role of a hardware timer Prescaler (PSC) register?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It scales the display contrast.</li>
+                        <li class="mcq-option" data-correct="true">It divides the high-frequency CPU/bus clock down to a slower, manageable counter frequency.</li>
+                        <li class="mcq-option" data-correct="false">It measures battery temperature.</li>
+                        <li class="mcq-option" data-correct="false">It stores the interrupt vector address.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The prescaler clock divider slows down timer clock ticks, allowing microsecond or millisecond tick intervals from multi-MHz system clocks.">The prescaler clock divider slows down timer clock ticks, allowing microsecond or millisecond tick intervals from multi-MHz system clocks.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What is the Auto-Reload Register (ARR) in an embedded hardware timer?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A register that reloads Flash memory.</li>
+                        <li class="mcq-option" data-correct="true">The register defining the maximum count value at which the timer counter resets to zero and generates an update/overflow interrupt.</li>
+                        <li class="mcq-option" data-correct="false">A backup battery register.</li>
+                        <li class="mcq-option" data-correct="false">The program counter.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The ARR defines timer period: when the counter matches ARR, it resets to 0 and asserts the periodic overflow interrupt flag.">The ARR defines timer period: when the counter matches ARR, it resets to 0 and asserts the periodic overflow interrupt flag.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What is the fundamental difference between a 'One-Shot' timer and a 'Periodic' timer?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">One-shot timers run in hardware; periodic timers run in software.</li>
+                        <li class="mcq-option" data-correct="true">A one-shot timer fires its callback once upon expiration and stops; a periodic timer automatically reloads its countdown and fires repeatedly.</li>
+                        <li class="mcq-option" data-correct="false">Periodic timers require 64-bit integers.</li>
+                        <li class="mcq-option" data-correct="false">One-shot timers ignore interrupts.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="One-shot timers are used for timeouts and delays; periodic timers drive cyclic tasks like LED blinking and sensor sampling.">One-shot timers are used for timeouts and delays; periodic timers drive cyclic tasks like LED blinking and sensor sampling.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Why is it dangerous to execute long or blocking operations inside a timer callback that runs in ISR context?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The timer hardware melts.</li>
+                        <li class="mcq-option" data-correct="true">It monopolizes CPU time at interrupt priority, blocking lower-priority interrupts and causing timing jitter or missed deadlines across the system.</li>
+                        <li class="mcq-option" data-correct="false">Flash memory cannot be read during callbacks.</li>
+                        <li class="mcq-option" data-correct="false">It disables compiler optimizations.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Callbacks called directly from ISRs inherit interrupt priority; blocking operations inside them starve other critical real-time subsystems.">Callbacks called directly from ISRs inherit interrupt priority; blocking operations inside them starve other critical real-time subsystems.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is a 'Timer Wheel' algorithm?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A mechanical dial on the microcontroller.</li>
+                        <li class="mcq-option" data-correct="true">An efficient circular buffer data structure that schedules and fires thousands of software timers with O(1) tick complexity.</li>
+                        <li class="mcq-option" data-correct="false">A motor control algorithm.</li>
+                        <li class="mcq-option" data-correct="false">A debugger GUI widget.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Hashed timer wheels organize timers into circular buckets, enabling O(1) insertion and expiration checking even with hundreds of active timers.">Hashed timer wheels organize timers into circular buckets, enabling O(1) insertion and expiration checking even with hundreds of active timers.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. Which standard ARM Cortex-M hardware peripheral provides an integrated 24-bit down-counter timer designed for RTOS and software ticks?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Watchdog Timer (WDT)</li>
+                        <li class="mcq-option" data-correct="true">SysTick (System Tick Timer)</li>
+                        <li class="mcq-option" data-correct="false">RTC (Real-Time Clock)</li>
+                        <li class="mcq-option" data-correct="false">CRC Engine</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="SysTick is an integral core peripheral in every ARM Cortex-M CPU, providing a universal periodic 1 ms tick source across all silicon vendors.">SysTick is an integral core peripheral in every ARM Cortex-M CPU, providing a universal periodic 1 ms tick source across all silicon vendors.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why should an array of function pointer callbacks be declared 'const' if the table is known at compile time?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To make the callbacks execute faster.</li>
+                        <li class="mcq-option" data-correct="true">To place the dispatch table into Flash memory (.rodata), preventing RAM consumption and protecting pointers from memory corruption.</li>
+                        <li class="mcq-option" data-correct="false">It enables thread locking.</li>
+                        <li class="mcq-option" data-correct="false">It disables interrupts automatically.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Placing dispatch tables in Flash protects function pointers from accidental corruption by wild pointers or stack overflows.">Placing dispatch tables in Flash protects function pointers from accidental corruption by wild pointers or stack overflows.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to master function pointers, callbacks, and software timer multiplexing.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Multi-Rate LED Blinker via Software Timers</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Using the software timer service from Program 13.2 driven by a 1 ms SysTick tick, register three periodic callbacks: (1) Green LED toggling at 500 ms, (2) Red LED toggling at 200 ms, and (3) Blue LED toggling at 1000 ms. Verify simultaneous multi-rate execution.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Hardware Prescaler Calculation</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Given an MCU core running at 84 MHz, calculate the exact 16-bit Prescaler (PSC) and Auto-Reload (ARR) register values needed to generate an exact 1.000 kHz timer interrupt. Implement the register configuration and verify the frequency on an oscilloscope.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Dynamic Callback Cancellation</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a <code class="keyword-hl">soft_timer_stop(int32_t handle)</code> function. Create a one-shot communication timeout timer (3000 ms). If a simulated packet acknowledgment arrives before the timeout, stop the timer. Verify that the timeout error callback is never invoked.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Button Debounce State Callback</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a digital debouncing module for a mechanical push button. When a state change persists stably for 20 ms, fire an <code class="keyword-hl">on_button_change(uint8_t state)</code> callback. Verify that noisy mechanical contact bounce does not trigger false callbacks.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Context-Aware Callback Structure</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a struct representing a PID heater controller. Register a periodic timer callback passing the address of this struct as the <code class="keyword-hl">void *context</code> argument. Inside the callback, cast the context back to the PID struct and update heater PWM output without using global variables.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Paper</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">George Varghese &amp; Tony Lauck</span>
+                            </div>
+                            <h4>Hashed and Hierarchical Timing Wheels</h4>
+                            <p>Seminal ACM paper introducing efficient O(1) timer management algorithms used in network stacks and real-time operating systems.</p>
+                            <a href="https://dl.acm.org/doi/10.1145/263326.263367" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Architecture Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+                            </div>
+                            <h4>Cortex-M SysTick Timer Architecture Specification</h4>
+                            <p>Hardware technical reference defining the SysTick CSR, RVR, and CVR registers and clock source division modes.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Design Patterns</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Addison-Wesley</span>
+                            </div>
+                            <h4>Design Patterns in C (Embedded Architecture)</h4>
+                            <p>Architectural guide to implementing function pointer tables, callbacks, and polymorphic interfaces in procedural C.</p>
+                            <a href="https://www.pearson.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_12.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 12: Polling vs Interrupts</span>
+                </a>
+                <a href="topic_14.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 14: Non-Blocking Firmware Design</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref 5: Standards &amp; Protocols - Embedded C Programming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script>
+        const savedTheme = localStorage.getItem('embedded-c-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li class="active"><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number" style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-color: rgba(139, 92, 246, 0.3);">Engineering Reference 5</span>
+                <h1>Standards, Protocols &amp; Datasheets Compendium</h1>
+
+                <p>
+                    Writing safety-critical Embedded C requires adhering to international regulatory frameworks and standard communication bus protocols. This compendium summarizes the governing functional safety standards, hardware communication physical layers, and semiconductor documentation.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h2>5.1 International Functional Safety Standards</h2>
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Standard</th>
+                                <th style="padding: 0.75rem 1rem;">Industry Domain</th>
+                                <th style="padding: 0.75rem 1rem;">Safety Integrity Classification</th>
+                                <th style="padding: 0.75rem 1rem;">Core Firmware Mandates</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ef4444;">ISO 26262</td>
+                                <td style="padding: 0.75rem 1rem;">Road Vehicles (Automotive)</td>
+                                <td style="padding: 0.75rem 1rem;">ASIL A, B, C, D (D = Highest)</td>
+                                <td style="padding: 0.75rem 1rem;">Strict MISRA-C compliance, 100% MC/DC test coverage, hardware lockstep, safe state transitions.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #10b981;">IEC 62304</td>
+                                <td style="padding: 0.75rem 1rem;">Medical Device Software</td>
+                                <td style="padding: 0.75rem 1rem;">Class A (No injury), B (Non-serious), C (Death/Serious injury)</td>
+                                <td style="padding: 0.75rem 1rem;">Static memory allocation (no heap), strict requirement-to-test traceability, defensive architecture.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #f59e0b;">IEC 61508</td>
+                                <td style="padding: 0.75rem 1rem;">Industrial Functional Safety</td>
+                                <td style="padding: 0.75rem 1rem;">SIL 1, SIL 2, SIL 3, SIL 4</td>
+                                <td style="padding: 0.75rem 1rem;">Dual-channel redundancy (1oo2 / 2oo3), diagnostic coverage &gt;99%, hardware watchdog timer supervision.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #3b82f6;">DO-178C</td>
+                                <td style="padding: 0.75rem 1rem;">Commercial &amp; Military Aviation</td>
+                                <td style="padding: 0.75rem 1rem;">DAL A (Catastrophic) down to DAL E (No effect)</td>
+                                <td style="padding: 0.75rem 1rem;">Exhaustive requirements verification, zero dead code, object-code to source-code traceability for Level A.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ec4899;">IEEE 1547 / UL 1741</td>
+                                <td style="padding: 0.75rem 1rem;">Solar &amp; Grid Energy Inverters</td>
+                                <td style="padding: 0.75rem 1rem;">Category I, II, III (Grid ride-through)</td>
+                                <td style="padding: 0.75rem 1rem;">Anti-islanding disconnection in &lt;100 ms, frequency and voltage disturbance trip curves.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h2>5.2 Embedded Communication Bus Protocol Comparison</h2>
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Bus Protocol</th>
+                                <th style="padding: 0.75rem 1rem;">Physical Layer &amp; Wiring</th>
+                                <th style="padding: 0.75rem 1rem;">Maximum Throughput</th>
+                                <th style="padding: 0.75rem 1rem;">Maximum Reach</th>
+                                <th style="padding: 0.75rem 1rem;">Key Strengths &amp; Primary Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #3b82f6;">SPI (Serial Peripheral Interface)</td>
+                                <td style="padding: 0.75rem 1rem;">4-Wire synchronous (SCK, MOSI, MISO, CS#)</td>
+                                <td style="padding: 0.75rem 1rem;">10 MHz &ndash; 80+ MHz</td>
+                                <td style="padding: 0.75rem 1rem;">&lt; 30 cm (On-board PCB)</td>
+                                <td style="padding: 0.75rem 1rem;">Ultra-fast full-duplex streaming with zero protocol overhead; perfect for IMUs and Flash memory.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #10b981;">I2C / I3C</td>
+                                <td style="padding: 0.75rem 1rem;">2-Wire open-drain with pull-ups (SCL, SDA)</td>
+                                <td style="padding: 0.75rem 1rem;">100 kHz (Std), 400 kHz (Fast), 12.5 MHz (I3C)</td>
+                                <td style="padding: 0.75rem 1rem;">&lt; 50 cm (On-board PCB)</td>
+                                <td style="padding: 0.75rem 1rem;">Multi-device addressing on 2 shared pins; standard for temperature, barometers, and EEPROMs.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #f59e0b;">CAN 2.0B / CAN-FD</td>
+                                <td style="padding: 0.75rem 1rem;">Differential twisted-pair (CAN_H, CAN_L, 120&Omega; termination)</td>
+                                <td style="padding: 0.75rem 1rem;">1.0 Mbps (CAN 2.0B), 5.0&ndash;8.0 Mbps (CAN-FD)</td>
+                                <td style="padding: 0.75rem 1rem;">40 meters (at 1 Mbps) to 1,000 m (at 50 kbps)</td>
+                                <td style="padding: 0.75rem 1rem;">Hardware arbitration, differential noise rejection, CRC check; universal automotive standard.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ef4444;">Automotive Ethernet</td>
+                                <td style="padding: 0.75rem 1rem;">Single unshielded twisted-pair (100BASE-T1 / 1000BASE-T1)</td>
+                                <td style="padding: 0.75rem 1rem;">100 Mbps &ndash; 1.0 Gbps</td>
+                                <td style="padding: 0.75rem 1rem;">15 meters</td>
+                                <td style="padding: 0.75rem 1rem;">High-bandwidth point-to-point IP data for ADAS radar, cameras, and domain controllers.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #8b5cf6;">RS-485 / Modbus</td>
+                                <td style="padding: 0.75rem 1rem;">Differential pair (A, B) with multi-drop transceivers</td>
+                                <td style="padding: 0.75rem 1rem;">10 Mbps (short distance) or 115.2 kbps</td>
+                                <td style="padding: 0.75rem 1rem;">Up to 1,200 meters</td>
+                                <td style="padding: 0.75rem 1rem;">Immunity to industrial ground loops and electrical factory noise; standard for PLCs and smart meters.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Navigation -->
+                <footer class="page-navigation" style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                    <a href="ref_devices.html" class="nav-button prev" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-color); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s ease;">
+                        <span style="font-size: 1.2rem;">&larr;</span>
+                        <div style="text-align: left;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Previous</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Ref 4: 20 Industrial Architectures</span>
+                        </div>
+                    </a>
+                    <a href="reference.html" class="nav-button next" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--accent); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s ease; background-color: var(--accent-light);">
+                        <div style="text-align: right;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Back to Overview &rarr;</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Hardware Triad Overview</span>
+                        </div>
+                        <span style="font-size: 1.2rem;">&rarr;</span>
+                    </a>
+                </footer>
+
+                <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                    Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

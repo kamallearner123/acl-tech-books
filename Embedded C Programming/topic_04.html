@@ -1,3 +1,598 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Assertions, Logging and Debugging Methodology</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_04.html">Assertions, Logging &amp; Debugging</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 4</span><h1>Assertions, Logging, and Debugging Methodology</h1><p>Assertions turn developer assumptions into executable checks. Logging records state, error codes, and transitions. A disciplined debugger reproduces, minimizes, hypothesizes, instruments, fixes, and adds a regression test.</p><pre><code>#include &lt;assert.h&gt;
-assert(buffer != NULL);
-assert(length &lt;= capacity);</code></pre><p>Use bounded logging outside critical ISRs and use GDB watchpoints, breakpoints, call stacks, and register inspection when debugging a target.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_03.html">Errors</a><a class="nav-button next" href="topic_05.html">Unit Testing</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 4: Assertions, Logging &amp; Debugging Methodology - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li class="active"><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 4</span>
+                <h1>Assertions, Logging &amp; Debugging Methodology</h1>
+
+                <p>
+                    When firmware fails in a laboratory setting or deployment field, developers rarely have access to rich terminal stack traces. Standard desktop C's <code>assert()</code> macro calls <code>abort()</code>, which on a bare-metal microcontroller typically jumps into an infinite loop or triggers a watchdog reset without preserving diagnostic clues.
+                </p>
+
+                <p>
+                    Professional embedded firmware demands a tailored diagnostic framework: custom target-safe assertion handlers that capture the failed expression, filename, and line number in non-volatile battery-backed RAM; non-blocking ring-buffer logging that never stalls real-time interrupt service routines; and systematic hardware debugging techniques using ARM Cortex-M DWT (Data Watchpoint and Trace) cycle counters.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 4.1 -->
+                <h2>4.1 Assertions: Design-Time Contract Enforcement</h2>
+                <p>
+                    An assertion is a statement verifying a condition that must strictly be true if the program is operating correctly. Unlike standard input validation (which handles expected real-world variations such as noisy sensor inputs or severed wires), assertions exist to detect <strong>programmer logic bugs and violated API contracts</strong>.
+                </p>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px;">
+                    <strong>Golden Rule of Assertions:</strong> Never place side-effect operations inside an assertion! For example, <code>ASSERT(read_fifo() != 0);</code> will break completely in release builds when assertions are disabled via <code>-DNDEBUG</code>, because the FIFO read will be stripped from the binary!
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 4.2 -->
+                <h2>4.2 Non-Blocking Telemetry &amp; Ring Buffer Logging</h2>
+                <p>
+                    Calling blocking serial functions like <code>printf()</code> over an 115,200-baud UART requires roughly 87 microseconds per character. Printing a 40-character diagnostic message takes approximately <strong>3.5 milliseconds</strong>—an eternity in a 1 kHz motor control loop or inside an interrupt handler.
+                </p>
+
+                <!-- Figure 4.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 230" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-log" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                            <marker id="arrow-dma" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                            </marker>
+                        </defs>
+
+                        <!-- Producer (Left) -->
+                        <rect x="25" y="40" width="220" height="140" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="135" y="68" fill="#6ee7b7" font-size="12" font-weight="700" text-anchor="middle">PRODUCER (Fast Context)</text>
+                        <text x="135" y="88" fill="#f8fafc" font-size="11" text-anchor="middle">ADC ISR / 1 kHz Motor Loop</text>
+
+                        <rect x="40" y="105" width="190" height="36" rx="5" fill="#0f172a" stroke="#334155"/>
+                        <text x="135" y="127" fill="#a7f3d0" font-size="10" font-family="monospace" text-anchor="middle">log_msg("ADC Over-Volt");</text>
+                        <text x="135" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">Execution: ~1.2 &mu;s (Zero Blocking)</text>
+
+                        <!-- Enqueue Arrow -->
+                        <line x1="245" y1="110" x2="285" y2="110" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-log)"/>
+                        <text x="265" y="98" fill="#10b981" font-size="8.5" font-weight="600" text-anchor="middle">Push</text>
+
+                        <!-- Circular Buffer (Center) -->
+                        <rect x="290" y="25" width="240" height="170" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="410" y="52" fill="#fde68a" font-size="12" font-weight="700" text-anchor="middle">LOCK-FREE RING BUFFER</text>
+                        <text x="410" y="70" fill="#94a3b8" font-size="9.5" text-anchor="middle">Single-Producer Single-Consumer (SPSC)</text>
+
+                        <!-- Memory Slots -->
+                        <g transform="translate(305, 82)">
+                            <rect x="0" y="0" width="32" height="36" fill="#0f172a" stroke="#64748b"/>
+                            <text x="16" y="22" fill="#94a3b8" font-size="9" text-anchor="middle">[0]</text>
+
+                            <rect x="36" y="0" width="32" height="36" fill="#0f172a" stroke="#64748b"/>
+                            <text x="52" y="22" fill="#94a3b8" font-size="9" text-anchor="middle">[1]</text>
+
+                            <rect x="72" y="0" width="32" height="36" fill="#10b981" fill-opacity="0.2" stroke="#10b981"/>
+                            <text x="88" y="22" fill="#a7f3d0" font-size="9" font-weight="700" text-anchor="middle">H &rarr;</text>
+
+                            <rect x="108" y="0" width="32" height="36" fill="#0f172a" stroke="#64748b"/>
+                            <text x="124" y="22" fill="#94a3b8" font-size="9" text-anchor="middle">...</text>
+
+                            <rect x="144" y="0" width="32" height="36" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6"/>
+                            <text x="160" y="22" fill="#93c5fd" font-size="9" font-weight="700" text-anchor="middle">&larr; T</text>
+
+                            <rect x="180" y="0" width="32" height="36" fill="#0f172a" stroke="#64748b"/>
+                            <text x="196" y="22" fill="#94a3b8" font-size="9" text-anchor="middle">[N]</text>
+                        </g>
+
+                        <text x="410" y="145" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Head: written by Producer</text>
+                        <text x="410" y="162" fill="#cbd5e1" font-size="9.5" text-anchor="middle">Tail: read by Consumer / DMA</text>
+                        <text x="410" y="180" fill="#a7f3d0" font-size="9" font-weight="600" text-anchor="middle">&bull; Zero Mutex Locks Required &bull;</text>
+
+                        <!-- Dequeue Arrow -->
+                        <line x1="530" y1="110" x2="570" y2="110" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow-dma)"/>
+                        <text x="550" y="98" fill="#3b82f6" font-size="8.5" font-weight="600" text-anchor="middle">DMA</text>
+
+                        <!-- Consumer (Right) -->
+                        <rect x="575" y="40" width="220" height="140" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="685" y="68" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">CONSUMER (Background)</text>
+                        <text x="685" y="88" fill="#f8fafc" font-size="11" text-anchor="middle">DMA Engine / Idle Superloop</text>
+
+                        <rect x="590" y="105" width="190" height="36" rx="5" fill="#0f172a" stroke="#334155"/>
+                        <text x="685" y="127" fill="#93c5fd" font-size="10" text-anchor="middle">UART TX / SWD ITM / RTT</text>
+                        <text x="685" y="162" fill="#94a3b8" font-size="9.5" text-anchor="middle">Transmits at 115200 baud</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 4.1: Decoupled Non-Blocking Circular Logging Architecture</div>
+                </div>
+
+                <div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    <strong>Architectural Benefits:</strong>
+                    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+                        <li><strong>Zero Timing Distortion:</strong> Pushing a log entry into a memory buffer takes under 2 microseconds, preventing probe effect / heisenbugs.</li>
+                        <li><strong>Safe in Interrupts:</strong> Single-producer single-consumer circular buffers require zero mutex locks or interrupt disabling if head and tail indices are updated atomically.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 4.3 -->
+                <h2>4.3 Retargeting printf in Newlib GCC</h2>
+                <p>
+                    On ARM Cortex-M cross-compilers using the Newlib C runtime, standard I/O calls (<code class="keyword-hl">printf</code>, <code class="keyword-hl">puts</code>) route through low-level Unix system call stubs. By implementing the <code>_write()</code> syscall, developers retarget formatted output to a physical UART or ARM Serial Wire Output (SWO) instrumentation port.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 4.4 Code Implementations -->
+                <h2>4.4 Hands-On Code Implementations</h2>
+                <p>
+                    The following complete module provides a production-grade custom assertion framework and an interrupt-safe non-volatile crash recorder:
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 4.1: Target-Safe Embedded Assertion &amp; Non-Volatile Crash Recorder
+ * File: embed_assert.c
+ * Target: ARM Cortex-M / Embedded Systems
+ */
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stdio.h&gt;
+
+/* Non-Volatile Crash Information Structure (Allocated in backup RAM or battery RAM) */
+typedef struct {
+    uint32_t magic_header;       /*!&lt; 0xDEADBEEF indicates valid crash log */
+    uint32_t timestamp_ms;       /*!&lt; System uptime at crash */
+    uint32_t line_number;        /*!&lt; Source code line number */
+    char     filename[32];       /*!&lt; Base name of source file */
+    char     expression[64];     /*!&lt; String representation of failed condition */
+    uint32_t checksum;           /*!&lt; Simple additive parity checksum */
+} CrashDiagnostic_t;
+
+/* Located in a retained RAM section not zeroed out during reset */
+static CrashDiagnostic_t g_crash_record __attribute__((section(".noinit")));
+
+#define CRASH_MAGIC  (0xDEADBEEFUL)
+
+/**
+ * @brief Custom assertion failure handler.
+ * @note Decorated with noreturn to enable compiler unreachable optimizations.
+ */
+void __attribute__((noreturn)) custom_assert_handler(const char *expr, const char *file, uint32_t line) {
+    /* Disable all interrupts immediately to freeze system state */
+    __asm volatile ("cpsid i" : : : "memory");
+
+    /* Populate non-volatile diagnostic log */
+    g_crash_record.magic_header = CRASH_MAGIC;
+    g_crash_record.timestamp_ms = 45210UL; /* In real firmware: get_uptime_ms() */
+    g_crash_record.line_number  = line;
+
+    /* Safe bounded copy of filename and expression string */
+    snprintf(g_crash_record.filename, sizeof(g_crash_record.filename), "%s", file);
+    snprintf(g_crash_record.expression, sizeof(g_crash_record.expression), "%s", expr);
+
+    /* Safe safe-state: Turn off motor drivers, heaters, high-voltage outputs */
+    /* safe_hardware_shutdown(); */
+
+#if defined(DEBUG_BUILD)
+    /* If running under debugger, trigger hardware breakpoint instruction */
+    __asm volatile ("bkpt #0");
+#endif
+
+    /* Trigger hardware reset via System Reset Request in NVIC AIRCR */
+    volatile uint32_t * const aircr = (volatile uint32_t *)0xE000ED0CUL;
+    *aircr = (0x5FAUL &lt;&lt; 16) | (1UL &lt;&lt; 2); /* SYSRESETREQ */
+
+    while (1) {
+        /* Wait for reset to complete */
+    }
+}
+
+/* Custom assertion macro */
+#if defined(ENABLE_ASSERTIONS)
+    #define EMBED_ASSERT(expr) \
+        do { \
+            if (!(expr)) { \
+                custom_assert_handler(#expr, __FILE__, (uint32_t)__LINE__); \
+            } \
+        } while (0)
+#else
+    #define EMBED_ASSERT(expr) ((void)0)
+#endif</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 4.1: Target-Safe Embedded Assertion &amp; Non-Volatile Crash Recorder</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>4.5 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Calling blocking serial I/O directly inside a high-speed Interrupt Service Routine is one of the most destructive bugs in real-time firmware, completely violating real-time deadlines.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        This ISR calls blocking <code>printf()</code> at 9600 baud. Transmitting 30 characters stalls the CPU inside the interrupt for <strong>31 milliseconds</strong>, missing subsequent motor encoder pulses:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY / DISASTROUS: Blocking I/O inside ISR */
+void SysTick_Handler(void) {
+    /* 9600 baud = ~1 ms per byte. 30 bytes = 30 ms blocking stall inside ISR! */
+    printf("Tick event triggered: count=%d\n", tick_count++);
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 4.2-A: Blocking Printf Inside Real-Time Interrupt Handler</div>
+                </details>
+
+                <p>
+                    The safe architecture pushes a compact, binary-formatted telemetry packet into an interrupt-safe circular ring buffer in microseconds, allowing the background superloop to stream the data asynchronously:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: Non-blocking binary telemetry logging */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef struct {
+    uint32_t timestamp;
+    uint16_t event_id;
+    int16_t  payload;
+} LogEntry_t;
+
+#define LOG_QUEUE_SIZE 64U
+static LogEntry_t s_log_queue[LOG_QUEUE_SIZE];
+static volatile uint8_t s_head = 0U;
+static volatile uint8_t s_tail = 0U;
+
+/* Lock-free push into circular ring buffer: takes only 8 CPU cycles */
+bool log_event_isr(uint16_t event_id, int16_t payload) {
+    uint8_t next_head = (s_head + 1U) &amp; (LOG_QUEUE_SIZE - 1U);
+    if (next_head == s_tail) {
+        return false; /* Buffer full: drop gracefully without blocking */
+    }
+    s_log_queue[s_head].timestamp = 0; /* read HW timer */
+    s_log_queue[s_head].event_id = event_id;
+    s_log_queue[s_head].payload = payload;
+    s_head = next_head;
+    return true;
+}
+
+void SysTick_Handler(void) {
+    /* Fast non-blocking push: finishes in &lt; 1 microsecond! */
+    log_event_isr(0x01, 100);
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 4.2-B: Non-Blocking Lock-Free Telemetry Logger for Interrupts</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your knowledge of assertions, telemetry loggers, and embedded debugging workflows.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. What is the fundamental distinction between an assertion and defensive runtime input validation?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Assertions run in SRAM; validation runs in Flash.</li>
+                        <li class="mcq-option" data-correct="true">Assertions catch internal software logic bugs and contract violations; validation handles expected external data variations.</li>
+                        <li class="mcq-option" data-correct="false">Assertions are written in assembly; validation is written in C.</li>
+                        <li class="mcq-option" data-correct="false">Validation is disabled in release builds.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Assertions verify software design invariants that must never happen; input validation handles real-world corrupted data, packet timeouts, and noise.">Assertions verify software design invariants that must never happen; input validation handles real-world corrupted data, packet timeouts, and noise.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. What preprocessor macro disables standard C assert() statements when defined during compilation?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">DISABLE_ASSERT</li>
+                        <li class="mcq-option" data-correct="true">NDEBUG</li>
+                        <li class="mcq-option" data-correct="false">RELEASE_BUILD</li>
+                        <li class="mcq-option" data-correct="false">NO_CHECK</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Defining NDEBUG causes &lt;assert.h&gt; to expand assert(expr) into ((void)0), stripping all assertion code from the binary.">Defining NDEBUG causes &lt;assert.h&gt; to expand assert(expr) into ((void)0), stripping all assertion code from the binary.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. Why is calling a standard blocking printf() over UART forbidden inside an Interrupt Service Routine (ISR)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">UART registers cannot be accessed inside interrupts.</li>
+                        <li class="mcq-option" data-correct="true">Blocking serial transmission takes milliseconds, stalling the CPU, starving other interrupts, and violating real-time deadlines.</li>
+                        <li class="mcq-option" data-correct="false">printf() modifies the link register.</li>
+                        <li class="mcq-option" data-correct="false">The compiler emits a syntax error.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Transmitting serial characters at typical baud rates takes hundreds of microseconds to milliseconds, blocking all lower-priority interrupts and breaking real-time behavior.">Transmitting serial characters at typical baud rates takes hundreds of microseconds to milliseconds, blocking all lower-priority interrupts and breaking real-time behavior.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. Which low-level C runtime system call stub must be implemented in Newlib GCC to retarget printf() to a hardware UART?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">_read()</li>
+                        <li class="mcq-option" data-correct="true">_write()</li>
+                        <li class="mcq-option" data-correct="false">_sbrk()</li>
+                        <li class="mcq-option" data-correct="false">_exit()</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="In Newlib-based toolchains (like arm-none-eabi-gcc), printf() funnels output bytes through the _write(int file, char *ptr, int len) system call stub.">In Newlib-based toolchains (like arm-none-eabi-gcc), printf() funnels output bytes through the _write(int file, char *ptr, int len) system call stub.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. What is the ARM Cortex-M 'BKPT #0' instruction used for?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To restart the CPU clock.</li>
+                        <li class="mcq-option" data-correct="true">To halt execution and trigger a hardware breakpoint for an attached JTAG/SWD debugger.</li>
+                        <li class="mcq-option" data-correct="false">To clear the cache.</li>
+                        <li class="mcq-option" data-correct="false">To enter sleep mode.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="BKPT triggers a debug fault, causing the processor to halt and hand control to an attached hardware debugger like GDB via OpenOCD.">BKPT triggers a debug fault, causing the processor to halt and hand control to an attached hardware debugger like GDB via OpenOCD.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What is a 'Heisenbug' in firmware engineering?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A bug caused by radioactive decay in memory cells.</li>
+                        <li class="mcq-option" data-correct="true">A timing defect that disappears or changes behavior as soon as debugging instrumentation (like printf) is introduced.</li>
+                        <li class="mcq-option" data-correct="false">A bug that only occurs on German microcontrollers.</li>
+                        <li class="mcq-option" data-correct="false">A linker script error.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Intrusive print statements alter system timing. When the print statement is added, a race condition may temporarily vanish, hiding the defect.">Intrusive print statements alter system timing. When the print statement is added, a race condition may temporarily vanish, hiding the defect.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Which hardware component in ARM Cortex-M processors provides a non-intrusive 32-bit CPU cycle counter for microsecond profiling?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The SysTick Timer</li>
+                        <li class="mcq-option" data-correct="true">The DWT (Data Watchpoint and Trace) CYCCNT register</li>
+                        <li class="mcq-option" data-correct="false">The RTC (Real-Time Clock)</li>
+                        <li class="mcq-option" data-correct="false">The Watchdog Timer</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The DWT CYCCNT register increments once per CPU clock cycle, allowing cycle-accurate non-intrusive execution time benchmarking.">The DWT CYCCNT register increments once per CPU clock cycle, allowing cycle-accurate non-intrusive execution time benchmarking.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is the advantage of using ARM Serial Wire Output (SWO) / ITM over standard UART for logging?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">SWO uses 4 parallel data lines.</li>
+                        <li class="mcq-option" data-correct="true">ITM hardware instrumentation transmits trace packets out a dedicated debug pin with minimal CPU cycle overhead.</li>
+                        <li class="mcq-option" data-correct="false">ITM operates without a clock.</li>
+                        <li class="mcq-option" data-correct="false">SWO eliminates the need for a C compiler.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The Instrumentation Trace Macrocell (ITM) outputs trace packets over the dedicated SWO pin without CPU busy-wait loops, minimizing probe effects.">The Instrumentation Trace Macrocell (ITM) outputs trace packets over the dedicated SWO pin without CPU busy-wait loops, minimizing probe effects.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. Where should persistent crash diagnostic logs be stored so they survive a hardware reset?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">On the CPU stack</li>
+                        <li class="mcq-option" data-correct="false">In a local automatic variable</li>
+                        <li class="mcq-option" data-correct="true">In an uninitialized RAM section (.noinit) or battery-backed backup registers</li>
+                        <li class="mcq-option" data-correct="false">In the instruction cache</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The .noinit RAM section is not modified during the C runtime startup code, allowing crash structures to survive a warm reset.">The .noinit RAM section is not modified during the C runtime startup code, allowing crash structures to survive a warm reset.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why should an embedded assert handler be decorated with the [[noreturn]] or __attribute__((noreturn)) attribute?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To enable multi-threading.</li>
+                        <li class="mcq-option" data-correct="true">To inform the compiler optimizer that the function never returns, allowing it to eliminate dead code and suppress false return warnings.</li>
+                        <li class="mcq-option" data-correct="false">To store the function in EEPROM.</li>
+                        <li class="mcq-option" data-correct="false">To disable compiler warnings on unused variables.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Marking the assertion handler noreturn informs the compiler that control flow ends there, generating cleaner machine code and eliminating spurious warnings.">Marking the assertion handler noreturn informs the compiler that control flow ends there, generating cleaner machine code and eliminating spurious warnings.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory exercises to implement professional debugging and assertion workflows.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Custom Assert with .noinit RAM Persistence</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Modify your project linker script to create a 256-byte <code class="keyword-hl">.noinit</code> section in SRAM. Implement a custom assertion macro that records the failed condition, file, and line into this section. Trigger an assertion, reset the board, and verify upon reboot that the startup code reads and prints the recorded crash details.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Lock-Free Single-Producer Single-Consumer (SPSC) Ring Buffer</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a circular ring buffer logger for 8-byte binary messages. Benchmark the push operation using the DWT cycle counter. Verify that pushing an entry from within a timer ISR finishes in under 20 CPU cycles without disabling global interrupts.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Newlib _write() Syscall Retargeting</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> In an ARM GCC project, provide a custom implementation of <code class="keyword-hl">int _write(int file, char *ptr, int len)</code> that routes stdout and stderr characters to a mock UART transmission function. Test by calling standard <code class="keyword-hl">printf("Temperature: %d C\r\n", 25);</code> and verify proper formatting.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: DWT Cycle Counter Micro-Benchmarking</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Enable the ARM Cortex-M DWT CYCCNT register (<code class="keyword-hl">CoreDebug-&gt;DEMCR |= CoreDebug_DEMCR_TRCENA_Msk; DWT-&gt;CTRL |= DWT_CTRL_CYCCNTENA_Msk;</code>). Measure the exact CPU cycle execution duration of an integer square root algorithm compared to floating-point <code class="keyword-hl">sqrtf()</code>.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Multi-Level Verbosity Logger Filter</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Design a preprocessor-driven logging module with 4 verbosity tiers: <code class="keyword-hl">LOG_LEVEL_ERROR</code>, <code class="keyword-hl">LOG_LEVEL_WARN</code>, <code class="keyword-hl">LOG_LEVEL_INFO</code>, and <code class="keyword-hl">LOG_LEVEL_DEBUG</code>. Show how setting the active build level to ERROR eliminates debug string literals completely from Flash memory.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Miro Samek</span>
+                            </div>
+                            <h4>An Exception-Handling Architecture for Embedded Systems</h4>
+                            <p>Seminal architectural paper detailing assertions, design-by-contract, and fail-safe recovery in mission-critical firmware.</p>
+                            <a href="https://www.state-machine.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">ARM Technical Reference</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">ARM Ltd.</span>
+                            </div>
+                            <h4>Cortex-M3/M4/M7 Embedded Trace and DWT Specification</h4>
+                            <p>Technical manual detailing the Data Watchpoint and Trace (DWT) unit, cycle counters, and ITM debug channels.</p>
+                            <a href="https://developer.arm.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Engineering Guide</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Jack Ganssle</span>
+                            </div>
+                            <h4>The Art of Designing Embedded Systems</h4>
+                            <p>Practical principles for firmware instrumentation, real-time testing, and deterministic bug eradication.</p>
+                            <a href="http://www.ganssle.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_03.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 3: Compile, Runtime, Link &amp; Logic Errors</span>
+                </a>
+                <a href="topic_05.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 5: Unit Testing in C</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

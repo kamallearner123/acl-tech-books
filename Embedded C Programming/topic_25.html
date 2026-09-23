@@ -1,5 +1,745 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Integrated Firmware Architecture</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_25.html">Integrated Firmware Architecture</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 25</span><h1>Integrated Firmware Architecture</h1><p>Combine modular C, interfaces, drivers, events, and FSM logic into a system where each layer has one responsibility.</p><pre><code>event producer → bounded queue → FSM dispatcher
-                                      ↓
-                              driver / HAL API
-                                      ↓
-                              BSP and hardware</code></pre><h2>Integration checklist</h2><ul><li>Can the FSM run in a host test with fake drivers?</li><li>Are queue capacity and overflow behavior defined?</li><li>Does application code avoid register addresses?</li><li>Are driver APIs documented and error-aware?</li><li>Can every state transition be tested from an event sequence?</li></ul><p>The final architecture is successful when changing the MCU or board affects the BSP/driver boundary more than the application logic.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_24.html">Layers</a><a class="nav-button next" href="index.html">Course Overview</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 25: Integrated Firmware Architecture - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li class="active"><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 25</span>
+                <h1>Integrated Firmware Architecture (Grand Capstone)</h1>
+
+                <p>
+                    Throughout this curriculum, we have dissected the fundamental disciplines of embedded C programming: strict type safety and error containment (Module 1), compilation pipelines and binary inspection (Module 2), reactive event loops and non-blocking timing (Module 3), MISRA-C compliance and state machines (Module 4), and modular 4-tier layered abstraction (Module 5).
+                </p>
+
+                <p>
+                    In this final Grand Capstone chapter, we unite all 24 individual disciplines into a complete, cohesive, production-grade <strong>Integrated Firmware Architecture</strong>. We examine an end-to-end mission-critical embedded system &mdash; an <strong>Industrial Autonomous Telemetry Node</strong> &mdash; illustrating how interrupts, thread-safe queues, finite-state automata, hardware abstractions, and watchdog health supervisors interact harmoniously in production C code.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 25.1 -->
+                <h2>25.1 End-to-End System Architecture Blueprint</h2>
+                <p>
+                    The Grand Capstone system adheres to the <strong>Active Object / Reactive Superloop</strong> model. Hardware interrupts (UART RX, Pushbutton EXTI, SysTick) perform zero business logic; they capture raw physical data, package it into structured events, push them onto a thread-safe circular event queue, and immediately return.
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 360" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <!-- Interrupt Sources on Left -->
+                        <rect x="30" y="30" width="170" height="50" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="115" y="60" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">UART RX ISR</text>
+
+                        <rect x="30" y="100" width="170" height="50" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="115" y="130" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">Button EXTI ISR</text>
+
+                        <rect x="30" y="170" width="170" height="50" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="115" y="200" fill="#f8fafc" font-size="11" font-weight="700" text-anchor="middle">SysTick 1ms ISR</text>
+
+                        <!-- Enqueue Arrows -->
+                        <line x1="200" y1="55" x2="260" y2="115" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+                        <line x1="200" y1="125" x2="260" y2="125" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+                        <line x1="200" y1="195" x2="260" y2="135" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Thread-Safe Queue in Middle -->
+                        <rect x="260" y="85" width="180" height="80" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="3"/>
+                        <text x="350" y="115" fill="#fde68a" font-size="12" font-weight="700" text-anchor="middle">SPSC Event Queue</text>
+                        <text x="350" y="135" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">event_queue_post()</text>
+                        <text x="350" y="152" fill="#94a3b8" font-size="9" text-anchor="middle">Lock-Free FIFO (Capacity 32)</text>
+
+                        <!-- Dequeue Arrow -->
+                        <line x1="440" y1="125" x2="500" y2="125" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <!-- Central FSM Dispatcher -->
+                        <rect x="500" y="45" width="260" height="160" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
+                        <text x="630" y="75" fill="#a7f3d0" font-size="13" font-weight="700" text-anchor="middle">Main Superloop &amp; FSM</text>
+                        <text x="630" y="95" fill="#cbd5e1" font-size="10" text-anchor="middle">event_queue_get(&amp;evt)</text>
+                        <text x="630" y="115" fill="#cbd5e1" font-size="10" text-anchor="middle">fsm_dispatch(&amp;g_fsm, &amp;evt)</text>
+
+                        <!-- Sub-boxes inside FSM -->
+                        <rect x="520" y="130" width="105" height="60" rx="4" fill="#0f172a" stroke="#3b82f6" stroke-width="1"/>
+                        <text x="572" y="155" fill="#93c5fd" font-size="10" font-weight="600" text-anchor="middle">SAMPLING</text>
+                        <text x="572" y="175" fill="#64748b" font-size="9" text-anchor="middle">I2C Temp Read</text>
+
+                        <rect x="635" y="130" width="105" height="60" rx="4" fill="#0f172a" stroke="#8b5cf6" stroke-width="1"/>
+                        <text x="687" y="155" fill="#c4b5fd" font-size="10" font-weight="600" text-anchor="middle">TRANSMITTING</text>
+                        <text x="687" y="175" fill="#64748b" font-size="9" text-anchor="middle">UART CRC Frame</text>
+
+                        <!-- Downward to HAL / BSP -->
+                        <line x1="630" y1="205" x2="630" y2="255" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)"/>
+
+                        <rect x="260" y="255" width="500" height="65" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="510" y="280" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">HAL &amp; BSP Layer</text>
+                        <text x="510" y="302" fill="#cbd5e1" font-size="10" text-anchor="middle">hal_i2c_transfer() | hal_uart_dma_tx() | bsp_watchdog_feed()</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 25.1: Complete Reactive Integrated Firmware Architecture</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 25.2 -->
+                <h2>25.2 Capstone Implementation: The Complete Telemetry Node</h2>
+                <p>
+                    Below is the unified C implementation demonstrating all architectural layers functioning in complete harmony:
+                </p>
+
+                <pre><code class="language-c">/**
+ * @file      main_integrated.c
+ * @brief     Grand Capstone: Integrated Reactive Telemetry Firmware Node.
+ * @details   Integrates MISRA-C compliance, SPSC event queues, table FSM,
+ *            bounded HAL drivers, and non-blocking watchdog supervision.
+ *
+ * @copyright (c) 2026 Apt Computing Labs. All rights reserved.
+ */
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+/* ========================================================================= */
+/* 1. EVENT DEFINITIONS &amp; SPSC QUEUE (MODULE 3 &amp; 5)                          */
+/* ========================================================================= */
+typedef enum {
+    SIG_NONE = 0,
+    SIG_TICK_100MS,
+    SIG_BTN_USER_PRESS,
+    SIG_SAMPLE_COMPLETE,
+    SIG_FAULT_DETECTED
+} Signal_t;
+
+typedef struct {
+    Signal_t signal;
+    uint32_t payload;
+} Event_t;
+
+#define EVENT_QUEUE_CAPACITY (16U)
+#define EVENT_QUEUE_MASK     (EVENT_QUEUE_CAPACITY - 1U)
+
+typedef struct {
+    Event_t         storage[EVENT_QUEUE_CAPACITY];
+    volatile size_t head;
+    volatile size_t tail;
+} EventQueue_t;
+
+static EventQueue_t g_event_queue = { .head = 0U, .tail = 0U };
+
+bool event_queue_post_from_isr(const Event_t * const p_evt) {
+    if (p_evt == NULL) return false;
+
+    const size_t next_head = (g_event_queue.head + 1U) &amp; EVENT_QUEUE_MASK;
+    if (next_head == g_event_queue.tail) {
+        return false; /* Queue Full: Drop event gracefully */
+    }
+
+    g_event_queue.storage[g_event_queue.head] = *p_evt;
+    __DMB(); /* Data Memory Barrier */
+    g_event_queue.head = next_head;
+    return true;
+}
+
+bool event_queue_get(Event_t * const p_evt) {
+    if (p_evt == NULL) return false;
+    if (g_event_queue.tail == g_event_queue.head) return false; /* Empty */
+
+    *p_evt = g_event_queue.storage[g_event_queue.tail];
+    __DMB();
+    g_event_queue.tail = (g_event_queue.tail + 1U) &amp; EVENT_QUEUE_MASK;
+    return true;
+}
+
+/* ========================================================================= */
+/* 2. FINITE-STATE MACHINE ENGINE (MODULE 4)                                  */
+/* ========================================================================= */
+typedef enum {
+    STATE_IDLE = 0,
+    STATE_ACQUIRING,
+    STATE_TRANSMITTING,
+    STATE_FAULT,
+    STATE_MAX
+} AppState_t;
+
+typedef struct AppFsm_t AppFsm_t;
+typedef void (*StateAction_t)(AppFsm_t * const p_fsm, const Event_t * const p_evt);
+
+typedef struct {
+    AppState_t    next_state;
+    StateAction_t action;
+} StateTransition_t;
+
+struct AppFsm_t {
+    AppState_t state;
+    int32_t    latest_temp_mdegc;
+    uint32_t   packet_sequence_id;
+};
+
+static void act_start_acquisition(AppFsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_transmit_packet(AppFsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_handle_fault(AppFsm_t * const p_fsm, const Event_t * const p_evt);
+static void act_ignore(AppFsm_t * const p_fsm, const Event_t * const p_evt) { (void)p_fsm; (void)p_evt; }
+
+static const StateTransition_t g_fsm_table[STATE_MAX][5] = {
+    [STATE_IDLE] = {
+        [SIG_TICK_100MS]      = { STATE_ACQUIRING,    act_start_acquisition },
+        [SIG_BTN_USER_PRESS]  = { STATE_ACQUIRING,    act_start_acquisition },
+        [SIG_SAMPLE_COMPLETE] = { STATE_IDLE,         act_ignore },
+        [SIG_FAULT_DETECTED]  = { STATE_FAULT,        act_handle_fault }
+    },
+    [STATE_ACQUIRING] = {
+        [SIG_TICK_100MS]      = { STATE_ACQUIRING,    act_ignore },
+        [SIG_BTN_USER_PRESS]  = { STATE_ACQUIRING,    act_ignore },
+        [SIG_SAMPLE_COMPLETE] = { STATE_TRANSMITTING, act_transmit_packet },
+        [SIG_FAULT_DETECTED]  = { STATE_FAULT,        act_handle_fault }
+    },
+    [STATE_TRANSMITTING] = {
+        [SIG_TICK_100MS]      = { STATE_TRANSMITTING, act_ignore },
+        [SIG_BTN_USER_PRESS]  = { STATE_TRANSMITTING, act_ignore },
+        [SIG_SAMPLE_COMPLETE] = { STATE_IDLE,         act_ignore },
+        [SIG_FAULT_DETECTED]  = { STATE_FAULT,        act_handle_fault }
+    },
+    [STATE_FAULT] = {
+        [SIG_TICK_100MS]      = { STATE_FAULT, act_ignore },
+        [SIG_BTN_USER_PRESS]  = { STATE_IDLE,  act_ignore }, /* Reset fault */
+        [SIG_SAMPLE_COMPLETE] = { STATE_FAULT, act_ignore },
+        [SIG_FAULT_DETECTED]  = { STATE_FAULT, act_ignore }
+    }
+};
+
+static void act_start_acquisition(AppFsm_t * const p_fsm, const Event_t * const p_evt) {
+    (void)p_evt;
+    /* Layer 2 Driver call across Layer 3 HAL */
+    int32_t temp = 0;
+    if (sensor_read_temperature_mdegc(&amp;temp) == 0) {
+        p_fsm-&gt;latest_temp_mdegc = temp;
+        Event_t evt_ready = { .signal = SIG_SAMPLE_COMPLETE, .payload = (uint32_t)temp };
+        event_queue_post_from_isr(&amp;evt_ready);
+    } else {
+        Event_t evt_err = { .signal = SIG_FAULT_DETECTED, .payload = 0xEE };
+        event_queue_post_from_isr(&amp;evt_err);
+    }
+}
+
+static void act_transmit_packet(AppFsm_t * const p_fsm, const Event_t * const p_evt) {
+    (void)p_evt;
+    p_fsm-&gt;packet_sequence_id++;
+    telemetry_send_frame(p_fsm-&gt;packet_sequence_id, p_fsm-&gt;latest_temp_mdegc);
+    p_fsm-&gt;state = STATE_IDLE; /* Return to IDLE */
+}
+
+static void act_handle_fault(AppFsm_t * const p_fsm, const Event_t * const p_evt) {
+    (void)p_fsm;
+    (void)p_evt;
+    bsp_emergency_actuator_quench();
+    bsp_led_strobe_fault_code(0x01);
+}
+
+/* ========================================================================= */
+/* 3. MAIN COOPERATIVE SUPERLOOP &amp; SUPERVISION (MODULE 1, 3, 5)             */
+/* ========================================================================= */
+static AppFsm_t g_system_fsm = {
+    .state = STATE_IDLE,
+    .latest_temp_mdegc = 0,
+    .packet_sequence_id = 0U
+};
+
+int main(void) {
+    /* 1. Hardware Initialization via BSP */
+    bsp_system_clock_init();
+    bsp_gpio_init();
+    systick_init();
+    bsp_watchdog_init(1000U); /* 1000 ms hardware window */
+
+    /* 2. Driver &amp; Service Setup */
+    hal_i2c_init();
+    hal_uart_init(115200U);
+
+    Event_t current_event;
+
+    /* 3. Infinite Run-to-Completion Superloop */
+    while (1) {
+        /* A. Dispatch queued asynchronous events */
+        while (event_queue_get(&amp;current_event)) {
+            if ((g_system_fsm.state &lt; STATE_MAX) &amp;&amp; (current_event.signal &lt; 5)) {
+                const StateTransition_t * const p_trans = 
+                    &amp;g_fsm_table[g_system_fsm.state][current_event.signal];
+
+                if (p_trans-&gt;action != NULL) {
+                    p_trans-&gt;action(&amp;g_system_fsm, &amp;current_event);
+                }
+                g_system_fsm.state = p_trans-&gt;next_state;
+            }
+        }
+
+        /* B. Background Non-Blocking Periodic Maintenance */
+        bsp_heartbeat_led_step();
+
+        /* C. Watchdog Feed: Verified safe at superloop idle point */
+        bsp_watchdog_feed();
+
+        /* D. Enter Sleep Mode until next interrupt wakes CPU */
+        __WFI();
+    }
+}</code></pre>
+                <div class="code-caption">Program 25.1: Complete Integrated Reactive Firmware Application</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 25.3 -->
+                <h2>25.3 The Pre-Deployment Integration Checklist</h2>
+                <p>
+                    Before any embedded C firmware image is signed and deployed to target production hardware, it must pass the rigorous <strong>Firmware Production Readiness Gate</strong>:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background-color: var(--sidebar-bg);">
+                            <th style="padding: 0.75rem 1rem;">Verification Domain</th>
+                            <th style="padding: 0.75rem 1rem;">Mandatory Engineering Check</th>
+                            <th style="padding: 0.75rem 1rem;">Passing Evidence</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Type Safety &amp; Compiler</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Build with <code>-Wall -Wextra -Werror -pedantic -std=c99</code>.</td>
+                            <td style="padding: 0.75rem 1rem;">Zero warnings, clean compilation across all translation units.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Static Safety Analysis</strong></td>
+                            <td style="padding: 0.75rem 1rem;">MISRA-C:2012 compliance audit via Cppcheck / PC-lint.</td>
+                            <td style="padding: 0.75rem 1rem;">Zero Mandatory violations; approved formal deviation records for Required.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Memory &amp; Stack Bounds</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Stack watermarking and memory segment footprint verification.</td>
+                            <td style="padding: 0.75rem 1rem;">Stack margin &gt; 30% under worst-case nested interrupt loading.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Timing &amp; Responsiveness</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Worst-Case Execution Time (WCET) profiler with DWT cycle counter.</td>
+                            <td style="padding: 0.75rem 1rem;">Every cooperative superloop task executes in &lt; 2.0 milliseconds.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem;"><strong>Hardware Watchdog</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Deliberate fault injection (induced infinite spin-loop).</td>
+                            <td style="padding: 0.75rem 1rem;">Watchdog resets chip cleanly within 1000 ms; actuators quench safely.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>25.4 Code Comparison: Chaotic Monolith vs. Integrated Architecture</h2>
+                <p>
+                    Observe the contrast between an ad-hoc firmware script and the unified reactive architecture.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Architecture: Industrial Sensor Node</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Chaotic Monolith (Spaghetti)</h4>
+                            <pre><code class="language-c">void main() {
+    init();
+    while (1) {
+        read_sensor();
+        delay_ms(1000); /* Stalls everything */
+        if (button_pressed) {
+            send_uart(); /* Drops if cable cuts */
+        }
+        /* Watchdog kicked inside ISR! */
+    }
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Flaws:</strong> Blocking delay blinds CPU, button events missed, unhandled communication freezes, watchdog improperly fed inside ISR, zero testability on host.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Integrated Reactive Architecture</h4>
+                            <pre><code class="language-c">int main(void) {
+    bsp_init();
+    while (1) {
+        while (event_queue_get(&amp;evt)) {
+            fsm_dispatch(&amp;g_fsm, &amp;evt);
+        }
+        bsp_watchdog_feed();
+        __WFI(); /* Low-power idle */
+    }
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Excellence:</strong> Zero blocking delays, lock-free SPSC event queues, deterministic FSM state transitions, bounded execution time, fully testable on PC.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>25.5 Interactive Knowledge Check</h2>
+                <p>Test your comprehensive mastery of integrated embedded C architecture across all 25 curriculum topics.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. In an event-driven integrated firmware architecture, what is the primary role of an Interrupt Service Routine (ISR)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To execute complete complex business algorithms and write to Flash memory.</li>
+                        <li class="mcq-option" data-correct="true">To execute immediate minimal hardware service, package the event into an SPSC queue, and exit rapidly in under a few microseconds.</li>
+                        <li class="mcq-option" data-correct="false">To wait in a 10 ms spin loop for sensor conversion.</li>
+                        <li class="mcq-option" data-correct="false">To format strings and print them over UART.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> ISRs must be ultra-short run-to-completion handlers that offload processing to the main loop via thread-safe queues.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. Why should the Hardware Watchdog Timer (IWDG) feed call be placed exclusively in the main superloop rather than an ISR?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because watchdogs can only be written from Thread mode.</li>
+                        <li class="mcq-option" data-correct="true">Feeding in an ISR is a critical flaw: an ISR will continue kicking the watchdog even if the main superloop or FSM is completely hung or deadlocked.</li>
+                        <li class="mcq-option" data-correct="false">Because watchdog registers cannot be accessed at high clock speeds.</li>
+                        <li class="mcq-option" data-correct="false">To reduce SRAM consumption.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Kicking the watchdog in the superloop verifies that all scheduled tasks are progressing and no task is blocked in an infinite spin-loop.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What is the fundamental advantage of host-based unit testing (e.g. using Unity on a PC) for embedded C firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It eliminates the need for compiling the code.</li>
+                        <li class="mcq-option" data-correct="true">It allows automated test suites to run thousands of state transitions, edge cases, and fault injections in seconds without physical microcontrollers.</li>
+                        <li class="mcq-option" data-correct="false">It increases Flash ROM size on the target chip.</li>
+                        <li class="mcq-option" data-correct="false">It generates PCB layout gerber files automatically.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Hardware abstraction lets developers test pure algorithmic and state logic on PCs within CI/CD pipelines at orders-of-magnitude faster speeds.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What happens when two's complement unsigned integer subtraction <code>(now - previous_time)</code> is calculated during a 32-bit timer rollover?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The MCU enters a HardFault exception.</li>
+                        <li class="mcq-option" data-correct="true">The subtraction wraps naturally modulo 2^32, producing the exact circular elapsed time without any conditional branching or error.</li>
+                        <li class="mcq-option" data-correct="false">The elapsed time becomes negative and crashes the loop.</li>
+                        <li class="mcq-option" data-correct="false">The SysTick interrupt vector is reset.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Unsigned subtraction is modular arithmetic: <code>(0x00000005 - 0xFFFFFFFA) = 11</code> ticks, guaranteeing drift-free, rollover-immune timing.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. Why does MISRA-C:2012 strictly ban dynamic memory allocation (<code>malloc</code>/<code>free</code>) in safety-critical firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">Heaps suffer from non-deterministic allocation latency, memory fragmentation, and unpredictable out-of-memory crash risks.</li>
+                        <li class="mcq-option" data-correct="false">Because microcontrollers lack physical SRAM.</li>
+                        <li class="mcq-option" data-correct="false">Because malloc only works with 8-bit integers.</li>
+                        <li class="mcq-option" data-correct="false">It causes the CPU clock frequency to decrease.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Real-time safety standards mandate static determinism. Dynamic memory heaps fragment over time, risking catastrophic allocation failure.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is the role of the <code>__WFI()</code> (Wait For Interrupt) instruction at the end of the cooperative superloop?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To restart the microcontroller.</li>
+                        <li class="mcq-option" data-correct="true">To halt the processor core clock until the next hardware interrupt fires, dramatically slashing dynamic power consumption during idle periods.</li>
+                        <li class="mcq-option" data-correct="false">To flush the compiler cache.</li>
+                        <li class="mcq-option" data-correct="false">To calibrate the internal RC oscillator.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>__WFI()</code> enters low-power sleep when no events remain in the queue. Any peripheral interrupt wakes the CPU instantly with zero latency penalty.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. How does the 4-tier layered architecture isolate silicon supply-chain disruptions?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">By storing the firmware in satellite networks.</li>
+                        <li class="mcq-option" data-correct="true">By confining all chip-specific register code to the BSP and HAL; replacing an MCU requires updating only Layers 3 and 4, leaving application logic intact.</li>
+                        <li class="mcq-option" data-correct="false">By eliminating the need for microcontrollers.</li>
+                        <li class="mcq-option" data-correct="false">By automatically redesigning the PCB.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Strict abstraction walls ensure that business logic and device drivers depend solely on abstract HAL interfaces, enabling painless silicon migration.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. In defensive C programming, why is every public pointer argument validated against <code>NULL</code> before dereferencing?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">Dereferencing a NULL pointer triggers an unrecoverable HardFault exception on ARM Cortex-M processors, freezing the core.</li>
+                        <li class="mcq-option" data-correct="false">To prevent the GCC optimizer from running.</li>
+                        <li class="mcq-option" data-correct="false">Because NULL pointers consume 64 KB of Flash.</li>
+                        <li class="mcq-option" data-correct="false">It is required only in C++ projects.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> On microcontrollers without MMUs, accessing address 0x00000000 triggers bus faults or reads vector tables, corrupting execution.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is the purpose of "Stack Watermarking" prior to releasing embedded software to production?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To stamp a digital copyright into Flash ROM.</li>
+                        <li class="mcq-option" data-correct="true">To measure the maximum historical stack consumption under peak system loads, mathematically proving that stack will never collide with global SRAM.</li>
+                        <li class="mcq-option" data-correct="false">To cool down the silicon die temperature.</li>
+                        <li class="mcq-option" data-correct="false">To compress RAM by 50%.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Watermarking with a pattern (e.g. 0xA5A5) reveals the exact deepest stack penetration, verifying safety margins against stack overflow.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. What defines a truly professional embedded C software engineer?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Someone who memorizes register addresses and writes 5,000-line main.c files in one night.</li>
+                        <li class="mcq-option" data-correct="true">An engineer who designs decoupled, deterministic, MISRA-compliant architectures with strict bounds checking, automated tests, and fail-safe recovery.</li>
+                        <li class="mcq-option" data-correct="false">Someone who relies on infinite blocking delays for all timing.</li>
+                        <li class="mcq-option" data-correct="false">Someone who ignores compiler warnings.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Embedded mastery is the rigorous discipline of building predictable, resilient, and maintainable systems that operate flawlessly in the physical world.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>25.6 Capstone Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 comprehensive capstone assignments to build, verify, and validate a production-ready embedded system.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Complete Capstone System Integration</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build and compile Program 25.1 into a target microcontroller. Connect a real or simulated temperature sensor and push button. Verify via an oscilloscope or logic analyzer that the main superloop sleeps in low-power WFI mode and wakes smoothly on each 100 ms tick and button press.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Host PC Mock System Simulation Harness</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Port the Capstone application to run on your host development PC using GCC. Implement mock BSP and HAL functions. Write an automated test scenario that injects 1,000 events (including simulated I2C bus lockups) and verifies that the FSM transitions cleanly without a single crash or memory leak.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Full Static MISRA-C Compliance Audit</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Run <code>cppcheck --addon=misra.py</code> across the entire integrated capstone project. Resolve all flagged issues until zero Mandatory or Required rule violations remain. Document any unavoidable hardware register deviations in a formal Markdown deviation report.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Worst-Case Execution Time (WCET) Profiling</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Instrument the main superloop using the ARM Cortex-M <code>DWT->CYCCNT</code> cycle counter. Measure the maximum execution time of each state action. Confirm that no task exceeds a 1.5 ms execution budget under peak event loading, verifying zero watchdog starvation.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Silicon Porting Verification</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take the Capstone project and re-target it to a different microcontroller family (or a separate simulator target). Demonstrate that only the <code>bsp/</code> and <code>hal/</code> directories require modification &mdash; the core application, FSM table, event queue, and sensor driver files remain 100% bit-for-bit identical.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Architecture</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Miro Samek</span>
+                            </div>
+                            <h4>Practical UML Statecharts in C/C++: Event-Driven Programming</h4>
+                            <p>The definitive guide to reactive active objects, hierarchical state machines, and event queues for real-time microcontrollers.</p>
+                            <a href="https://www.state-machine.com/psicc2" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Safety Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">MISRA Consortium</span>
+                            </div>
+                            <h4>MISRA Compliance: Achieving Compliance with MISRA Coding Standards</h4>
+                            <p>Official procedural guidance on deviation management, automated static analysis workflows, and safety case presentation.</p>
+                            <a href="https://www.misra.org.uk" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Benchmark</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Michael Barr</span>
+                            </div>
+                            <h4>Embedded C Coding Standard: Architectural Design Rules</h4>
+                            <p>Authoritative coding rules for multi-threaded safety, hardware encapsulation, and defensive programming in commercial firmware.</p>
+                            <a href="https://barrgroup.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_24.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 24: App, Driver, HAL &amp; BSP</span>
+                </a>
+                <a href="project_05.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Project 5: Module 5 Milestone</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

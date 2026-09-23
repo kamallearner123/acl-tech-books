@@ -1,1 +1,651 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Naming Conventions</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_15.html">Naming Conventions</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 15</span><h1>Naming Conventions</h1><p>Names are part of the interface. Use nouns for objects and verbs for actions, include units such as <code>timeout_ms</code> and <code>voltage_mv</code>, avoid unexplained abbreviations, and use consistent casing for types, functions, constants, and macros.</p><p>Good names reduce review time and expose assumptions before code executes.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_14.html">Non-Blocking Design</a><a class="nav-button next" href="topic_16.html">Defensive Programming</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 15: Naming Conventions &amp; Style - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li class="active"><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 15</span>
+                <h1>Naming Conventions &amp; Code Style</h1>
+
+                <p>
+                    In safety-critical firmware engineering, naming conventions and coding style are not cosmetic matters of personal preference; they are rigorous risk-mitigation instruments. Ambiguous identifiers, omitted physical units, and inconsistent scoping indicators directly cause hardware destruction, buffer overflows, and critical flight software failures.
+                </p>
+
+                <p>
+                    This chapter examines the canonical standards governing embedded C identifiers, with primary reference to the <strong>Barr Group Embedded C Coding Standard</strong> and <strong>MISRA-C:2012</strong>. We establish precise syntactic and semantic rules for global and local variables, pointer mechanics, function hierarchies, macros, and hardware register mappings.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 15.1 -->
+                <h2>15.1 The Cognitive Tax of Inconsistent Naming</h2>
+                <p>
+                    Microcontroller firmware directly controls electrical actuators, high-voltage relays, RF transceivers, and lithium battery charging circuits. Consider the catastrophic ambiguity in the following snippet:
+                </p>
+
+                <pre><code class="language-c">/* DANGEROUS CODE: What do these variables represent? */
+uint32_t val = 50;
+uint16_t temp = read_temp();
+set_valve(1);
+wait(val);</code></pre>
+
+                <p>
+                    Analyzing the failure modes embedded in this trivial example:
+                </p>
+                <ul>
+                    <li>Is <code>val</code> measured in milliseconds, microseconds, or timer clock ticks? A 1000&times; error will either melt an actuator or cause a communication timeout.</li>
+                    <li>Is <code>temp</code> raw ADC counts (0–4095), degrees Celsius, or hundredths of a Kelvin?</li>
+                    <li>Does <code>set_valve(1)</code> open the valve (active-high logic) or close it (active-low hardware pull-down)?</li>
+                    <li>Is <code>read_temp()</code> a driver function, a local static function, or an exported HAL routine?</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 15.2 -->
+                <h2>15.2 The Rule of Explicit Physical Units</h2>
+                <p>
+                    Every variable or constant representing a physical engineering quantity <strong>must</strong> incorporate the unit of measurement as an explicit suffix in its identifier.
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background-color: var(--sidebar-bg);">
+                            <th style="padding: 0.75rem 1rem;">Quantity</th>
+                            <th style="padding: 0.75rem 1rem;">Mandatory Suffix</th>
+                            <th style="padding: 0.75rem 1rem;">Compliant Example</th>
+                            <th style="padding: 0.75rem 1rem;">Dangerous Non-Compliant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Time (Milliseconds)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_ms</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>timeout_ms</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>timeout</code></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Time (Microseconds)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_us</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>pulse_width_us</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>pulse_len</code></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Voltage (Millivolts)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_mv</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>battery_voltage_mv</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>vbat</code></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Current (Milliamps)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_ma</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>charge_current_ma</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>current</code></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Temperature (Celsius)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_degc</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>heatsink_temp_degc</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>temp</code></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;">Frequency (Hertz / kHz)</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_hz</code> / <code>_khz</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>pwm_frequency_hz</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>frequency</code></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem;">Rotational Speed</td>
+                            <td style="padding: 0.75rem 1rem;"><code>_rpm</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>motor_speed_rpm</code></td>
+                            <td style="padding: 0.75rem 1rem;"><code>speed</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info" style="margin: 1.5rem 0;">
+                    <h4 style="margin-top:0;">Case Study: The $327 Million Mars Climate Orbiter Loss</h4>
+                    <p>
+                        On September 23, 1999, NASA lost the Mars Climate Orbiter spacecraft as it attempted orbital insertion. The failure was traced to a software module from Lockheed Martin calculating thruster impulse in United States customary units (Pound-force seconds, <code>lbf*s</code>) while the navigation software developed by the Jet Propulsion Laboratory (JPL) expected metric units (Newton-seconds, <code>N*s</code>). Consistent physical unit suffixes such as <code>impulse_ns</code> and <code>impulse_lbfs</code> would have made this discrepancy instantly apparent during code inspection.
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 15.3 -->
+                <h2>15.3 Scope &amp; Storage Prefixes</h2>
+                <p>
+                    In procedural C, identifiers should immediately reveal their storage class and lifetime without requiring the engineer to scroll to the top of a file or search external header files.
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 220" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <rect x="30" y="25" width="220" height="80" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+                        <text x="140" y="55" fill="#f8fafc" font-size="14" font-weight="700" text-anchor="middle">g_ Identifier Prefix</text>
+                        <text x="140" y="75" fill="#94a3b8" font-size="11" text-anchor="middle">Global (Extern) Scope</text>
+                        <text x="140" y="93" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">extern uint32_t g_system_tick;</text>
+
+                        <rect x="290" y="25" width="220" height="80" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="400" y="55" fill="#f8fafc" font-size="14" font-weight="700" text-anchor="middle">s_ Identifier Prefix</text>
+                        <text x="400" y="75" fill="#94a3b8" font-size="11" text-anchor="middle">Static File-Scope Private</text>
+                        <text x="400" y="93" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">static uint8_t s_rx_buffer[64];</text>
+
+                        <rect x="550" y="25" width="220" height="80" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="660" y="55" fill="#f8fafc" font-size="14" font-weight="700" text-anchor="middle">No Prefix / Local</text>
+                        <text x="660" y="75" fill="#94a3b8" font-size="11" text-anchor="middle">Stack Variable / Local</text>
+                        <text x="660" y="93" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">uint32_t elapsed_ms = 0;</text>
+
+                        <!-- Pointers row -->
+                        <rect x="160" y="125" width="220" height="75" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="270" y="150" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">p_ or Pointer Suffix</text>
+                        <text x="270" y="170" fill="#94a3b8" font-size="11" text-anchor="middle">Pointer Variables</text>
+                        <text x="270" y="188" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">uint8_t *p_data_buf;</text>
+
+                        <rect x="420" y="125" width="220" height="75" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                        <text x="530" y="150" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">_t Type Suffix</text>
+                        <text x="530" y="170" fill="#94a3b8" font-size="11" text-anchor="middle">Typedefs / Enums / Structs</text>
+                        <text x="530" y="188" fill="#cbd5e1" font-size="10" font-family="monospace" text-anchor="middle">typedef struct SystemConfig_t;</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 15.1: Identifier Scope and Type Encoding Taxonomy</div>
+                </div>
+
+                <h3>Barr Group Identifier Rules</h3>
+                <ul>
+                    <li><code>g_</code>: Global variable across translation units (declared in header as <code>extern</code>). Must be minimized.</li>
+                    <li><code>s_</code>: File-scope private variable (declared with <code>static</code> keyword).</li>
+                    <li><code>p_</code>: Explicit pointer variable, e.g., <code>uint8_t *p_tx_buffer</code>.</li>
+                    <li><code>_t</code>: Explicit type definition, e.g., <code>typedef struct SensorConfig_t SensorConfig_t;</code>.</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 15.4 -->
+                <h2>15.4 Function Naming Hierarchy: Module_Noun_Verb</h2>
+                <p>
+                    Procedural C has no object-oriented namespaces. To prevent symbol collisions when integrating multiple third-party or team drivers, public functions must follow the strict <strong>Module_Noun_Verb()</strong> grammar:
+                </p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.25rem 1.5rem; border-radius: 8px; margin: 1.5rem 0; border: 1px solid var(--border-color); font-family: var(--font-mono);">
+                    <span style="color: #3b82f6; font-weight: bold;">[MODULE]</span>_<span style="color: #10b981; font-weight: bold;">[SUBSYSTEM]</span>_<span style="color: #f59e0b; font-weight: bold;">[ACTION]</span>(<span style="color: #94a3b8;">parameters</span>)
+                </div>
+
+                <pre><code class="language-c">/* Good: Follows hierarchical namespace convention */
+bool   uart_rx_fifo_is_empty(void);
+void   flash_sector_erase(uint32_t sector_address);
+int32_t adc_channel_read_mv(uint8_t channel_id);
+void   motor_pid_compute(MotorHandle_t *p_handle);
+
+/* Bad: Vague, ambiguous, prone to symbol conflicts */
+bool   is_empty(void);          /* Conflict with queue or stack! */
+void   erase(uint32_t addr);    /* Erase what? RAM? Flash? EEPROM? */
+int32_t read(uint8_t ch);       /* Conflicts with POSIX read() syscall! */</code></pre>
+                <div class="code-caption">Program 15.1: Architectural Function Naming Conventions</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 15.5 -->
+                <h2>15.5 Macros, Constants &amp; Enumerations</h2>
+                <p>
+                    Preprocessor constants and macro functions must always be written in <code>UPPER_SNAKE_CASE</code>. Additionally, macros must follow strict defensive wrapping rules:
+                </p>
+
+                <pre><code class="language-c">/* Constants */
+#define SYSTEM_CLOCK_FREQ_HZ    (168000000UL)
+#define UART_BAUD_RATE_BPS      (115200U)
+#define I2C_TIMEOUT_LIMIT_MS    (50U)
+
+/* Macro Functions: ALWAYS parenthesize every argument and the entire expression */
+#define ARRAY_SIZE(arr)         (sizeof(arr) / sizeof((arr)[0]))
+#define MIN_VAL(a, b)           (((a) &lt; (b)) ? (a) : (b))
+
+/* Multi-statement macros MUST use do { ... } while(0) */
+#define CRITICAL_PULSE_PIN(pin) \
+    do {                        \
+        GPIO_SetHigh(pin);      \
+        __NOP();                \
+        GPIO_SetLow(pin);       \
+    } while (0)</code></pre>
+                <div class="code-caption">Program 15.2: Safe Preprocessor Macro Style and Guard Patterns</div>
+
+                <div class="callout callout-warning" style="margin: 1.5rem 0;">
+                    <h4 style="margin-top:0;">Why `do { ... } while (0)` is Mandatory</h4>
+                    <p>
+                        If a macro with multiple statements is written as <code>#define FOO() { a(); b(); }</code> and used in an <code>if-else</code> construct:
+                    </p>
+                    <pre><code class="language-c">if (condition)
+    FOO();
+else
+    bar();</code></pre>
+                    <p>
+                        The trailing semicolon after <code>FOO();</code> expands into <code>{ a(); b(); }; else bar();</code>. The semicolon before <code>else</code> causes a compile-time syntax error (broken if-else pairing) or worse, silent logic truncation! Wrapping in <code>do { ... } while (0)</code> ensures the macro behaves syntactically as a single statement requiring a semicolon.
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>15.6 Code Comparison: Fragile vs. Barr-Standard Compliant Style</h2>
+                <p>
+                    Compare an actual embedded driver written without conventions against the same module refactored under Barr Group and MISRA-C rules.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Driver Style: Temperature Sensor Acquisition</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Non-Compliant &amp; Fragile</h4>
+                            <pre><code class="language-c">/* No units, global pollution, ambiguous names */
+int val;
+int stat;
+
+int get_data(int c) {
+    if (c == 0) {
+        val = read_adc();
+        stat = 1;
+        return val;
+    }
+    return -1;
+}
+
+#define DELAY 500
+void run() {
+    int t = get_data(0);
+    delay(DELAY);
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Flaws:</strong> Bare <code>int</code> (unspecified bit-width), untyped magic numbers, no physical units (is DELAY ms or us?), dangerous global variables without scope prefix.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Barr-Standard &amp; MISRA Compliant</h4>
+                            <pre><code class="language-c">#define SENSOR_POLL_INTERVAL_MS  (500U)
+
+typedef enum {
+    SENSOR_STATUS_OK,
+    SENSOR_STATUS_TIMEOUT,
+    SENSOR_STATUS_PARAM_ERR
+} SensorStatus_t;
+
+static uint16_t s_latest_temp_raw = 0U;
+
+SensorStatus_t sensor_temp_read_mdegc(
+    const uint8_t channel_idx,
+    int32_t * const p_temp_mdegc) 
+{
+    if ((p_temp_mdegc == NULL) || (channel_idx &gt; 3U)) {
+        return SENSOR_STATUS_PARAM_ERR;
+    }
+    s_latest_temp_raw = bsp_adc_channel_read(channel_idx);
+    *p_temp_mdegc = ((int32_t)s_latest_temp_raw * 1000) / 4096;
+    return SENSOR_STATUS_OK;
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Safety:</strong> Explicit fixed-width types, unit suffix (<code>_mdegc</code> for millidegrees Celsius), pointer qualification, status return enum, static storage prefix.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>15.7 Interactive Knowledge Check</h2>
+                <p>Test your knowledge of professional embedded C style rules and naming standards.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. Why should a variable representing a duration always include a suffix like <code>_ms</code> or <code>_us</code>?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To assist the compiler's register allocator in selecting a 64-bit register.</li>
+                        <li class="mcq-option" data-correct="true">To make the physical unit explicit, preventing order-of-magnitude timing mistakes in motor controllers and communication drivers.</li>
+                        <li class="mcq-option" data-correct="false">Because the C99 standard rejects variable names without underscores.</li>
+                        <li class="mcq-option" data-correct="false">To enable automatic unit conversion in GDB.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Missing units are a primary source of embedded bugs (e.g. passing a microsecond value to a function expecting milliseconds). Suffixes eliminate ambiguity at inspection time.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. Under the Barr Group Embedded C Coding Standard, what does the <code>s_</code> prefix signify on an identifier?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A signed integer.</li>
+                        <li class="mcq-option" data-correct="true">A static variable with file-scope lifetime and visibility restricted to the current translation unit.</li>
+                        <li class="mcq-option" data-correct="false">A string buffer stored in Flash memory.</li>
+                        <li class="mcq-option" data-correct="false">A semaphore synchronization primitive.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>s_</code> designates module-scoped static variables, alerting any engineer that the variable persists across function calls but is internal to that <code>.c</code> file.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What is the fundamental problem with defining a multi-statement macro as: <code>#define LED_OFF() GPIO_Low(); delay_ms(1);</code>?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">In an <code>if (cond) LED_OFF();</code> statement without braces, <code>delay_ms(1)</code> will execute unconditionally regardless of the condition.</li>
+                        <li class="mcq-option" data-correct="false">The compiler will reject macros that call functions.</li>
+                        <li class="mcq-option" data-correct="false">Flash memory size will double.</li>
+                        <li class="mcq-option" data-correct="false">The SysTick interrupt will be permanently disabled.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Without encapsulation in <code>do { ... } while(0)</code>, only the first statement belongs to the <code>if</code> block; subsequent statements run unconditionally outside the branch.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What naming convention should be applied to public functions in a modular C peripheral driver?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">CamelCase with the author's initials: <code>kmWriteByte()</code>.</li>
+                        <li class="mcq-option" data-correct="true">Hierarchical <code>Module_Noun_Verb()</code>: e.g., <code>spi_flash_sector_erase()</code>.</li>
+                        <li class="mcq-option" data-correct="false">Short abbreviated names under 4 characters: <code>sfse()</code>.</li>
+                        <li class="mcq-option" data-correct="false">All uppercase letters: <code>SPI_FLASH_ERASE()</code>.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> The <code>module_subsystem_action()</code> convention provides procedural namespacing, preventing link-time collisions when integrating multiple drivers.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. Why does MISRA-C advise against typedefing pointer types directly (e.g. <code>typedef uint8_t* BufferPtr_t;</code>)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because 64-bit pointers cannot be held in typedefs.</li>
+                        <li class="mcq-option" data-correct="true">Because it obscures pointer dereference semantics and makes <code>const</code> qualification confusing and error-prone.</li>
+                        <li class="mcq-option" data-correct="false">Because typedefs are not recognized by C linkers.</li>
+                        <li class="mcq-option" data-correct="false">Because it consumes extra SRAM at runtime.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Hiding pointer indirection behind a typedef obscures whether <code>const BufferPtr_t</code> makes the pointer constant or the pointee data constant, causing dangerous aliasing bugs.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is the standard suffix for user-defined types (structs, unions, enums) in embedded C?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false"><code>_obj</code></li>
+                        <li class="mcq-option" data-correct="true"><code>_t</code> (or <code>_type</code>)</li>
+                        <li class="mcq-option" data-correct="false"><code>_var</code></li>
+                        <li class="mcq-option" data-correct="false"><code>_p</code></li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> The <code>_t</code> suffix universally denotes a type definition, distinguishing type identifiers from variable and function instances.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. Why is <code>#define TIMEOUT 100 + 50</code> dangerous when used in <code>uint32_t total = TIMEOUT * 2;</code>?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">Operator precedence causes it to expand as <code>100 + 50 * 2 = 200</code> instead of <code>(100 + 50) * 2 = 300</code>.</li>
+                        <li class="mcq-option" data-correct="false">The preprocessor converts addition to bitwise OR.</li>
+                        <li class="mcq-option" data-correct="false">The expression overflows an 8-bit register.</li>
+                        <li class="mcq-option" data-correct="false">C preprocessors cannot perform arithmetic addition.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Macros perform raw textual substitution without precedence. Unparenthesized mathematical expressions in macros lead to catastrophic precedence calculation errors.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. In active-low signal hardware design (e.g. an active-low reset pin or active-low LED), how should the signal be named in firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It should always be named <code>PIN_POSITIVE</code>.</li>
+                        <li class="mcq-option" data-correct="true">It should include an explicit active-low suffix such as <code>_n</code>, <code>_low</code>, or <code>_inv</code> (e.g., <code>RESET_N_PIN</code>).</li>
+                        <li class="mcq-option" data-correct="false">Active-low signals cannot be represented in C.</li>
+                        <li class="mcq-option" data-correct="false">All digital pins must be inverted twice in the preprocessor.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Suffixes like <code>_n</code> or <code>_low</code> alert firmware engineers that writing a logical <code>0</code> activates the peripheral, preventing reverse electrical behavior.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is the recommended casing convention for enumeration constants in professional embedded C?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">camelCase, e.g. <code>stateIdle</code>.</li>
+                        <li class="mcq-option" data-correct="true"><code>UPPER_SNAKE_CASE</code> with a shared module prefix, e.g. <code>FSM_STATE_IDLE</code>.</li>
+                        <li class="mcq-option" data-correct="false">kebab-case, e.g. <code>fsm-state-idle</code>.</li>
+                        <li class="mcq-option" data-correct="false">All lowercase without spaces, e.g. <code>fsmstateidle</code>.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Prefixing enum values with their enum category in uppercase (e.g. <code>UART_ERR_PARITY</code>, <code>UART_ERR_OVERRUN</code>) prevents name clashes and clarifies context.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. Why should a global variable declared in a header file always be prefixed with <code>extern</code> and never initialized in the header?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because uninitialized globals are placed in Flash memory.</li>
+                        <li class="mcq-option" data-correct="true">Initializing a variable in a header causes multiple-definition linker errors when included in more than one translation unit.</li>
+                        <li class="mcq-option" data-correct="false">Because GCC does not support global variables in C99.</li>
+                        <li class="mcq-option" data-correct="false">Because <code>extern</code> variables do not consume RAM.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> <code>extern</code> declares a symbol without defining storage. Initializing in a header creates a storage definition in every file including it, triggering link-time duplicate symbol errors.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>15.8 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to audit, refactor, and enforce coding standards across embedded codebases.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Legacy Codebase Naming Audit</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take a legacy 200-line driver containing bare identifiers (<code>t</code>, <code>val</code>, <code>flag</code>, <code>delay()</code>). Conduct an audit identifying every ambiguous physical unit and scope violation. Refactor all identifiers into strict Barr-compliant names with <code>_ms</code>, <code>_mv</code>, and scope prefixes.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Macro Safety &amp; Parenthesis Audit</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a header containing 5 complex arithmetic and bit-manipulation macros. Intentionally remove parentheses in one macro and demonstrate in a test harness how operator precedence produces erroneous values. Rewrite all 5 macros using complete defensive parenthesization and <code>do { ... } while(0)</code> blocks.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Active-Low Hardware Mapping</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a Board Support Package (BSP) GPIO header for a development board with 2 active-low LEDs and 2 active-low pushbuttons. Design an API where the active-low electrical logic is encapsulated behind expressive enum names (<code>LED_STATE_ON</code>, <code>LED_STATE_OFF</code>) so application code never deals with inverted boolean logic.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Automated Style Enforcement with Clang-Format</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a production <code>.clang-format</code> configuration file enforcing: 4-space indentation, no tabs, braces on new lines for functions (Allman style), column limit of 100 characters, and pointer alignment to the right (<code>uint8_t *ptr</code>). Run <code>clang-format</code> across your source directory and verify zero warnings.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Prefix Collision Elimination</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build two independent C drivers: <code>display_oled.c</code> and <code>storage_eeprom.c</code>. Both require an internal circular buffer and an initialization routine. Implement strict <code>oled_</code> and <code>eeprom_</code> prefixing to prove that both drivers compile and link into the same binary without any symbol conflict.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Benchmark</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Michael Barr</span>
+                            </div>
+                            <h4>Barr Group Embedded C Coding Standard</h4>
+                            <p>The global industry standard for embedded software naming rules, statement formatting, and preprocessor hygiene.</p>
+                            <a href="https://barrgroup.com/embedded-systems/books/embedded-c-coding-standard" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Safety Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">MISRA Consortium</span>
+                            </div>
+                            <h4>MISRA-C:2012 Guidelines for the Use of the C Language</h4>
+                            <p>Authoritative safety standard defining rules for identifier uniqueness, type definitions, and macro constructs in critical systems.</p>
+                            <a href="https://www.misra.org.uk" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">NASA Technical Report</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">NASA Office of Inspector General</span>
+                            </div>
+                            <h4>Mars Climate Orbiter Mishap Investigation Board Report</h4>
+                            <p>Official investigation detailing how inconsistent physical measurement units in software caused the loss of the Mars orbiter.</p>
+                            <a href="https://ntrs.nasa.gov" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="project_03.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Project 3: Module 3 Milestone</span>
+                </a>
+                <a href="topic_16.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 16: Defensive Programming</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

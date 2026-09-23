@@ -1,1 +1,679 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>States Events and Transitions</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_19.html">States, Events &amp; Transitions</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 19</span><h1>States, Events, and Transitions</h1><p>A state is a stable operating mode. An event is an input. A transition is the rule that maps the current state and event to the next state.</p><pre><code>next_state = transition(current_state, event);</code></pre><p>Use named enums and explicit transition functions so behavior is reviewable and testable.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_18.html">MISRA-C</a><a class="nav-button next" href="topic_20.html">State Tables &amp; FSMs</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 19: States, Events &amp; Transitions - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li class="active"><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 19</span>
+                <h1>States, Events &amp; Transitions</h1>
+
+                <p>
+                    When firmware requirements expand, unstructured code invariably degenerates into a tangled web of ad-hoc boolean flags: <code>is_started</code>, <code>tx_busy</code>, <code>sensor_ready</code>, <code>btn_pressed_flag</code>. With just 10 boolean flags, the system possesses $2^{10} = 1024$ theoretically possible state combinations &mdash; the overwhelming majority of which represent invalid, untested, or dangerous machine conditions.
+                </p>
+
+                <p>
+                    The antidote to boolean flag chaos is formal <strong>Automata Theory</strong>. By modeling firmware behavior as a <strong>Finite-State Machine (FSM)</strong>, we partition system operation into a finite set of mutually exclusive <em>States</em>, reacting to external <em>Events</em> through well-defined <em>Transitions</em> governed by explicit <em>Guards</em> and executing predictable <em>Actions</em>.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 19.1 -->
+                <h2>19.1 The FSM Formal Model</h2>
+                <p>
+                    Mathematically, a finite-state machine is defined as a 5-tuple $(S, \Sigma, \delta, s_0, F)$:
+                </p>
+                <ul>
+                    <li>$S$: A finite, non-empty set of <strong>States</strong>.</li>
+                    <li>$\Sigma$: A finite set of inputs or <strong>Events</strong> (the input alphabet).</li>
+                    <li>$\delta$: The <strong>Transition Function</strong> mapping $(S \times \Sigma) \rightarrow S$.</li>
+                    <li>$s_0$: The initial start state ($s_0 \in S$).</li>
+                    <li>$F$: The set of final or terminal states (often empty in continuously running embedded superloops).</li>
+                </ul>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 800 240" class="responsive-diagram" style="width: 100%; height: auto; max-width: 800px; display: block; margin: 0 auto;">
+                        <circle cx="120" cy="110" r="50" fill="#1e293b" stroke="#3b82f6" stroke-width="3"/>
+                        <text x="120" y="105" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">STATE A</text>
+                        <text x="120" y="125" fill="#94a3b8" font-size="10" text-anchor="middle">IDLE</text>
+
+                        <!-- Transition Arrow -->
+                        <path d="M 170 100 Q 300 40 430 100" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="300" y="60" fill="#fde68a" font-size="11" font-weight="600" text-anchor="middle">EVENT_START [temp &lt; 50&deg;C] / start_motor()</text>
+
+                        <circle cx="480" cy="110" r="50" fill="#1e293b" stroke="#10b981" stroke-width="3"/>
+                        <text x="480" y="105" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">STATE B</text>
+                        <text x="480" y="125" fill="#94a3b8" font-size="10" text-anchor="middle">RUNNING</text>
+
+                        <!-- Return Transition Arrow -->
+                        <path d="M 430 125 Q 300 185 170 125" fill="none" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="300" y="175" fill="#fca5a5" font-size="11" font-weight="600" text-anchor="middle">EVENT_STOP / stop_motor()</text>
+
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 19.1: Anatomy of a State Transition: Event [Guard] / Action</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 19.2 -->
+                <h2>19.2 Moore vs. Mealy Automata</h2>
+                <p>
+                    When mapping real-world physical outputs (solenoids, heater PWM, LEDs) to an FSM, the timing of output generation determines the machine architecture:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background-color: var(--sidebar-bg);">
+                            <th style="padding: 0.75rem 1rem;">Attribute</th>
+                            <th style="padding: 0.75rem 1rem;">Moore Machine</th>
+                            <th style="padding: 0.75rem 1rem;">Mealy Machine</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Output Dependency</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Outputs depend <strong>solely on the current state</strong>.</td>
+                            <td style="padding: 0.75rem 1rem;">Outputs depend on <strong>both current state AND the incoming event</strong>.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Action Timing</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Executed on State Entry (Entry Action) or during state dwell.</td>
+                            <td style="padding: 0.75rem 1rem;">Executed on the Transition arc between states.</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 1rem;"><strong>Glitch Vulnerability</strong></td>
+                            <td style="padding: 0.75rem 1rem;"><strong>Immune to input glitches.</strong> Outputs change only when state officially transitions.</td>
+                            <td style="padding: 0.75rem 1rem;">Vulnerable to transient input bounce if events are noisy.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 1rem;"><strong>State Count</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Often requires more states to represent distinct output combinations.</td>
+                            <td style="padding: 0.75rem 1rem;">Often requires fewer states; transitions handle output variations.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout callout-info" style="margin: 1.5rem 0;">
+                    <h4 style="margin-top:0;">Best Practice in Embedded Hardware Control</h4>
+                    <p>
+                        In safety-critical firmware, <strong>Moore machines are strongly preferred</strong> for hardware actuators. Because physical pins (e.g. <code>RELAY_PIN</code>) are updated strictly upon entering a verified state, spurious transitions or noisy inputs cannot briefly toggle an actuator mid-cycle.
+                    </p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 19.3 -->
+                <h2>19.3 Implementing FSMs in C: The Switch-Case Pattern</h2>
+                <p>
+                    The most intuitive, maintainable, and compiler-optimizable implementation of a state machine in embedded C is the structured <strong>nested switch-case</strong> pattern:
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* 1. Explicit State Enumeration */
+typedef enum {
+    PUMP_STATE_STOPPED = 0,
+    PUMP_STATE_PRIMING,
+    PUMP_STATE_RUNNING,
+    PUMP_STATE_FAULT
+} PumpState_t;
+
+/* 2. Explicit Event Enumeration */
+typedef enum {
+    EVENT_START_CMD,
+    EVENT_STOP_CMD,
+    EVENT_PRESSURE_OK,
+    EVENT_PRESSURE_LOST,
+    EVENT_TIMEOUT
+} PumpEvent_t;
+
+/* 3. Event Structure with Optional Payload */
+typedef struct {
+    PumpEvent_t signal;
+    uint32_t    param;
+} Event_t;
+
+static PumpState_t s_current_state = PUMP_STATE_STOPPED;
+static uint32_t    s_state_entry_time = 0U;
+
+void pump_fsm_dispatch(const Event_t * const p_evt) {
+    if (p_evt == NULL) {
+        return;
+    }
+
+    switch (s_current_state) {
+        case PUMP_STATE_STOPPED:
+            if (p_evt-&gt;signal == EVENT_START_CMD) {
+                /* Action on transition */
+                bsp_valve_open();
+                s_state_entry_time = millis();
+                s_current_state = PUMP_STATE_PRIMING;
+            }
+            break;
+
+        case PUMP_STATE_PRIMING:
+            if (p_evt-&gt;signal == EVENT_PRESSURE_OK) {
+                bsp_motor_start();
+                s_current_state = PUMP_STATE_RUNNING;
+            } else if (p_evt-&gt;signal == EVENT_TIMEOUT) {
+                bsp_valve_close();
+                bsp_alarm_strobe();
+                s_current_state = PUMP_STATE_FAULT;
+            } else if (p_evt-&gt;signal == EVENT_STOP_CMD) {
+                bsp_valve_close();
+                s_current_state = PUMP_STATE_STOPPED;
+            }
+            break;
+
+        case PUMP_STATE_RUNNING:
+            if ((p_evt-&gt;signal == EVENT_STOP_CMD) || (p_evt-&gt;signal == EVENT_PRESSURE_LOST)) {
+                bsp_motor_stop();
+                bsp_valve_close();
+                s_current_state = (p_evt-&gt;signal == EVENT_STOP_CMD) ? 
+                                   PUMP_STATE_STOPPED : PUMP_STATE_FAULT;
+            }
+            break;
+
+        case PUMP_STATE_FAULT:
+            if (p_evt-&gt;signal == EVENT_STOP_CMD) {
+                /* Acknowledge fault and reset */
+                s_current_state = PUMP_STATE_STOPPED;
+            }
+            break;
+
+        default:
+            /* Defensive recovery from corrupt state */
+            bsp_motor_stop();
+            bsp_valve_close();
+            s_current_state = PUMP_STATE_FAULT;
+            break;
+    }
+}</code></pre>
+                <div class="code-caption">Program 19.1: Deterministic Nested Switch-Case FSM Engine</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 19.4 -->
+                <h2>19.4 State Transition Tables (State Matrices)</h2>
+                <p>
+                    Before writing any C code, safety standards require constructing a <strong>State Transition Matrix</strong>. This ensures that every possible combination of (State &times; Event) is analyzed, eliminating unhandled events:
+                </p>
+
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background-color: var(--sidebar-bg);">
+                            <th style="padding: 0.75rem 0.5rem;">Current State</th>
+                            <th style="padding: 0.75rem 0.5rem;">EVENT_START</th>
+                            <th style="padding: 0.75rem 0.5rem;">EVENT_STOP</th>
+                            <th style="padding: 0.75rem 0.5rem;">EVENT_PRESSURE_OK</th>
+                            <th style="padding: 0.75rem 0.5rem;">EVENT_TIMEOUT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 0.5rem;"><strong>STOPPED</strong></td>
+                            <td style="padding: 0.75rem 0.5rem; color: #10b981;">&rarr; PRIMING</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 0.5rem;"><strong>PRIMING</strong></td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: #3b82f6;">&rarr; STOPPED</td>
+                            <td style="padding: 0.75rem 0.5rem; color: #10b981;">&rarr; RUNNING</td>
+                            <td style="padding: 0.75rem 0.5rem; color: #ef4444;">&rarr; FAULT</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 0.75rem 0.5rem;"><strong>RUNNING</strong></td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: #3b82f6;">&rarr; STOPPED</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem 0.5rem;"><strong>FAULT</strong></td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: #3b82f6;">&rarr; STOPPED</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                            <td style="padding: 0.75rem 0.5rem; color: var(--text-muted);">Ignore</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe Section -->
+                <h2>19.5 Code Comparison: Flag Chaos vs. Structured FSM</h2>
+                <p>
+                    Compare an ad-hoc flag-based implementation with a clean state machine.
+                </p>
+
+                <details class="code-comparison" open>
+                    <summary><strong>Compare Control Logic: Microwave Oven Controller</strong></summary>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <h4 style="color: #ef4444; margin-top: 0;">❌ Spaghetti Boolean Flags</h4>
+                            <pre><code class="language-c">bool door_open = false;
+bool cooking = false;
+bool paused = false;
+
+void on_door_open() {
+    door_open = true;
+    if (cooking) {
+        paused = true;
+        magnetron_off();
+    }
+}
+void on_start() {
+    /* What if door is open AND paused? */
+    if (!door_open || paused) {
+        cooking = true;
+        magnetron_on();
+    }
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Hazard:</strong> Contradictory flag states (e.g. <code>door_open == true</code> and <code>cooking == true</code>) can occur during edge cases, causing physical hazard.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 style="color: #10b981; margin-top: 0;">✔ Mutually Exclusive FSM</h4>
+                            <pre><code class="language-c">typedef enum { 
+    STATE_DOOR_OPEN, 
+    STATE_IDLE, 
+    STATE_COOKING, 
+    STATE_PAUSED 
+} OvenState_t;
+
+void oven_fsm_step(Event_t evt) {
+    switch (s_state) {
+        case STATE_DOOR_OPEN:
+            if (evt == EVT_DOOR_CLOSED) 
+                s_state = STATE_IDLE;
+            break;
+        case STATE_COOKING:
+            if (evt == EVT_DOOR_OPENED) {
+                magnetron_off();
+                s_state = STATE_PAUSED;
+            }
+            break;
+        /* Impossible to cook with door open! */
+    }
+}</code></pre>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                <strong>Safety:</strong> States are mathematically mutually exclusive. The magnetron can never be activated while the door is open.
+                            </p>
+                        </div>
+                    </div>
+                </details>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Interactive Quiz (10 MCQs) -->
+                <h2>19.6 Interactive Knowledge Check</h2>
+                <p>Test your understanding of finite-state automata, Moore/Mealy models, and state matrix mechanics.</p>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        1. What is the fundamental difference between a Moore machine and a Mealy machine?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A Moore machine uses 32-bit registers; a Mealy machine uses 16-bit registers.</li>
+                        <li class="mcq-option" data-correct="true">In a Moore machine, outputs depend solely on the current state; in a Mealy machine, outputs depend on both the current state and the incoming event.</li>
+                        <li class="mcq-option" data-correct="false">A Moore machine can have infinite states; a Mealy machine has only one.</li>
+                        <li class="mcq-option" data-correct="false">Mealy machines cannot be programmed in C.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Moore outputs are tied strictly to state residency (entry actions), making them inherently glitch-free and highly predictable for physical hardware actuators.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        2. If a system has 6 independent boolean flags controlling operational logic, how many total state combinations can theoretically exist?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">6</li>
+                        <li class="mcq-option" data-correct="false">12</li>
+                        <li class="mcq-option" data-correct="true">64 (2^6)</li>
+                        <li class="mcq-option" data-correct="false">36</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Boolean flags create an exponential state space ($2^N$). Unstructured code rarely handles the vast majority of illegal flag combinations.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        3. What is a "Guard Condition" on a state transition?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A watchdog timer that resets the CPU.</li>
+                        <li class="mcq-option" data-correct="true">A boolean predicate that must evaluate to TRUE for the transition to fire when the event occurs.</li>
+                        <li class="mcq-option" data-correct="false">A memory protection unit (MPU) rule.</li>
+                        <li class="mcq-option" data-correct="false">A compiler optimization barrier.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> In UML notation `EVENT [Guard] / Action`, the transition only fires if the event matches AND the guard evaluates to true (e.g. `[temperature &lt; 100]`).
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        4. What is the benefit of a "State Transition Matrix" during the design phase of safety-critical firmware?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It calculates the PCB manufacturing cost.</li>
+                        <li class="mcq-option" data-correct="true">It forces the engineer to exhaustively examine every (State &times; Event) combination, guaranteeing no unhandled events exist.</li>
+                        <li class="mcq-option" data-correct="false">It allows the CPU to run without a clock crystal.</li>
+                        <li class="mcq-option" data-correct="false">It compresses Flash ROM size by 50%.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Constructing the 2D matrix reveals blind spots &mdash; such as what happens if a `STOP_CMD` arrives during `PRIMING` or `FAULT` &mdash; before writing code.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        5. In an embedded FSM, why is a <code>default:</code> case required in the top-level state switch?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">To trap invalid or corrupted state variable values caused by memory corruption or single-event upsets (radiation bit flips).</li>
+                        <li class="mcq-option" data-correct="false">To enable floating point math.</li>
+                        <li class="mcq-option" data-correct="false">To initialize peripheral GPIOs.</li>
+                        <li class="mcq-option" data-correct="false">It is optional and should be avoided.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> If memory corruption causes the state enum to hold an undefined number (e.g. 0x9F), the <code>default:</code> label catches it and forces a safe shutdown.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        6. What is an "Internal Transition" in a state machine?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A transition that resets the microcontroller.</li>
+                        <li class="mcq-option" data-correct="true">A transition that executes an action in response to an event without changing the active state and without executing entry/exit actions.</li>
+                        <li class="mcq-option" data-correct="false">A transition between two different microcontrollers.</li>
+                        <li class="mcq-option" data-correct="false">An interrupt vector remapping.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> An internal transition responds to an event (e.g. logging a metric or blinking a status LED) while remaining in the same state without triggering exit/entry logic.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        7. Why are Moore machines considered safer for controlling physical actuators (e.g. motors, heaters)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Because Moore machines execute in kernel space.</li>
+                        <li class="mcq-option" data-correct="true">Because actuator drive states are bound strictly to stable states, preventing glitchy output pulses caused by transient input noise.</li>
+                        <li class="mcq-option" data-correct="false">Because Moore machines consume 0 milliwatts of power.</li>
+                        <li class="mcq-option" data-correct="false">Because Mealy machines cannot output boolean values.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Actuator states in a Moore machine remain solidly in their defined condition for the entire duration the machine dwells in that state.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        8. What should happen when an event arrives that is completely irrelevant to the current state (e.g. `PRESSURE_OK` while `STOPPED`)?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The MCU must immediately assert HardFault.</li>
+                        <li class="mcq-option" data-correct="true">The event should be safely ignored (consumed without action or state change) unless specified as a protocol violation.</li>
+                        <li class="mcq-option" data-correct="false">The event must be queued for 10 hours.</li>
+                        <li class="mcq-option" data-correct="false">The Flash memory must be formatted.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> In automata theory, an event that triggers no transition from the current state is silently ignored, maintaining stability.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        9. What is the role of an "Event Queue" paired with an FSM dispatcher?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To store compiler optimization macros.</li>
+                        <li class="mcq-option" data-correct="true">To buffer asynchronous events produced by ISRs (e.g. buttons, UART bytes) so the FSM can process them sequentially in the main superloop.</li>
+                        <li class="mcq-option" data-correct="false">To dynamically allocate heap memory.</li>
+                        <li class="mcq-option" data-correct="false">To invert GPIO logic levels.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Hardware interrupts post event signals into a ring buffer queue; the main superloop dequeues and dispatches them run-to-completion.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <div class="mcq-container">
+                    <div class="mcq-question">
+                        10. Why is passing an Event struct containing both a <code>signal</code> enum and a <code>param</code> payload advantageous?
+                    </div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It disables stack alignment checks.</li>
+                        <li class="mcq-option" data-correct="true">It allows data associated with the event (e.g., raw ADC value, received UART byte, error code) to travel cleanly to the state action handler without global variables.</li>
+                        <li class="mcq-option" data-correct="false">It doubles the MCU clock frequency.</li>
+                        <li class="mcq-option" data-correct="false">Payloads are required by the C89 standard.</li>
+                    </ul>
+                    <div class="mcq-explanation">
+                        <strong>Explanation:</strong> Combining signals with parameter payloads provides rich event context without relying on fragile global variables.
+                    </div>
+                    <button class="mcq-submit" disabled>Submit Answer</button>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Lab Exercises (5 Labs) -->
+                <h2>19.7 Hands-On Engineering Laboratories</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Execute these 5 laboratory assignments to design, model, and implement deterministic state automata.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Traffic Light Controller with Pedestrian Call</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Design a Moore FSM for a traffic intersection: <code>GREEN</code> (30s), <code>YELLOW</code> (4s), <code>RED</code> (25s), and <code>PEDESTRIAN_WALK</code> (15s). A pedestrian button press is an asynchronous event. Draw the state diagram and implement the complete switch-case C engine with non-blocking timing.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: State Transition Matrix Completeness Verification</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take the pump controller from Program 19.1. Write a host-based automated unit test that iterates through all 4 states and injects all 5 events (20 combinations). Verify that every valid transition produces the exact expected state and that all invalid combinations are gracefully ignored.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Serial Protocol Frame Parser FSM</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement a byte-by-byte frame parser FSM: <code>WAIT_PREAMBLE_1</code> (0xAA), <code>WAIT_PREAMBLE_2</code> (0x55), <code>READ_LENGTH</code>, <code>READ_PAYLOAD</code>, <code>VERIFY_CRC</code>. Test it with corrupted input streams, truncated frames, and noise bytes to verify that it never enters an infinite loop or drops valid frames.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Moore Actuator Quench Guarantee</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Build an FSM for an industrial heater with an <code>OVERTEMP_EVENT</code>. Implement the safety rule where entering the <code>STATE_EMERGENCY_SHUTDOWN</code> immediately forces the PWM duty cycle to 0% inside the state entry handler. Verify that no code path can exit this state without a physical key turn event.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Event Payload Processing</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create an FSM where the event contains a payload union: either a button hold duration in milliseconds or a float temperature measurement. Write state handlers that evaluate guard conditions against the payload (e.g. transition to <code>CONFIG_MODE</code> only if button held &gt; 3000 ms).</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Theory</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Edward F. Moore</span>
+                            </div>
+                            <h4>Gedanken-experiments on Sequential Machines</h4>
+                            <p>Foundational paper introducing the Moore finite-state machine model and sequential circuit analysis.</p>
+                            <a href="https://press.princeton.edu" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Classic Theory</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">George H. Mealy</span>
+                            </div>
+                            <h4>A Method for Synthesizing Sequential Circuits</h4>
+                            <p>Seminal Bell System technical paper introducing the Mealy state machine model with event-dependent outputs.</p>
+                            <a href="https://ieeexplore.ieee.org" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Embedded Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Miro Samek</span>
+                            </div>
+                            <h4>Practical UML Statecharts in C/C++</h4>
+                            <p>Authoritative modern text on event-driven state machine architectures, hierarchical statecharts, and reactive firmware.</p>
+                            <a href="https://www.state-machine.com" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_18.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 18: MISRA-C Concepts</span>
+                </a>
+                <a href="topic_20.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 20: State Tables &amp; FSMs</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

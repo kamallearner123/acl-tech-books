@@ -1,1 +1,651 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C Programming Best Practices</title><link rel="stylesheet" href="styles.css"></head><body><div class="app-container"><nav class="sidebar"><div class="sidebar-header"><h2>Embedded C Programming</h2></div><div class="sidebar-content"><ul class="toc"><li><a href="index.html">Course Overview</a></li><li class="active"><a href="topic_02.html">C Programming Best Practices</a></li></ul></div></nav><main class="main-content"><header class="top-nav"><div class="nav-actions"><button id="theme-toggle" class="icon-btn">Theme</button></div></header><article class="book-page"><span class="chapter-number">Topic 2</span><h1>C Programming Best Practices</h1><p>Good embedded C is explicit about types, ownership, bounds, units, lifetime, side effects, and failure behavior.</p><ul><li>Use fixed-width types and named constants.</li><li>Keep functions small and single-purpose.</li><li>Pass buffers with lengths and document ownership.</li><li>Compile with warnings and review every diagnostic.</li><li>Prefer deterministic storage and bounded loops.</li></ul><h2>Practice</h2><p>Refactor a function containing magic numbers, hidden globals, and unchecked input into a documented, testable API.</p></article><footer class="page-navigation"><a class="nav-button prev" href="topic_01.html">History &amp; Tools</a><a class="nav-button next" href="topic_03.html">Errors</a></footer></main></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topic 2: C Programming Best Practices - Embedded C Programming</title>
+    
+    <!-- Theme Toggle Script -->
+    <script>const savedTheme = localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme'); if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.setAttribute('data-theme', 'dark'); }</script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS CSS for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li class="active"><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number">Topic 2</span>
+                <h1>C Programming Best Practices</h1>
+
+                <p>
+                    Writing C for embedded systems is fundamentally different from general-purpose desktop or backend programming. On a PC or server, a segfault halts a single process while the OS kernel recovers gracefully. In an embedded automotive braking controller, cardiac pacemaker, or drone flight stabilizer, a single uncaught pointer fault or arithmetic overflow can trigger catastrophic physical failure.
+                </p>
+
+                <p>
+                    Disciplined embedded C programming is governed by three foundational pillars: <strong>determinism</strong> (execution timing and memory allocation must be strictly bounded), <strong>type safety</strong> (every variable's exact bit-width and sign representation must be explicit), and <strong>defensive const-correctness</strong> (memory intent must be enforced at compile time to conserve SRAM and place read-only assets into non-volatile Flash).
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 2.1 -->
+                <h2>2.1 The Embedded Philosophy: Determinism and Resource Constraints</h2>
+                <p>
+                    In desktop computing, software often trades CPU cycles and memory overhead for developer convenience. In embedded engineering, resources are severely constrained: a typical 32-bit ARM Cortex-M0+ or M4 may possess only 32 KB of SRAM and 128 KB of on-chip Flash.
+                </p>
+
+                <p>
+                    To achieve deterministic, bug-free operation, embedded software engineering adheres to several strict guidelines:
+                </p>
+                <ul>
+                    <li><strong>No Dynamic Heap Allocation (<code class="keyword-hl">malloc</code> / <code class="keyword-hl">free</code>):</strong> Dynamic heap causes memory fragmentation over time, non-deterministic execution spikes, and the risk of catastrophic heap-stack collisions. All memory must be statically or stack allocated.</li>
+                    <li><strong>Bounded Loop Iterations:</strong> Every loop (whether waiting for a hardware flag or parsing an incoming packet) must feature a deterministic timeout counter. An unbounded <code>while (!ready);</code> loop will hang the CPU indefinitely if a hardware wire disconnects.</li>
+                    <li><strong>Explicit Integer Widths:</strong> Native C types (<code class="keyword-hl">short</code>, <code class="keyword-hl">int</code>, <code class="keyword-hl">long</code>) change size across CPU architectures. Using fixed-width types from <code class="keyword-hl">&lt;stdint.h&gt;</code> is strictly mandatory.</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 2.2 -->
+                <h2>2.2 Mandatory Use of Fixed-Width Types (&lt;stdint.h&gt;)</h2>
+                <p>
+                    The standard C specification intentionally allows the bit-width of primitive data types to be implementation-defined to allow compilers to match the host machine word. Table 2.1 illustrates the hazards of native types across common embedded architectures:
+                </p>
+
+                <!-- Table 2.1 -->
+                <div style="overflow-x: auto; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; border: 1px solid var(--border-color);">
+                        <thead>
+                            <tr style="background-color: var(--accent); color: #ffffff;">
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Type Category</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Native C Type</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">8-bit AVR / 16-bit MSP430</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">32-bit Cortex-M</th>
+                                <th style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">Mandatory &lt;stdint.h&gt; Replacement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">8-bit Unsigned</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">unsigned char</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">8 bits (0 to 255)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">8 bits (0 to 255)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: var(--accent);"><code class="keyword-hl">uint8_t</code></td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">16-bit Signed</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">int</code> / <code class="keyword-hl">short</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">16 bits (-32,768 to 32,767)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">32 bits (-2.14B to +2.14B)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: var(--accent);"><code class="keyword-hl">int16_t</code></td>
+                            </tr>
+                            <tr style="background-color: var(--card-bg);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">32-bit Unsigned</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">unsigned long</code></td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">32 bits</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">32 bits or 64 bits</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: var(--accent);"><code class="keyword-hl">uint32_t</code></td>
+                            </tr>
+                            <tr style="background-color: var(--bg-color);">
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 600;">Boolean</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);"><code class="keyword-hl">int</code> (0 or 1)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">16 bits (wastes 15 bits)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color);">32 bits (wastes 31 bits)</td>
+                                <td style="padding: 0.75rem 1rem; border: 1px solid var(--border-color); font-weight: 700; color: var(--accent);"><code class="keyword-hl">bool</code> (&lt;stdbool.h&gt;)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left-color: #2196F3; padding: 1rem; border-left-width: 4px; border-left-style: solid; margin: 1.5rem 0; border-radius: 4px;">
+                    <strong>Real World Example:</strong> In 1996, the maiden flight of the <strong>Ariane 5 rocket (Flight 501)</strong> resulted in complete vehicle disintegration 37 seconds after launch. The root cause was an uncaught integer overflow: a 64-bit floating point velocity value was cast into a 16-bit signed integer. The resulting overflow caused the primary and backup inertial guidance computers to halt simultaneously. Rigorous range checking and explicit integer typing prevent such catastrophes.
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 2.3 -->
+                <h2>2.3 Const-Correctness: Placing Read-Only Data in Flash</h2>
+                <p>
+                    Microcontrollers feature separate physical memories for program code/constants (Flash / ROM) and read-write runtime data (SRAM). By default, non-const global variables consume precious SRAM. By decorating read-only tables, lookup calibrations, and string literals with <code class="keyword-hl">const</code>, the linker places them into the <code class="keyword-hl">.rodata</code> (Read-Only Data) section within Flash, preserving SRAM for runtime stacks and communication buffers.
+                </p>
+
+                <!-- Figure 2.1 -->
+                <div class="diagram-container">
+                    <svg viewBox="0 0 820 280" class="responsive-diagram" style="width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto;">
+                        <defs>
+                            <marker id="arrow-mem" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+                            </marker>
+                        </defs>
+
+                        <!-- FLASH Memory Bank (Top) -->
+                        <rect x="30" y="20" width="760" height="95" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="50" y="45" fill="#93c5fd" font-size="13" font-weight="700">FLASH / ROM (Non-Volatile Memory &bull; Base Address: 0x08000000)</text>
+                        <text x="770" y="45" fill="#64748b" font-size="11" text-anchor="end">XIP (eXecute-In-Place)</text>
+
+                        <!-- Flash Segments -->
+                        <rect x="50" y="55" width="220" height="45" rx="5" fill="#0f172a" stroke="#475569"/>
+                        <text x="160" y="75" fill="#f8fafc" font-size="11" font-weight="600" text-anchor="middle">.isr_vector</text>
+                        <text x="160" y="90" fill="#94a3b8" font-size="9" text-anchor="middle">Vector Table (Initial SP, Reset, ISRs)</text>
+
+                        <rect x="280" y="55" width="240" height="45" rx="5" fill="#0f172a" stroke="#475569"/>
+                        <text x="400" y="75" fill="#f8fafc" font-size="11" font-weight="600" text-anchor="middle">.text</text>
+                        <text x="400" y="90" fill="#94a3b8" font-size="9" text-anchor="middle">Executable Machine Bytecode</text>
+
+                        <rect x="530" y="55" width="240" height="45" rx="5" fill="#0f172a" stroke="#10b981" stroke-width="1.5"/>
+                        <text x="650" y="75" fill="#6ee7b7" font-size="11" font-weight="600" text-anchor="middle">.rodata (const variables)</text>
+                        <text x="650" y="90" fill="#a7f3d0" font-size="9" text-anchor="middle">Lookups, string literals, calibration</text>
+
+                        <!-- Copy / Init flow between banks -->
+                        <line x1="410" y1="115" x2="410" y2="155" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-mem)"/>
+                        <rect x="250" y="125" width="320" height="22" rx="4" fill="#1e1e2e" stroke="#f59e0b" stroke-width="1"/>
+                        <text x="410" y="140" fill="#fde68a" font-size="9.5" font-weight="600" text-anchor="middle">Reset_Handler() copies initializers to RAM and zeroes .bss</text>
+
+                        <!-- SRAM Memory Bank (Bottom) -->
+                        <rect x="30" y="165" width="760" height="95" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="50" y="190" fill="#6ee7b7" font-size="13" font-weight="700">SRAM (Volatile High-Speed Memory &bull; Base Address: 0x20000000)</text>
+                        <text x="770" y="190" fill="#64748b" font-size="11" text-anchor="end">Read/Write Zero Wait-State</text>
+
+                        <!-- SRAM Segments -->
+                        <rect x="50" y="200" width="220" height="45" rx="5" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+                        <text x="160" y="220" fill="#fde68a" font-size="11" font-weight="600" text-anchor="middle">.data (Initialized Globals)</text>
+                        <text x="160" y="235" fill="#cbd5e1" font-size="9" text-anchor="middle">e.g. uint32_t count = 42;</text>
+
+                        <rect x="280" y="200" width="220" height="45" rx="5" fill="#0f172a" stroke="#475569"/>
+                        <text x="390" y="220" fill="#f8fafc" font-size="11" font-weight="600" text-anchor="middle">.bss (Zero-Init Globals)</text>
+                        <text x="390" y="235" fill="#94a3b8" font-size="9" text-anchor="middle">e.g. uint8_t rx_buffer[256];</text>
+
+                        <rect x="510" y="200" width="260" height="45" rx="5" fill="#0f172a" stroke="#ec4899" stroke-width="1.5"/>
+                        <text x="640" y="220" fill="#f472b6" font-size="11" font-weight="600" text-anchor="middle">Call Stack &amp; Locals &darr;</text>
+                        <text x="640" y="235" fill="#cbd5e1" font-size="9" text-anchor="middle">Stack Pointer (SP) grows downward</text>
+                    </svg>
+                    <div class="diagram-caption">Figure 2.1: Microcontroller Physical Memory Distribution for Code, Constants, and Variables</div>
+                </div>
+
+                <div style="font-size: 0.9rem; background: var(--bg-color); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--border-color);">
+                    <strong>Memory Placement Rules Explained:</strong>
+                    <ul style="margin-top: 0.5rem; line-height: 1.6;">
+                        <li><code>uint8_t table[256];</code> &rarr; Allocated in SRAM (.data or .bss). Wastes 256 bytes of volatile RAM.</li>
+                        <li><code>const uint8_t table[256];</code> &rarr; Placed directly into Flash (.rodata). Zero SRAM consumed!</li>
+                        <li><code>void write(const uint8_t *buf, size_t len);</code> &rarr; Function guarantees it will never mutate the caller's buffer.</li>
+                    </ul>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 2.4 -->
+                <h2>2.4 Eliminating Side Effects and Unspecified Evaluation Order</h2>
+                <p>
+                    One of the most dangerous traps in C is relying on an unspecified sequence of operations within an expression. According to the ISO C standard, the order of evaluation of function arguments and sub-expressions between sequence points is <em>unspecified</em>.
+                </p>
+
+                <p>
+                    For example, the expression <code>process(get_next(), get_next());</code> does not guarantee which call executes first. If <code>get_next()</code> reads from a hardware FIFO, data bytes will be processed in unpredictable order depending on compiler optimization flags!
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Section 2.5 Code Implementations -->
+                <h2>2.5 Hands-On Code Implementations</h2>
+                <p>
+                    The following production-grade implementation demonstrates the core best practices: explicit fixed-width integers, defensive parameter validation, const-correct buffer handling, bounded timeout loops, and complete elimination of heap allocation.
+                </p>
+
+                <pre><code class="language-c">/**
+ * Program 2.1: Deterministic Sensor Data Acquisition Engine
+ * File: sensor_engine.c
+ * Target: Embedded C Best Practices Demonstration
+ */
+
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+/* Return status codes representing exhaustive operational states */
+typedef enum {
+    SENSOR_OK            = 0,
+    SENSOR_ERR_NULL_PTR  = -1,
+    SENSOR_ERR_BAD_PARAM = -2,
+    SENSOR_ERR_TIMEOUT   = -3,
+    SENSOR_ERR_OVERFLOW  = -4
+} SensorStatus_t;
+
+/* Sensor reading structure with explicit units and signedness */
+typedef struct {
+    int16_t  temperature_celsius_x10;  /*!&lt; Range: -400 to +1250 (-40.0C to +125.0C) */
+    uint16_t pressure_hpa;              /*!&lt; Range: 300 to 1100 hPa */
+    uint8_t  humidity_percent;          /*!&lt; Range: 0 to 100% */
+    uint32_t timestamp_ms;              /*!&lt; Milliseconds since system startup */
+} SensorSample_t;
+
+/* Constant calibration table stored permanently in Flash (.rodata) */
+static const int16_t TEMPERATURE_CALIBRATION_OFFSETS[4] = {
+    -12,  /* Sensor 0 offset: -1.2 deg C */
+      5,  /* Sensor 1 offset: +0.5 deg C */
+      0,  /* Sensor 2 offset:  0.0 deg C */
+     -3   /* Sensor 3 offset: -0.3 deg C */
+};
+
+#define SENSOR_TIMEOUT_CYCLES  (50000UL)
+#define MAX_SENSORS            (4U)
+
+/**
+ * @brief Reads raw sensor telemetry with strict bounds and deterministic timeout.
+ * @param[in]  sensor_id  Index of sensor (0 to 3)
+ * @param[out] sample_out Pointer to destination sample struct
+ * @return SensorStatus_t Status code
+ */
+SensorStatus_t sensor_read_sample(const uint8_t sensor_id, SensorSample_t * const sample_out) {
+    /* 1. Defensive parameter validation */
+    if (sample_out == NULL) {
+        return SENSOR_ERR_NULL_PTR;
+    }
+    if (sensor_id &gt;= MAX_SENSORS) {
+        return SENSOR_ERR_BAD_PARAM;
+    }
+
+    /* 2. Deterministic, bounded hardware polling loop */
+    uint32_t timeout_counter = SENSOR_TIMEOUT_CYCLES;
+    volatile uint32_t mock_hw_ready = 1U; /* Simulated ready flag */
+
+    while ((mock_hw_ready == 0U) &amp;&amp; (timeout_counter &gt; 0U)) {
+        timeout_counter--;
+    }
+
+    if (timeout_counter == 0U) {
+        return SENSOR_ERR_TIMEOUT;
+    }
+
+    /* 3. Acquire raw data and apply Flash-based calibration */
+    const int16_t raw_temp = 250; /* 25.0 deg C */
+    const int16_t calibrated_temp = (int16_t)(raw_temp + TEMPERATURE_CALIBRATION_OFFSETS[sensor_id]);
+
+    sample_out-&gt;temperature_celsius_x10 = calibrated_temp;
+    sample_out-&gt;pressure_hpa = 1013U;
+    sample_out-&gt;humidity_percent = 45U;
+    sample_out-&gt;timestamp_ms = 12450UL;
+
+    return SENSOR_OK;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 2.1: Deterministic Sensor Data Acquisition Engine in C99</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Buggy vs Safe -->
+                <h2>2.6 Buggy vs. Modern Safe Code Comparison</h2>
+                <p>
+                    Consider a function intended to compute the average of an array of 16-bit ADC samples. The legacy version commits several common errors: missing pointer validation, using native <code class="keyword-hl">int</code> types, risking 16-bit accumulator overflow, and modifying global variables without thread safety.
+                </p>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Buggy/Legacy Code</summary>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">
+                        This snippet has 4 distinct vulnerabilities: no null-check, 16-bit accumulator overflow, divide-by-zero risk, and missing const qualifier on input array:
+                    </p>
+                    <pre><code class="language-c">/* BUGGY / UNSAFE: Accumulator overflow, no bounds validation */
+int calculate_average(int *samples, int count) {
+    int sum = 0; /* On 16-bit systems, sum overflows past 32,767 after just 8 readings! */
+    int i;
+    
+    for (i = 0; i &lt; count; i++) {
+        sum += samples[i]; /* Undefined Behavior on signed overflow */
+    }
+    
+    return sum / count; /* If count is 0, triggers hardware Divide-by-Zero fault! */
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 2.2-A: Buggy Accumulator with Integer Overflow Hazard</div>
+                </details>
+
+                <p>
+                    Here is the production-grade safe refactoring using fixed-width integers, a 64-bit accumulator to guarantee overflow immunity, const-correct buffer pointers, and defensive zero-length validation:
+                </p>
+
+                <pre><code class="language-c">/* SAFE / PRODUCTION-GRADE: 64-bit accumulator, const buffer, verified length */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+
+bool calculate_average_u16(const uint16_t * const samples, 
+                           const size_t count, 
+                           uint16_t * const avg_out) 
+{
+    /* Validate pointers and guard against division by zero */
+    if ((samples == NULL) || (avg_out == NULL) || (count == 0U)) {
+        return false;
+    }
+
+    /* Use 64-bit unsigned accumulator to eliminate any possibility of overflow */
+    uint64_t accumulator = 0ULL;
+    for (size_t i = 0U; i &lt; count; ++i) {
+        accumulator += (uint64_t)samples[i];
+    }
+
+    /* Compute average and cast back into 16-bit output */
+    *avg_out = (uint16_t)(accumulator / (uint64_t)count);
+    return true;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 2.2-B: Hardened Average Calculation with Overflow Immunity</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Topic Quiz -->
+                <h2>Topic Quiz (10 Questions)</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Test your mastery of embedded C best practices, const-correctness, and deterministic design.</p>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. Why is dynamic memory allocation (malloc/free) strictly prohibited in safety-critical embedded firmware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">malloc() is only supported in C++, not C.</li>
+                        <li class="mcq-option" data-correct="true">Heap fragmentation can lead to non-deterministic allocation failure and unpredictable execution timing.</li>
+                        <li class="mcq-option" data-correct="false">Flash memory cannot read data allocated on the heap.</li>
+                        <li class="mcq-option" data-correct="false">The C11 standard officially deprecated malloc().</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Heap allocation causes non-deterministic fragmentation over long runtimes, risking unexpected allocation failures in critical functions.">Heap allocation causes non-deterministic fragmentation over long runtimes, risking unexpected allocation failures in critical functions.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. When decorating a global lookup table with the 'const' keyword, where does the linker place the data in microcontroller memory?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">In the .bss segment of SRAM</li>
+                        <li class="mcq-option" data-correct="false">On the runtime call stack</li>
+                        <li class="mcq-option" data-correct="true">In the .rodata segment of non-volatile Flash memory</li>
+                        <li class="mcq-option" data-correct="false">In the CPU general-purpose register file</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Linker scripts route const-qualified variables into .rodata residing in Flash/ROM, preserving precious SRAM for read-write operations.">Linker scripts route const-qualified variables into .rodata residing in Flash/ROM, preserving precious SRAM for read-write operations.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is the fundamental problem with the declaration: 'unsigned int sensor_val;' in portable firmware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It cannot store odd numbers.</li>
+                        <li class="mcq-option" data-correct="true">The width of 'unsigned int' is architecture-dependent: 16 bits on 8/16-bit MCUs and 32 bits on Cortex-M.</li>
+                        <li class="mcq-option" data-correct="false">It is not recognized by GCC.</li>
+                        <li class="mcq-option" data-correct="false">It generates an unaligned memory trap on ARM.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The C standard does not fix the exact bit-width of native integer types. Developers must use uint16_t or uint32_t for portable certainty.">The C standard does not fix the exact bit-width of native integer types. Developers must use uint16_t or uint32_t for portable certainty.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What does the declaration 'const uint8_t * const ptr;' signify in C?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A mutable pointer to a mutable byte</li>
+                        <li class="mcq-option" data-correct="false">A mutable pointer to a constant byte</li>
+                        <li class="mcq-option" data-correct="true">A constant pointer to a constant byte (neither the address nor the data can be modified)</li>
+                        <li class="mcq-option" data-correct="false">A volatile register pointer</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Reading from right to left: 'const ptr' means the pointer address is constant; '* const uint8_t' means the pointed-to data byte is constant.">Reading from right to left: 'const ptr' means the pointer address is constant; '* const uint8_t' means the pointed-to data byte is constant.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. Why is an unbounded loop like 'while ((STATUS_REG &amp; 0x01) == 0);' dangerous in production firmware?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Bitwise AND is not supported inside while loop conditions.</li>
+                        <li class="mcq-option" data-correct="true">If the hardware peripheral fails or the line is severed, the firmware hangs forever without recovery.</li>
+                        <li class="mcq-option" data-correct="false">It triggers an automatic bus fault.</li>
+                        <li class="mcq-option" data-correct="false">It resets the microcontroller's SysTick timer.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Every hardware polling loop must feature a bounded iteration or tick timeout to prevent infinite CPU lockup during peripheral hardware faults.">Every hardware polling loop must feature a bounded iteration or tick timeout to prevent infinite CPU lockup during peripheral hardware faults.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What happens if two calls with side effects are used as arguments: 'foo(get_val(), get_val());'?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The compiler always evaluates from left to right.</li>
+                        <li class="mcq-option" data-correct="false">The compiler always evaluates from right to left.</li>
+                        <li class="mcq-option" data-correct="true">The order of evaluation of function arguments is unspecified by the C standard and depends on compiler implementation.</li>
+                        <li class="mcq-option" data-correct="false">The code fails to compile with a syntax error.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The ISO C standard explicitly states argument evaluation order is unspecified; relying on evaluation order introduces compiler-dependent bugs.">The ISO C standard explicitly states argument evaluation order is unspecified; relying on evaluation order introduces compiler-dependent bugs.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Which header introduced in C99 provides the standard 'bool', 'true', and 'false' macros?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">&lt;stdint.h&gt;</li>
+                        <li class="mcq-option" data-correct="true">&lt;stdbool.h&gt;</li>
+                        <li class="mcq-option" data-correct="false">&lt;stddef.h&gt;</li>
+                        <li class="mcq-option" data-correct="false">&lt;stdlib.h&gt;</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="&lt;stdbool.h&gt; defines bool (expanding to the _Bool keyword), true (1), and false (0).">&lt;stdbool.h&gt; defines bool (expanding to the _Bool keyword), true (1), and false (0).</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is the danger of using macros with arguments without enclosing each parameter in parentheses (e.g. #define SQUARE(x) x * x)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The macro will only accept integer arguments.</li>
+                        <li class="mcq-option" data-correct="true">Operator precedence issues: SQUARE(2 + 3) expands to 2 + 3 * 2 + 3 = 11 instead of 25.</li>
+                        <li class="mcq-option" data-correct="false">The macro will be stored in Flash memory.</li>
+                        <li class="mcq-option" data-correct="false">GCC disables macro expansion when optimization is turned on.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Macros perform raw text substitution. Without parentheses, operator precedence will corrupt arithmetic evaluations.">Macros perform raw text substitution. Without parentheses, operator precedence will corrupt arithmetic evaluations.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What is the purpose of the C99 'restrict' keyword on pointer arguments?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It restricts the pointer to null-terminated strings.</li>
+                        <li class="mcq-option" data-correct="false">It prevents the pointer from accessing SRAM.</li>
+                        <li class="mcq-option" data-correct="true">It hints to the compiler that the pointer does not alias any other pointer, enabling aggressive register caching and SIMD optimization.</li>
+                        <li class="mcq-option" data-correct="false">It restricts access to kernel privilege mode.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="'restrict' promises that the memory referenced by the pointer is accessed only through that pointer, allowing the compiler to optimize without reloading aliased memory.">'restrict' promises that the memory referenced by the pointer is accessed only through that pointer, allowing the compiler to optimize without reloading aliased memory.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. Why should functions that return error codes be decorated with [[nodiscard]] (in C23) or __attribute__((warn_unused_result)) (in GCC)?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To force the function to execute in the SysTick ISR.</li>
+                        <li class="mcq-option" data-correct="true">To generate a compile-time warning or error if the caller ignores the return status, ensuring errors are never silently ignored.</li>
+                        <li class="mcq-option" data-correct="false">To reduce Flash consumption by 10%.</li>
+                        <li class="mcq-option" data-correct="false">To enable automatic hardware reset on error.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Forcing callers to inspect return codes prevents critical hardware failure states from being silently bypassed during execution.">Forcing callers to inspect return codes prevents critical hardware failure states from being silently bypassed during execution.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Hands-On Assignments -->
+                <h2>Hands-On Assignments</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Apply these 5 hands-on assignments to enforce best practices and clean code patterns.</p>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Flash vs. SRAM Footprint Audit</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Create a lookup table of 1024 16-bit sine wave values. First, declare it as a mutable global: <code class="keyword-hl">uint16_t sin_lut[1024];</code>. Compile and run <code class="keyword-hl">size</code> to note the <code class="keyword-hl">.data</code> / <code class="keyword-hl">.bss</code> size. Next, add <code class="keyword-hl">const</code> to the declaration and recompile. Verify how many bytes migrated from SRAM to Flash.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Hardening an ADC Driver Interface</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Take a legacy function prototype: <code class="keyword-hl">int read_adc(int channel, int *val);</code>. Refactor this interface following embedded best practices: use fixed-width integer types, enforce const-correctness, return a typed enum status code, and add defensive null-pointer and channel-range validations.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Eliminating Macro Hazards with Inline Functions</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a preprocessor macro <code class="keyword-hl">#define CLAMP(x, min, max) ...</code>. Demonstrate a double-evaluation bug when invoking <code class="keyword-hl">CLAMP(i++, 0, 10)</code>. Then replace the macro with a type-safe C99 <code class="keyword-hl">static inline int32_t clamp_i32(int32_t x, int32_t min, int32_t max)</code> function and prove that side-effects are eliminated.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Safe Ring Buffer Index Arithmetic</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Implement head and tail index advancement for a circular ring buffer of size 32. Show why using power-of-two sizing with a bitwise mask (<code class="keyword-hl">index = (index + 1) &amp; 31U</code>) is superior to using the modulo operator (<code class="keyword-hl">index = (index + 1) % 32</code>) in terms of instruction cycle count on Cortex-M0+.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent); border: 1px solid var(--border-color);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Bounded Polling Loop Timeout Guard</h3>
+                    <p style="margin-bottom: 0; line-height: 1.6;"><strong>Task:</strong> Write a mock I2C wait function that polls a simulated busy bit. Incorporate a timeout counter. Simulate both a successful peripheral acknowledgment and a disconnected line fault. Verify that the function exits deterministically within a known cycle threshold without hanging the main superloop.</p>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- Official References -->
+                <div class="references-section">
+                    <h2>Official References, Research Papers &amp; Standards</h2>
+                    <p class="references-intro">
+                        Deepen your engineering foundation with canonical publications and official standard specifications:
+                    </p>
+                    <div class="reference-grid">
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Industry Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Barr Group</span>
+                            </div>
+                            <h4>Embedded C Coding Standard (Bug-Free C)</h4>
+                            <p>Standardized rules for variable typing, braces, pointer syntax, and macro containment designed to eliminate common firmware defects.</p>
+                            <a href="https://barrgroup.com/embedded-systems/books/embedded-c-coding-standard" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Technical Book</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">O'Reilly Media</span>
+                            </div>
+                            <h4>Making Embedded Systems</h4>
+                            <p>Elecia White's architectural guide to building reliable, resource-conscious embedded firmware with design patterns in C.</p>
+                            <a href="https://www.oreilly.com/library/view/making-embedded-systems/9781449302146/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                        <div class="reference-card">
+                            <div class="reference-header">
+                                <span class="ref-tag">Safety Standard</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">MISRA</span>
+                            </div>
+                            <h4>MISRA-C:2012 Guidelines for the Use of the C Language</h4>
+                            <p>The definitive safety-critical coding guideline for automotive and aerospace electronic control units.</p>
+                            <a href="https://www.misra.org.uk/" target="_blank" rel="noopener noreferrer" class="ref-link">View Official Resource &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Page Navigation -->
+            <footer class="page-navigation">
+                <a href="topic_01.html" class="nav-button prev">
+                    <span class="nav-label">&larr; Previous</span>
+                    <span class="nav-title">Topic 1: C Programming History &amp; Tools</span>
+                </a>
+                <a href="topic_03.html" class="nav-button next">
+                    <span class="nav-label">Next &rarr;</span>
+                    <span class="nav-title">Topic 3: Compile, Runtime, Link &amp; Logic Errors</span>
+                </a>
+            </footer>
+
+            <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+</body>
+</html>

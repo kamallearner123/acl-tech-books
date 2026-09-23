@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref 1: Sensors &amp; Transducers - Embedded C Programming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script>
+        const savedTheme = localStorage.getItem('embedded-c-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li class="active"><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Course MCQ Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/270</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border-color: rgba(59, 130, 246, 0.3);">Engineering Reference 1</span>
+                <h1>Sensors, Transducers &amp; Signal Acquisition</h1>
+
+                <p>
+                    In embedded systems, sensors represent the physical senses of the machine. A sensor transforms physical quantities &mdash; acceleration, angular velocity, photons, magnetic flux, mechanical strain, or temperature &mdash; into electrical signals.
+                </p>
+
+                <p>
+                    Writing professional Embedded C drivers for sensors requires mastering not only the register maps in datasheets, but also the physical phenomena being measured, the signal conditioning chain (amplification, anti-aliasing filtering, ADC quantization), bus throughput constraints, and power-saving hardware FIFO buffers.
+                </p>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h2>1.1 Comprehensive Sensor Taxonomy &amp; Selection Matrix</h2>
+                <p>
+                    The following reference matrix categorizes the primary sensor classes deployed in modern embedded engineering, detailing their operating principles, bus interfaces, sampling bandwidths, and industry-standard benchmark silicon ICs:
+                </p>
+
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Sensor Category</th>
+                                <th style="padding: 0.75rem 1rem;">Physical Transduction Principle</th>
+                                <th style="padding: 0.75rem 1rem;">Digital Interface</th>
+                                <th style="padding: 0.75rem 1rem;">Sampling Bandwidth</th>
+                                <th style="padding: 0.75rem 1rem;">Benchmark Parts</th>
+                                <th style="padding: 0.75rem 1rem;">Key Firmware Considerations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #3b82f6;">Inertial Measurement (6/9-DoF IMU)</td>
+                                <td style="padding: 0.75rem 1rem;">Capacitive MEMS proof-mass (accel) &amp; vibrating Coriolis ring (gyro)</td>
+                                <td style="padding: 0.75rem 1rem;">SPI up to 24 MHz, I2C, I3C</td>
+                                <td style="padding: 0.75rem 1rem;">100 Hz &ndash; 8.0 kHz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>Bosch BMI270</code>, <code>TDK ICM-42688-P</code></td>
+                                <td style="padding: 0.75rem 1rem;">Requires hardware FIFO watermarks and DMA streaming to avoid CPU interrupt thrashing.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #10b981;">Optical PPG (Pulse Oximetry)</td>
+                                <td style="padding: 0.75rem 1rem;">Differential absorption of green/red/IR light by oxygenated and deoxygenated hemoglobin</td>
+                                <td style="padding: 0.75rem 1rem;">I2C (Fast Mode+ 1 MHz), SPI</td>
+                                <td style="padding: 0.75rem 1rem;">25 Hz &ndash; 400 Hz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>ADI MAX30102</code>, <code>Osram SFH7050</code></td>
+                                <td style="padding: 0.75rem 1rem;">Requires ambient light cancellation, LED duty-cycling, and motion artifact rejection filters.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #f59e0b;">Platinum RTD Temperature</td>
+                                <td style="padding: 0.75rem 1rem;">Predictable linear increase in platinum wire resistance (PT100/PT1000)</td>
+                                <td style="padding: 0.75rem 1rem;">4-Wire Kelvin bridge + Precision ADC (SPI)</td>
+                                <td style="padding: 0.75rem 1rem;">1 Hz &ndash; 50 Hz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>PT1000</code> + <code>ADI MAX31865</code> AFE</td>
+                                <td style="padding: 0.75rem 1rem;">Callendar-Van Dusen polynomial linearization equation in fixed-point integer C.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ef4444;">Thermocouple</td>
+                                <td style="padding: 0.75rem 1rem;">Seebeck Effect: Microvolt thermal gradient generated at the junction of dissimilar alloys</td>
+                                <td style="padding: 0.75rem 1rem;">Cold-Junction Compensated SPI AFE</td>
+                                <td style="padding: 0.75rem 1rem;">5 Hz &ndash; 100 Hz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>Type-K</code> + <code>MAX31855</code>, <code>TI ADS1118</code></td>
+                                <td style="padding: 0.75rem 1rem;">Requires cold-junction temperature compensation (CJC) sensor at terminal block.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #8b5cf6;">Time-of-Flight (ToF) LiDAR</td>
+                                <td style="padding: 0.75rem 1rem;">Single-Photon Avalanche Diode (SPAD) array measuring transit time of 940 nm VCSEL laser pulses</td>
+                                <td style="padding: 0.75rem 1rem;">I2C / SPI</td>
+                                <td style="padding: 0.75rem 1rem;">15 Hz &ndash; 60 Hz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>ST VL53L5CX</code> (8&times;8 multizone)</td>
+                                <td style="padding: 0.75rem 1rem;">Requires optical cover-glass crosstalk calibration and ambient sunlight rejection.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ec4899;">Magnetic Rotary Angle</td>
+                                <td style="padding: 0.75rem 1rem;">Anisotropic Magnetoresistive (AMR) &amp; Hall array measuring diametric magnetic vectors</td>
+                                <td style="padding: 0.75rem 1rem;">SPI, I2C, SSI, PWM, ABI</td>
+                                <td style="padding: 0.75rem 1rem;">1.0 kHz &ndash; 20 kHz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>AMS AS5600</code>, <code>TI TMAG5170</code></td>
+                                <td style="padding: 0.75rem 1rem;">Zero-contact angular measurement for brushless rotor commutation and steering angles.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #06b6d4;">Piezoresistive Pressure</td>
+                                <td style="padding: 0.75rem 1rem;">Silicon membrane with integrated piezoresistors deformed by atmospheric or fluid pressure</td>
+                                <td style="padding: 0.75rem 1rem;">I2C / SPI / Analog</td>
+                                <td style="padding: 0.75rem 1rem;">10 Hz &ndash; 200 Hz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>Bosch BMP581</code>, <code>Honeywell ABP2</code></td>
+                                <td style="padding: 0.75rem 1rem;">Sub-meter altitude resolution; requires factory calibration coefficient compensation.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #14b8a6;">Current &amp; Energy Shunt</td>
+                                <td style="padding: 0.75rem 1rem;">Kelvin shunt resistor microvolt drop or Hall effect galvanic deflection</td>
+                                <td style="padding: 0.75rem 1rem;">I2C / SMBus / Analog Output</td>
+                                <td style="padding: 0.75rem 1rem;">100 Hz &ndash; 100 kHz</td>
+                                <td style="padding: 0.75rem 1rem;"><code>TI INA226</code>, <code>Allegro ACS770</code></td>
+                                <td style="padding: 0.75rem 1rem;">High common-mode voltage rejection (&gt;36V&ndash;80V); Coulomb-counting accumulation register.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h2>1.2 The Signal Conditioning &amp; Acquisition Pipeline</h2>
+                <p>
+                    Raw sensor physical elements produce microvolts or tiny capacitance shifts. The analog signal must be conditioned before sampling by an Analog-to-Digital Converter (ADC):
+                </p>
+
+                <div class="diagram-container">
+                    <svg viewBox="0 0 840 200" class="responsive-diagram" style="width: 100%; height: auto; max-width: 840px; display: block; margin: 0 auto;">
+                        <!-- Transducer -->
+                        <rect x="20" y="60" width="130" height="80" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                        <text x="85" y="95" fill="#93c5fd" font-size="12" font-weight="700" text-anchor="middle">TRANSDUCER</text>
+                        <text x="85" y="115" fill="#cbd5e1" font-size="10" text-anchor="middle">Physical &rarr; &mu;V/pA</text>
+
+                        <line x1="150" y1="100" x2="190" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#s-arrow)"/>
+
+                        <!-- Instrumentation Amp -->
+                        <rect x="190" y="60" width="140" height="80" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+                        <text x="260" y="90" fill="#6ee7b7" font-size="11" font-weight="700" text-anchor="middle">INSTRUMENTATION</text>
+                        <text x="260" y="105" fill="#6ee7b7" font-size="11" font-weight="700" text-anchor="middle">AMPLIFIER</text>
+                        <text x="260" y="125" fill="#cbd5e1" font-size="9" text-anchor="middle">High CMRR Gain</text>
+
+                        <line x1="330" y1="100" x2="370" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#s-arrow)"/>
+
+                        <!-- Anti-Aliasing Filter -->
+                        <rect x="370" y="60" width="140" height="80" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="440" y="90" fill="#fbbf24" font-size="11" font-weight="700" text-anchor="middle">ANTI-ALIASING</text>
+                        <text x="440" y="105" fill="#fbbf24" font-size="11" font-weight="700" text-anchor="middle">RC FILTER</text>
+                        <text x="440" y="125" fill="#cbd5e1" font-size="9" text-anchor="middle">$f_c &lt; \frac{1}{2} f_{sample}$</text>
+
+                        <line x1="510" y1="100" x2="550" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#s-arrow)"/>
+
+                        <!-- ADC -->
+                        <rect x="550" y="60" width="120" height="80" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+                        <text x="610" y="95" fill="#c4b5fd" font-size="12" font-weight="700" text-anchor="middle">12-24b ADC</text>
+                        <text x="610" y="115" fill="#cbd5e1" font-size="10" text-anchor="middle">SAR / &Delta;&Sigma;</text>
+
+                        <line x1="670" y1="100" x2="710" y2="100" stroke="#64748b" stroke-width="2" marker-end="url(#s-arrow)"/>
+
+                        <!-- MCU Core -->
+                        <rect x="710" y="50" width="110" height="100" rx="8" fill="#1e293b" stroke="#ec4899" stroke-width="2.5"/>
+                        <text x="765" y="95" fill="#f472b6" font-size="12" font-weight="800" text-anchor="middle">MCU / DMA</text>
+                        <text x="765" y="115" fill="#cbd5e1" font-size="10" text-anchor="middle">Fixed-Point</text>
+                        <text x="765" y="130" fill="#cbd5e1" font-size="10" text-anchor="middle">DSP Math</text>
+
+                        <defs>
+                            <marker id="s-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="diagram-caption">Figure 1.1: Complete Analog-to-Digital Signal Conditioning and Acquisition Chain</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h2>1.3 Fixed-Point Exponential Moving Average (EMA) Sensor Filter</h2>
+                <p>
+                    Raw sensor readings are frequently contaminated with high-frequency noise. Because constrained microcontrollers like Cortex-M0+ lack hardware floating-point units (FPUs), standard floating-point filters trigger software emulation library bloat. Below is an industrial-grade, zero-allocation fixed-point Exponential Moving Average (EMA) filter:
+                </p>
+
+                <pre><code class="language-c">#include &lt;stdint.h&gt;
+
+/* Q16 Fixed-Point Exponential Moving Average Filter */
+#define EMA_ALPHA_Q16 (6554U) /* Alpha = 0.1 in Q16 (0.1 * 65536) */
+
+typedef struct {
+    int32_t filtered_value_q16;
+    uint8_t initialized;
+} EmaFilter_t;
+
+int32_t EmaFilter_Update(EmaFilter_t *filter, int16_t raw_sample) {
+    int32_t sample_q16 = ((int32_t)raw_sample) &lt;&lt; 16;
+
+    if (!filter-&gt;initialized) {
+        filter-&gt;filtered_value_q16 = sample_q16;
+        filter-&gt;initialized = 1U;
+        return (int32_t)raw_sample;
+    }
+
+    /* y[n] = y[n-1] + alpha * (x[n] - y[n-1]) */
+    int64_t diff = (int64_t)sample_q16 - filter-&gt;filtered_value_q16;
+    filter-&gt;filtered_value_q16 += (int32_t)((diff * EMA_ALPHA_Q16) &gt;&gt; 16);
+
+    /* Return integer representation */
+    return (filter-&gt;filtered_value_q16 + 32768) &gt;&gt; 16;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 1.1: Fixed-Point Exponential Moving Average (EMA) Sensor Filter in C</div>
+
+                <!-- Footer Navigation -->
+                <footer class="page-navigation" style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                    <a href="reference.html" class="nav-button prev" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-color); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s ease;">
+                        <span style="font-size: 1.2rem;">&larr;</span>
+                        <div style="text-align: left;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Previous</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Overview: Hardware Triad</span>
+                        </div>
+                    </a>
+                    <a href="ref_actuators.html" class="nav-button next" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--accent); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s ease; background-color: var(--accent-light);">
+                        <div style="text-align: right;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Next Topic &rarr;</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Ref 2: Actuators &amp; Power Drivers</span>
+                        </div>
+                        <span style="font-size: 1.2rem;">&rarr;</span>
+                    </a>
+                </footer>
+
+                <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                    Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
