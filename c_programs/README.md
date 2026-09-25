@@ -8,6 +8,7 @@ A comprehensive, zero-dependency suite of production-grade C programs designed f
 
 | Directory | Topic & Key Focus | Core Files |
 | :--- | :--- | :--- |
+| **`00_typing_speed_test/`** | **Starter**: Program Anatomy & Timer WPM | `typing_speed.c`<br>`Makefile` |
 | **`01_memory_issues/`** | Stack vs Heap, Buffer Overflows & Leaks | `01_stack_vs_heap.c`<br>`02_buffer_overflow.c`<br>`03_memory_leak_use_after_free.c` |
 | **`02_makefiles/`** | Multi-File Modular C Build Pipeline | `src/main.c`<br>`src/math_utils.c`<br>`include/math_utils.h`<br>`Makefile` |
 | **`03_event_driven/`** | Ring-Buffer Event Queues & Dispatchers | `01_event_loop.c` |
@@ -54,6 +55,11 @@ make run
 ---
 
 ## 🎯 Instructor Guide & Student Practice Curriculum
+
+### Module 0: Complete C Program Anatomy (Typing Speed Test)
+* **Goal**: The ideal FIRST program for students. Deconstructs every section of a production C program (preprocessor, structs, volatile atomic state, OS timers, metric calculations, and clean console UI).
+* **Demonstration**: Run `make run` in `00_typing_speed_test/`. Show how `alarm()` triggers asynchronous signal interruption (`SIGALRM`) when time expires.
+* **Student Assignment**: Make timer duration selectable (15s blitz, 30s normal, 45s relaxed) and add high-score file logging.
 
 ### Module 1: Memory Issues
 * **Goal**: Teach students how memory behaves physically in hardware.

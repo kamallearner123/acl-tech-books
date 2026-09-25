@@ -2,7 +2,8 @@
 # Master Makefile for All C Practice Modules (Linux / macOS)
 # ==============================================================================
 
-SUBDIRS = 01_memory_issues \
+SUBDIRS = 00_typing_speed_test \
+          01_memory_issues \
           02_makefiles \
           03_event_driven \
           04_bitwise_ops \
