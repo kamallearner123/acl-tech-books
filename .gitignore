@@ -19,3 +19,16 @@ Thumbs.db
 
 # editor
 .vscode/
+
+# C & Embedded Build Artifacts
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.i
+*.d
+*_asan
+build/
+typing_speed
+
