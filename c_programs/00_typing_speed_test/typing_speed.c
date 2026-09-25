@@ -12,16 +12,19 @@
  *       - Section 2: Macros & Configuration Constants
  *       - Section 3: Data Types, Structs & Type Definitions
  *       - Section 4: Global Volatile State & Signal / Timer Handlers
- *       - Section 5: String & Metric Calculation Logic (WPM & Accuracy)
+ *       - Section 5: Word Counting & Metric Calculation Logic (Words, WPM & Accuracy)
  *       - Section 6: User Interface & Formatting
- *       - Section 7: The main() Entry Point, Control Flow & Exit Codes
+ *       - Section 7: The main() Entry Point, Real-Time Input Loop & Exit Codes
  *
- * ⏱ HOW THE TIMER WORKS:
+ * ⏱ HOW THE TIMER & INPUT WORK:
+ *  - Configures non-canonical terminal mode (termios) so every single typed key
+ *    is captured in real-time as the student types.
  *  - Uses POSIX signal handling (SIGALRM) with alarm(TEST_DURATION_SECONDS).
- *  - When the timer expires, the OS sends a SIGALRM signal interrupting fgets().
- *  - The program catches the signal, sets g_time_up = true, terminates input,
- *    and immediately calculates the score.
- *  - If the user finishes before the timer expires, exact elapsed time is measured.
+ *  - When the countdown timer expires, the OS sends SIGALRM, unblocking read().
+ *  - When timeout happens, the program STOPS immediately, counts the exact number
+ *    of words and characters typed before time ran out, and presents the scorecard!
+ *  - If the student finishes early and presses [ENTER], it disarms the timer and
+ *    scores based on the exact elapsed duration.
  *
  * 🛠 COMPILATION & EXECUTION:
  *    gcc -Wall -Wextra -std=c11 typing_speed.c -o typing_speed
@@ -35,14 +38,16 @@
  * Headers provide declarations for functions implemented in the C Standard Library.
  * ==============================================================================
  */
-#include <stdio.h>      /* Standard Input/Output: printf(), fgets(), fflush() */
+#include <stdio.h>      /* Standard Input/Output: printf(), fflush()           */
 #include <stdlib.h>     /* General Utilities: system(), exit(), EXIT_SUCCESS   */
 #include <stdint.h>     /* Fixed-width integers: uint32_t, int32_t             */
 #include <stdbool.h>    /* Boolean type: true, false, bool                     */
 #include <string.h>     /* String manipulation: strlen(), strncpy()            */
+#include <ctype.h>      /* Character classification: isspace()                 */
 #include <time.h>       /* Time tracking: time(), difftime(), time_t           */
-#include <unistd.h>     /* POSIX Operating System API: alarm(), sleep()        */
-#include <signal.h>     /* Signal handling: signal(), sigaction, SIGALRM       */
+#include <unistd.h>     /* POSIX Operating System API: alarm(), isatty(), read */
+#include <signal.h>     /* Signal handling: sigaction, SIGALRM, sig_atomic_t   */
+#include <termios.h>    /* Terminal I/O control: tcgetattr(), tcsetattr()      */
 #include <errno.h>      /* Error numbers: errno, EINTR                         */
 
 /* ==============================================================================
@@ -52,8 +57,10 @@
  * Always parenthesize expressions to avoid operator precedence bugs!
  * ==============================================================================
  */
-#define DEFAULT_TEST_SECONDS   (30U)     /* Countdown timer limit */
-#define BUFFER_CAPACITY        (1024U)   /* Maximum input character buffer */
+#ifndef DEFAULT_TEST_SECONDS
+#define DEFAULT_TEST_SECONDS   (30U)     /* Countdown timer limit in seconds */
+#endif
+#define BUFFER_CAPACITY        (2048U)   /* Maximum input character buffer */
 #define CHARS_PER_WORD         (5.0)     /* Standard typing metric: 5 chars = 1 word */
 
 /* Target test paragraph for students to type */
@@ -70,6 +77,8 @@ static const char * const TARGET_PARAGRAPH =
  */
 typedef struct {
     double   elapsed_seconds;      /* Total time spent typing */
+    uint32_t total_words_typed;    /* Total count of words typed */
+    uint32_t correct_words_typed;  /* Count of fully correct words */
     uint32_t total_chars_typed;    /* Total keys pressed */
     uint32_t correct_chars;        /* Characters matching target exactly */
     uint32_t error_chars;          /* Mismatched characters */
@@ -108,17 +117,77 @@ static void Timer_Configure(void)
     sigemptyset(&sa.sa_mask);
     
     /* Crucial: DO NOT set SA_RESTART!
-     * This causes blocking read/fgets to immediately unblock and return EINTR when alarm fires.
+     * This causes blocking read() to immediately unblock and return -1 with EINTR when alarm fires.
      */
     sa.sa_flags = 0; 
     sigaction(SIGALRM, &sa, NULL);
 }
 
 /* ==============================================================================
- * SECTION 5: METRIC CALCULATION LOGIC
+ * SECTION 5: WORD COUNTING & METRIC CALCULATION LOGIC
  * ------------------------------------------------------------------------------
- * Pure business logic: calculates accuracy, gross WPM, and net WPM.
+ * Pure business logic: counts words, accuracy, gross WPM, and net WPM.
  * ==============================================================================
+ */
+
+/**
+ * @brief Counts the number of whitespace-delimited words in a string.
+ */
+static uint32_t Count_Words(const char *text)
+{
+    uint32_t count = 0;
+    bool in_word = false;
+
+    if (text == NULL) return 0;
+
+    for (size_t i = 0; text[i] != '\0'; ++i) {
+        if (!isspace((unsigned char)text[i])) {
+            if (!in_word) {
+                in_word = true;
+                count++;
+            }
+        } else {
+            in_word = false;
+        }
+    }
+    return count;
+}
+
+/**
+ * @brief Compares typed words against target words to count matching words.
+ */
+static uint32_t Count_CorrectWords(const char *target, const char *typed)
+{
+    if (target == NULL || typed == NULL) return 0;
+
+    /* Duplicate strings to tokenize safely */
+    char target_copy[BUFFER_CAPACITY];
+    char typed_copy[BUFFER_CAPACITY];
+    strncpy(target_copy, target, sizeof(target_copy) - 1);
+    strncpy(typed_copy, typed, sizeof(typed_copy) - 1);
+    target_copy[sizeof(target_copy) - 1] = '\0';
+    typed_copy[sizeof(typed_copy) - 1] = '\0';
+
+    uint32_t correct_words = 0;
+    char *saveptr_target = NULL;
+    char *saveptr_typed  = NULL;
+
+    char *token_target = strtok_r(target_copy, " \t\r\n", &saveptr_target);
+    char *token_typed  = strtok_r(typed_copy, " \t\r\n", &saveptr_typed);
+
+    while (token_target != NULL && token_typed != NULL) {
+        if (strcmp(token_target, token_typed) == 0) {
+            correct_words++;
+        }
+        token_target = strtok_r(NULL, " \t\r\n", &saveptr_target);
+        token_typed  = strtok_r(NULL, " \t\r\n", &saveptr_typed);
+    }
+
+    return correct_words;
+}
+
+/**
+ * @brief Computes all typing metrics (Words, Characters, WPM, Accuracy).
  */
 static TypingResult_t Calculate_Score(const char *target, 
                                      const char *typed, 
@@ -132,6 +201,10 @@ static TypingResult_t Calculate_Score(const char *target,
         elapsed_sec = 0.5;
     }
     res.elapsed_seconds = elapsed_sec;
+
+    /* Count total and correct words */
+    res.total_words_typed   = Count_Words(typed);
+    res.correct_words_typed = Count_CorrectWords(target, typed);
 
     size_t target_len = strlen(target);
     size_t typed_len  = strlen(typed);
@@ -193,12 +266,19 @@ static const char *Get_SkillRating(double net_wpm, double accuracy)
     return "🏆 Pro Firmware Engineer (Elite Keyboard Virtuoso!)";
 }
 
-static void Print_ScoreBoard(const TypingResult_t *r)
+static void Print_ScoreBoard(const TypingResult_t *r, bool timed_out)
 {
     printf("\n============================================================\n");
     printf("                  📊 TYPING TEST SCORECARD                  \n");
     printf("============================================================\n");
-    printf("  ⏱ Time Elapsed     : %.2f seconds\n", r->elapsed_seconds);
+    if (timed_out) {
+        printf("  ⏱ Status            : \033[1;31m⏰ TIME'S UP (Expired at %.2fs)\033[0m\n", r->elapsed_seconds);
+    } else {
+        printf("  ⏱ Status            : \033[1;32m✅ COMPLETED EARLY (in %.2fs)\033[0m\n", r->elapsed_seconds);
+    }
+    printf("  📝 Words Typed      : \033[1;33m%u words\033[0m (%u correct, %u errors)\n", 
+           r->total_words_typed, r->correct_words_typed, 
+           (r->total_words_typed >= r->correct_words_typed) ? (r->total_words_typed - r->correct_words_typed) : 0U);
     printf("  ⌨️ Total Characters : %u\n", r->total_chars_typed);
     printf("  ✅ Correct Keys     : %u\n", r->correct_chars);
     printf("  ❌ Mistakes / Errors : %u\n", r->error_chars);
@@ -213,7 +293,7 @@ static void Print_ScoreBoard(const TypingResult_t *r)
 /* ==============================================================================
  * SECTION 7: PROGRAM ENTRY POINT (main)
  * ------------------------------------------------------------------------------
- * The operating system transfers control here upon launching the binary.
+ * Demonstrates terminal raw/non-canonical input, signals, and control flow.
  * ==============================================================================
  */
 int main(void)
@@ -228,7 +308,8 @@ int main(void)
     printf("Instructions:\n");
     printf("1. You will have %u seconds to type the paragraph below.\n", DEFAULT_TEST_SECONDS);
     printf("2. The countdown timer starts the moment you press [ENTER].\n");
-    printf("3. When time is up, the OS timer will stop input automatically.\n");
+    printf("3. When time is up, the OS timer will stop input automatically\n");
+    printf("   and count all words and characters typed so far!\n");
     printf("4. Or, press [ENTER] when you finish typing to submit early!\n");
     printf("============================================================\n\n");
 
@@ -240,9 +321,13 @@ int main(void)
     printf("Press [ENTER] when you are ready to begin countdown...");
     fflush(stdout);
 
-    /* Wait for user to press ENTER */
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {}
+    /* Wait for user to press ENTER using unbuffered read */
+    char enter_ch = 0;
+    while (read(STDIN_FILENO, &enter_ch, 1) > 0) {
+        if (enter_ch == '\n' || enter_ch == '\r') {
+            break;
+        }
+    }
 
     /* Install the POSIX Timer Signal Handler */
     Timer_Configure();
@@ -251,41 +336,111 @@ int main(void)
     printf(">> ");
     fflush(stdout);
 
+    /* Check if standard input is an interactive terminal */
+    bool is_terminal = isatty(STDIN_FILENO);
+    struct termios orig_termios;
+
+    if (is_terminal) {
+        /* Enable non-canonical mode so each keystroke is buffered into user_input immediately! */
+        tcgetattr(STDIN_FILENO, &orig_termios);
+        struct termios raw_termios = orig_termios;
+        raw_termios.c_lflag &= ~(ICANON); /* Disable canonical mode (line buffering) */
+        raw_termios.c_cc[VMIN]  = 1;      /* Wait for at least 1 character */
+        raw_termios.c_cc[VTIME] = 0;      /* No character timer timeout */
+        tcsetattr(STDIN_FILENO, TCSANOW, &raw_termios);
+    }
+
     /* Arm the OS Timer: alarm() will deliver SIGALRM in DEFAULT_TEST_SECONDS */
     alarm(DEFAULT_TEST_SECONDS);
     time_t start_time = time(NULL);
 
-    /* Read user input from STDIN (stops if user hits Enter OR if SIGALRM triggers) */
-    char *read_ptr = fgets(user_input, BUFFER_CAPACITY, stdin);
+    size_t input_idx = 0;
+
+    /* Real-Time Input Loop: captures every character until time expires or Enter is pressed */
+    while (!g_time_up && (input_idx < (BUFFER_CAPACITY - 1))) {
+        char ch = 0;
+        ssize_t bytes_read = read(STDIN_FILENO, &ch, 1);
+
+        if (g_time_up) {
+            break; /* Timer expired! */
+        }
+
+        if (bytes_read <= 0) {
+            if (errno == EINTR) {
+                /* Interrupted by SIGALRM signal! */
+                break;
+            }
+            break; /* EOF or error */
+        }
+
+        /* Check for Enter key (submission) */
+        if (ch == '\n' || ch == '\r') {
+            printf("\n");
+            break;
+        }
+
+        /* Handle Backspace key (ASCII 8 or 127) */
+        if (ch == 127 || ch == '\b') {
+            if (input_idx > 0) {
+                input_idx--;
+                user_input[input_idx] = '\0';
+                if (is_terminal) {
+                    /* Visually erase character in terminal */
+                    printf("\b \b");
+                    fflush(stdout);
+                }
+            }
+            continue;
+        }
+
+        /* Store character into input buffer and echo to screen */
+        user_input[input_idx++] = ch;
+        user_input[input_idx]   = '\0';
+
+        if (is_terminal) {
+            putchar(ch);
+            fflush(stdout);
+        }
+    }
 
     /* Disarm the timer once input completes or gets interrupted */
     alarm(0);
     time_t end_time = time(NULL);
 
+    /* Restore original terminal settings */
+    if (is_terminal) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+    }
+
     double elapsed_sec = difftime(end_time, start_time);
+    bool timed_out = (g_time_up != 0);
 
     /* Check whether time expired via signal handler */
-    if (g_time_up || (read_ptr == NULL && errno == EINTR)) {
+    if (timed_out) {
         printf("\n\n\033[1;31m⏰ TIME'S UP! The %u-second countdown expired!\033[0m\n", DEFAULT_TEST_SECONDS);
+        uint32_t words_captured = Count_Words(user_input);
+        printf("You typed \033[1;33m%u words\033[0m (%zu characters) before the timer halted execution.\n", 
+               words_captured, input_idx);
         elapsed_sec = (double)DEFAULT_TEST_SECONDS;
     } else {
-        printf("\n\n\033[1;32m🎉 Done! You completed typing before the timer expired.\033[0m\n");
+        printf("\n\033[1;32m🎉 Done! You completed typing before the timer expired.\033[0m\n");
     }
 
     /* Compute scores */
     TypingResult_t results = Calculate_Score(TARGET_PARAGRAPH, user_input, elapsed_sec);
 
-    /* Print results */
-    Print_ScoreBoard(&results);
+    /* Print scorecard */
+    Print_ScoreBoard(&results, timed_out);
 
     /* Pedagogical summary for students */
     printf("💡 ANATOMY OF THIS C PROGRAM FOR STUDENTS:\n");
-    printf(" - #include directives brought in standard library functions.\n");
-    printf(" - struct TypingResult_t bundled multiple statistics into one clean type.\n");
-    printf(" - sigaction() and alarm(%u) demonstrated asynchronous OS event handling.\n", DEFAULT_TEST_SECONDS);
-    printf(" - volatile sig_atomic_t g_time_up ensured safe communication between the\n");
-    printf("   signal handler (emulating an interrupt) and main().\n");
-    printf(" - Floating-point typecasts (double) prevented integer truncation errors.\n\n");
+    printf(" 1. termios non-canonical mode captured keystrokes in real-time so that\n");
+    printf("    when timeout occurred, all %u typed words were preserved!\n", results.total_words_typed);
+    printf(" 2. Count_Words() traversed whitespace transitions to accurately count words.\n");
+    printf(" 3. sigaction() and alarm(%u) demonstrated asynchronous OS event handling.\n", DEFAULT_TEST_SECONDS);
+    printf(" 4. volatile sig_atomic_t g_time_up ensured safe communication between the\n");
+    printf("    signal handler (emulating an interrupt) and main().\n");
+    printf(" 5. Floating-point typecasts (double) prevented integer truncation errors.\n\n");
 
     return EXIT_SUCCESS; /* Return 0 to OS indicating clean execution */
 }
