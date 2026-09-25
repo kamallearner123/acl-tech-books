@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chapter 0: Installing STM32CubeMX, IDE &amp; Programmer - Embedded C Programming</title>
+  <meta name="description" content="Step-by-step installation guide for STM32CubeMX, STM32CubeIDE, and ST-LINK Programmer on macOS, Windows, and Linux Ubuntu for Embedded C development." />
+</head>
+<body>
+<article class="book-page">
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- CHAPTER HEADER                                          -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <header class="chapter-header">
+    <div class="chapter-badge">Chapter 0 · Setup &amp; Environment</div>
+    <h1>Installing STM32CubeMX, IDE &amp; Programmer</h1>
+    <p class="chapter-subtitle">
+      Configure your complete development environment — code generator, integrated IDE, and hardware
+      programmer — on <strong>macOS</strong>, <strong>Windows</strong>, and <strong>Linux Ubuntu</strong>
+      before writing your first line of embedded C.
+    </p>
+    <div class="chapter-meta">
+      <span>⏱ ~45 min</span>
+      <span>🛠 Hands-on Setup</span>
+      <span>🎯 All Platforms</span>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- LEARNING OBJECTIVES                                     -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="objectives-box">
+    <h2>🎯 Learning Objectives</h2>
+    <ul>
+      <li>Understand the role of STM32CubeMX, STM32CubeIDE, and ST-LINK Programmer in the embedded workflow.</li>
+      <li>Download and install all three tools on <strong>macOS</strong>, <strong>Windows 10/11</strong>, and <strong>Linux Ubuntu 22.04/24.04</strong>.</li>
+      <li>Configure the Java runtime dependency where required.</li>
+      <li>Verify the installation with a blink project on a Nucleo or Discovery board.</li>
+      <li>Troubleshoot common installation errors on each platform.</li>
+    </ul>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.1 – TOOL OVERVIEW                            -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.1 &nbsp; Tool Landscape Overview</h2>
+    <p>
+      STMicroelectronics provides a unified, free-of-charge ecosystem for STM32 development.
+      Three tools form the backbone of every project in this course:
+    </p>
+
+    <div class="tool-grid">
+      <!-- STM32CubeMX -->
+      <div class="tool-card">
+        <div class="tool-icon">⚙️</div>
+        <h3>STM32CubeMX</h3>
+        <p>
+          A graphical <em>code-generation wizard</em>. Configure pins, clocks, peripherals (UART, SPI, I²C, Timers,
+          DMA, ADC…) and generate initialisation C code for your target MCU — no hand-crafting register values.
+        </p>
+        <ul>
+          <li>GUI-based MCU configurator</li>
+          <li>Clock-tree visualiser &amp; calculator</li>
+          <li>HAL / LL / Bare-Metal code generator</li>
+          <li>Middleware (FreeRTOS, USB, LwIP) integration</li>
+          <li>Exports directly to STM32CubeIDE, Makefile, or IAR</li>
+        </ul>
+        <div class="tool-badge">Standalone App · Java Required</div>
+      </div>
+
+      <!-- STM32CubeIDE -->
+      <div class="tool-card">
+        <div class="tool-icon">💻</div>
+        <h3>STM32CubeIDE</h3>
+        <p>
+          A full-featured <em>Integrated Development Environment</em> built on Eclipse CDT + GCC ARM cross-compiler.
+          Write, build, and debug STM32 firmware all in one window. CubeMX is also embedded inside it as a plugin.
+        </p>
+        <ul>
+          <li>Eclipse-based IDE with GCC ARM toolchain</li>
+          <li>Integrated CubeMX peripheral configurator</li>
+          <li>One-click GDB debugging over ST-LINK</li>
+          <li>Code analysis, syntax highlighting, refactoring</li>
+          <li>Live expressions, memory browser, register view</li>
+        </ul>
+        <div class="tool-badge">Recommended Primary Tool</div>
+      </div>
+
+      <!-- ST-LINK Programmer -->
+      <div class="tool-card">
+        <div class="tool-icon">🔌</div>
+        <h3>STM32CubeProgrammer (ST-LINK)</h3>
+        <p>
+          A standalone <em>flash programmer and memory inspector</em> for STM32 devices.
+          Download firmware (<code>.bin</code>, <code>.hex</code>, <code>.elf</code>), read/write option bytes,
+          and erase flash — via USB/ST-LINK, UART, or SWD.
+        </p>
+        <ul>
+          <li>Flash <code>.elf</code> / <code>.bin</code> / <code>.hex</code> binaries</li>
+          <li>Erase, verify, and read flash memory</li>
+          <li>Configure option bytes (read protection, boot mode)</li>
+          <li>Works with ST-LINK/V2, ST-LINK/V3, USB DFU</li>
+          <li>CLI mode for scripted CI/CD flashing pipelines</li>
+        </ul>
+        <div class="tool-badge">Required for Standalone Flashing</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Quick Tip:</strong> If you install <strong>STM32CubeIDE</strong>, it bundles a version of CubeMX
+      internally. You only need the standalone CubeMX app if you prefer a separate workflow or want the latest
+      MCU database updates before CubeIDE ships them.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.2 – SYSTEM PREREQUISITES                     -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.2 &nbsp; System Prerequisites</h2>
+
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th>Requirement</th>
+          <th>macOS</th>
+          <th>Windows</th>
+          <th>Linux Ubuntu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>OS Version</strong></td>
+          <td>macOS 12 Monterey or later</td>
+          <td>Windows 10 / 11 (64-bit)</td>
+          <td>Ubuntu 20.04 / 22.04 / 24.04 (64-bit)</td>
+        </tr>
+        <tr>
+          <td><strong>RAM</strong></td>
+          <td>8 GB minimum (16 GB recommended)</td>
+          <td>8 GB minimum (16 GB recommended)</td>
+          <td>4 GB minimum (8 GB recommended)</td>
+        </tr>
+        <tr>
+          <td><strong>Disk Space</strong></td>
+          <td>~5 GB free</td>
+          <td>~5 GB free</td>
+          <td>~4 GB free</td>
+        </tr>
+        <tr>
+          <td><strong>Java Runtime</strong></td>
+          <td>JRE 11+ (for standalone CubeMX)</td>
+          <td>JRE 11+ or bundled</td>
+          <td>JRE 11+ via <code>apt</code></td>
+        </tr>
+        <tr>
+          <td><strong>USB Driver</strong></td>
+          <td>Built-in (no driver needed)</td>
+          <td>ST-LINK USB driver (auto-installed)</td>
+          <td>udev rules file (manual step)</td>
+        </tr>
+        <tr>
+          <td><strong>Architecture</strong></td>
+          <td>Intel x86-64 or Apple Silicon (M1/M2/M3)</td>
+          <td>x86-64</td>
+          <td>x86-64</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.3 – DOWNLOADING THE TOOLS                    -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.3 &nbsp; Downloading the Tools</h2>
+    <p>
+      All tools are available free of charge from ST's official website.
+      An ST account (free) is required to download installers.
+    </p>
+
+    <div class="download-steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <div>
+          <strong>Create / Log in to your ST account</strong><br />
+          Visit <code>https://www.st.com</code> → click <em>Sign In</em> → create a free account if needed.
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <div>
+          <strong>Download STM32CubeIDE</strong><br />
+          Navigate to: <code>st.com → Products → Evaluation Tools → STM32CubeIDE</code><br />
+          Direct: <code>https://www.st.com/en/development-tools/stm32cubeide.html</code><br />
+          Choose your platform: <em>macOS / Windows / Linux Debian</em> package.
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <div>
+          <strong>Download STM32CubeMX</strong> (optional standalone)<br />
+          Direct: <code>https://www.st.com/en/development-tools/stm32cubemx.html</code><br />
+          Platform-specific: <code>.exe</code> (Win), <code>.dmg/.zip</code> (Mac), <code>.linux</code> (Ubuntu).
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">4</span>
+        <div>
+          <strong>Download STM32CubeProgrammer</strong><br />
+          Direct: <code>https://www.st.com/en/development-tools/stm32cubeprog.html</code><br />
+          Available for all three platforms.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.4 – macOS INSTALLATION                       -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.4 &nbsp; 🍎 Installation on macOS</h2>
+
+    <div class="platform-section mac">
+
+      <h3>A. Install Java Runtime (JRE 11+)</h3>
+      <p>
+        STM32CubeMX standalone requires Java. The easiest method is via <strong>Homebrew</strong>:
+      </p>
+      <pre><code class="language-bash"># Install Homebrew if not present
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install OpenJDK 21 (LTS)
+brew install openjdk@21
+
+# Symlink so system Java wrappers find it
+sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk \
+     /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+
+# Verify
+java -version
+# Output: openjdk version "21.x.x" ...</code></pre>
+
+      <h3>B. Install STM32CubeIDE</h3>
+      <ol>
+        <li>Double-click the downloaded <code>.dmg</code> file to mount it.</li>
+        <li>Drag <strong>STM32CubeIDE.app</strong> into your <code>/Applications</code> folder.</li>
+        <li>On first launch, macOS may show <em>"App from unidentified developer"</em>.</li>
+        <li>
+          Open <strong>System Preferences → Privacy &amp; Security → Security</strong> and click
+          <em>"Open Anyway"</em> next to the STM32CubeIDE entry.
+        </li>
+        <li>
+          Alternatively, use Terminal to remove quarantine:
+          <pre><code class="language-bash">xattr -dr com.apple.quarantine /Applications/STM32CubeIDE.app</code></pre>
+        </li>
+        <li>Choose a workspace folder (e.g., <code>~/STM32CubeIDE/workspace</code>) and click <em>Launch</em>.</li>
+      </ol>
+
+      <h3>C. Install STM32CubeMX (Standalone)</h3>
+      <ol>
+        <li>Unzip the downloaded <code>STM32CubeMX-Mac-vX.Y.Z.zip</code>.</li>
+        <li>Run the <code>SetupSTM32CubeMX-X.Y.Z.app</code> installer package.</li>
+        <li>Follow the installation wizard and accept the license agreement.</li>
+        <li>
+          Launch from <code>/Applications/STMicroelectronics/STM32CubeMX.app</code> or use Spotlight:
+          <kbd>⌘ Space</kbd> → type <em>STM32CubeMX</em>.
+        </li>
+        <li>
+          On first launch, CubeMX will prompt you to install firmware packages (HAL libraries) for your MCU family
+          (e.g., STM32F4, STM32H7). Click <strong>Install Now</strong>.
+        </li>
+      </ol>
+
+      <h3>D. Install STM32CubeProgrammer</h3>
+      <ol>
+        <li>Run the downloaded <code>SetupSTM32CubeProgrammer-X.Y.Z.app</code>.</li>
+        <li>Follow the wizard — default install path is <code>/Applications/STMicroelectronics/STM32CubeProgrammer</code>.</li>
+        <li>
+          Add the CLI tool to your PATH for terminal use:
+          <pre><code class="language-bash"># Add to ~/.zshrc
+echo 'export PATH="/Applications/STMicroelectronics/STM32CubeProgrammer/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Verify
+STM32_Programmer_CLI --version</code></pre>
+        </li>
+      </ol>
+
+      <h3>E. ST-LINK USB Driver on macOS</h3>
+      <div class="success-box">
+        ✅ <strong>No driver installation needed on macOS.</strong> The ST-LINK USB driver is built into the macOS
+        kernel. Simply plug in your Nucleo or Discovery board via USB and it will be detected automatically.
+      </div>
+
+      <h3>F. Apple Silicon (M1 / M2 / M3) Notes</h3>
+      <div class="warning-box">
+        ⚠️ <strong>Rosetta 2 Required.</strong> STM32CubeIDE and STM32CubeMX ship as x86-64 binaries.
+        On Apple Silicon, macOS will prompt you to install <strong>Rosetta 2</strong> on first launch — click
+        <em>Install</em> and enter your password. Performance is good; native ARM builds are expected in future releases.
+      </div>
+      <pre><code class="language-bash"># Manually install Rosetta 2 if prompted
+softwareupdate --install-rosetta --agree-to-license</code></pre>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.5 – WINDOWS INSTALLATION                     -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.5 &nbsp; 🪟 Installation on Windows 10 / 11</h2>
+
+    <div class="platform-section win">
+
+      <h3>A. Install STM32CubeIDE</h3>
+      <ol>
+        <li>Run the downloaded <code>st-stm32cubeide_X.Y.Z_YYYYMMDD_setup.exe</code> as <strong>Administrator</strong>.</li>
+        <li>Accept the license agreement and choose an install directory (default: <code>C:\ST\STM32CubeIDE_X.Y.Z\</code>).</li>
+        <li>
+          The installer automatically installs:
+          <ul>
+            <li>GCC ARM Embedded Toolchain</li>
+            <li>ST-LINK USB driver (ST-LINK/V2 and ST-LINK/V3)</li>
+            <li>GDB Server</li>
+          </ul>
+        </li>
+        <li>Click <em>Finish</em>. A desktop shortcut is created.</li>
+        <li>On first launch, choose or create a workspace directory and click <em>Launch</em>.</li>
+      </ol>
+
+      <div class="info-box">
+        💡 <strong>Antivirus Warning:</strong> Some antivirus software (Windows Defender, Avast) may flag the
+        ARM GCC compiler binaries as suspicious. Add <code>C:\ST\</code> to your AV exclusions list before installation
+        to avoid interruptions.
+      </div>
+
+      <h3>B. Install STM32CubeMX (Standalone)</h3>
+      <ol>
+        <li>Run <code>SetupSTM32CubeMX-X.Y.Z.exe</code> as <strong>Administrator</strong>.</li>
+        <li>The installer bundles a compatible JRE — no separate Java installation is needed on Windows.</li>
+        <li>Accept defaults and click <em>Next → Install → Finish</em>.</li>
+        <li>Launch from Start Menu: <em>STMicroelectronics → STM32CubeMX</em>.</li>
+        <li>On first run, go to <strong>Help → Manage Embedded Software Packages</strong> and install the HAL package for your MCU family (e.g., <code>STM32F4</code>, <code>STM32L4</code>, <code>STM32H7</code>).</li>
+      </ol>
+
+      <h3>C. Install STM32CubeProgrammer</h3>
+      <ol>
+        <li>Run <code>SetupSTM32CubeProgrammer-X.Y.Z.exe</code> as <strong>Administrator</strong>.</li>
+        <li>The ST-LINK USB driver is installed automatically alongside the programmer.</li>
+        <li>After installation, the CLI is accessible at:<br/>
+          <code>C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\STM32_Programmer_CLI.exe</code>
+        </li>
+        <li>
+          Add to system PATH (optional):
+          <ol type="a">
+            <li>Press <kbd>Win + X</kbd> → <em>System → Advanced System Settings → Environment Variables</em>.</li>
+            <li>Edit the <em>Path</em> system variable → click <em>New</em>.</li>
+            <li>Paste: <code>C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin</code></li>
+            <li>Click <em>OK</em> all the way out and restart your terminal.</li>
+          </ol>
+        </li>
+      </ol>
+
+      <h3>D. ST-LINK USB Driver on Windows</h3>
+      <ol>
+        <li>The ST-LINK/V2 driver is installed automatically by both CubeIDE and CubeProgrammer installers.</li>
+        <li>Plug in your Nucleo board — Windows should detect it as <em>"STMicroelectronics STLink Virtual COM Port"</em>.</li>
+        <li>
+          Verify in <strong>Device Manager</strong> (<kbd>Win + X</kbd> → Device Manager):
+          <ul>
+            <li>Under <em>Ports (COM &amp; LPT)</em>: <code>STLink Virtual COM Port (COMx)</code></li>
+            <li>Under <em>Universal Serial Bus devices</em>: <code>STM32 STLink</code></li>
+          </ul>
+        </li>
+        <li>
+          If the driver shows a yellow warning icon, download the driver manually from:
+          <code>https://www.st.com/en/development-tools/stsw-link009.html</code>
+        </li>
+      </ol>
+
+      <h3>E. Windows Subsystem for Linux (WSL2) Option</h3>
+      <div class="info-box">
+        💡 <strong>Advanced:</strong> Developers who prefer a Linux terminal environment on Windows can use
+        <strong>WSL2</strong> with a GCC ARM toolchain for command-line builds, then use STM32CubeIDE on the
+        Windows side for flashing and debugging. USB passthrough to WSL2 requires
+        <code>usbipd-win</code> — covered in an advanced appendix.
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.6 – LINUX UBUNTU INSTALLATION                -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.6 &nbsp; 🐧 Installation on Linux Ubuntu (22.04 / 24.04)</h2>
+
+    <div class="platform-section linux">
+
+      <h3>A. System Dependencies</h3>
+      <pre><code class="language-bash"># Update package index
+sudo apt update &amp;&amp; sudo apt upgrade -y
+
+# Install required libraries for STM32CubeIDE (Eclipse/GTK)
+sudo apt install -y \
+  libncurses5 \
+  libncurses5-dev \
+  libpython3-dev \
+  python3-pip \
+  unzip \
+  wget \
+  curl \
+  git \
+  make \
+  cmake \
+  build-essential \
+  libudev-dev \
+  libusb-1.0-0-dev</code></pre>
+
+      <h3>B. Install Java Runtime (JRE 21)</h3>
+      <pre><code class="language-bash"># Install OpenJDK 21
+sudo apt install -y openjdk-21-jdk
+
+# Verify
+java -version
+# openjdk version "21.x.x" ...
+
+# Set JAVA_HOME
+echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
+echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc</code></pre>
+
+      <h3>C. Install STM32CubeIDE</h3>
+      <ol>
+        <li>
+          Make the downloaded installer executable:
+          <pre><code class="language-bash">chmod +x st-stm32cubeide_X.Y.Z_YYYYMMDD_amd64.deb_bundle.sh</code></pre>
+        </li>
+        <li>
+          Run as root:
+          <pre><code class="language-bash">sudo ./st-stm32cubeide_X.Y.Z_YYYYMMDD_amd64.deb_bundle.sh</code></pre>
+        </li>
+        <li>Follow the prompts — the installer installs to <code>/opt/st/stm32cubeide_X.Y.Z/</code>.</li>
+        <li>
+          Create a desktop launcher or launch from terminal:
+          <pre><code class="language-bash">/opt/st/stm32cubeide_X.Y.Z/stm32cubeide</code></pre>
+        </li>
+        <li>
+          Optionally add a symlink for convenience:
+          <pre><code class="language-bash">sudo ln -s /opt/st/stm32cubeide_X.Y.Z/stm32cubeide /usr/local/bin/stm32cubeide
+# Then launch with:
+stm32cubeide</code></pre>
+        </li>
+      </ol>
+
+      <h3>D. Install STM32CubeMX (Standalone)</h3>
+      <ol>
+        <li>
+          Make executable and run the installer:
+          <pre><code class="language-bash">chmod +x SetupSTM32CubeMX-X.Y.Z.linux
+sudo ./SetupSTM32CubeMX-X.Y.Z.linux</code></pre>
+        </li>
+        <li>Accept the license and choose install directory (default: <code>/home/&lt;user&gt;/STM32CubeMX</code>).</li>
+        <li>
+          Launch CubeMX:
+          <pre><code class="language-bash">~/STM32CubeMX/STM32CubeMX
+# Or if installed system-wide:
+/usr/local/STM32CubeMX/STM32CubeMX</code></pre>
+        </li>
+        <li>On first launch: <strong>Help → Manage Embedded Software Packages</strong> → install your target MCU family package.</li>
+      </ol>
+
+      <h3>E. Install STM32CubeProgrammer</h3>
+      <ol>
+        <li>
+          Make executable and run:
+          <pre><code class="language-bash">chmod +x SetupSTM32CubeProgrammer-X.Y.Z.linux
+sudo ./SetupSTM32CubeProgrammer-X.Y.Z.linux</code></pre>
+        </li>
+        <li>Default install path: <code>/home/&lt;user&gt;/STMicroelectronics/STM32Cube/STM32CubeProgrammer</code></li>
+        <li>
+          Add CLI to PATH:
+          <pre><code class="language-bash">echo 'export PATH="$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+STM32_Programmer_CLI --version</code></pre>
+        </li>
+      </ol>
+
+      <h3>F. ST-LINK USB udev Rules (Critical on Linux)</h3>
+      <p>
+        Linux requires <strong>udev rules</strong> to give non-root users permission to access the ST-LINK USB device.
+        Without this step, you'll get <em>"Permission denied"</em> or <em>"No ST-LINK detected"</em> errors.
+      </p>
+      <pre><code class="language-bash"># The udev rules file is installed by CubeIDE/CubeProgrammer at:
+# /etc/udev/rules.d/49-stlinkv2.rules  (or similar)
+# If not present, create it manually:
+
+sudo tee /etc/udev/rules.d/49-stlink.rules &lt;&lt;'EOF'
+# ST-LINK/V1
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3744", MODE="0666", GROUP="plugdev"
+# ST-LINK/V2
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3748", MODE="0666", GROUP="plugdev"
+# ST-LINK/V2-1
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", MODE="0666", GROUP="plugdev"
+# ST-LINK/V3
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374e", MODE="0666", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374f", MODE="0666", GROUP="plugdev"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="3753", MODE="0666", GROUP="plugdev"
+EOF
+
+# Reload udev rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
+# Add your user to the plugdev group
+sudo usermod -aG plugdev $USER
+
+# Log out and log back in for the group change to take effect
+echo "Logout and login again to apply group membership!"</code></pre>
+
+      <div class="warning-box">
+        ⚠️ <strong>Important:</strong> After adding your user to the <code>plugdev</code> group, you
+        <strong>must log out and log back in</strong> (or reboot) for the change to take effect.
+        Running <code>newgrp plugdev</code> in the current terminal is a temporary workaround.
+      </div>
+
+      <h3>G. Verify ST-LINK Detection on Ubuntu</h3>
+      <pre><code class="language-bash"># Plug in your Nucleo/Discovery board, then:
+lsusb | grep ST
+# Should show: Bus 001 Device 003: ID 0483:374b STMicroelectronics ST-LINK/V2.1
+
+# Test with CubeProgrammer CLI
+STM32_Programmer_CLI -c port=SWD
+# Should show: ST-LINK SN: ... connected</code></pre>
+
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.7 – FIRST PROJECT VERIFICATION               -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.7 &nbsp; ✅ Verification — Hello World Blink</h2>
+    <p>
+      Once all tools are installed, verify the full toolchain end-to-end with a classic LED blink project:
+    </p>
+
+    <div class="step-flow">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div>
+          <strong>Create project in STM32CubeIDE</strong><br />
+          <em>File → New → STM32 Project</em> → select your board (e.g., Nucleo-F446RE) → name it <code>Blink</code>.
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div>
+          <strong>Configure LED pin in CubeMX (built-in)</strong><br />
+          In the Pinout &amp; Configuration view, set <code>PA5</code> (or the board LED pin) to <em>GPIO_Output</em>.
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div>
+          <strong>Generate code</strong><br />
+          Click <em>Project → Generate Code</em>. The HAL init code is generated automatically.
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div>
+          <strong>Add blink logic in <code>main.c</code></strong><br />
+          Inside the <code>while(1)</code> loop (between the <code>USER CODE</code> comments):
+          <pre><code class="language-c">/* USER CODE BEGIN WHILE */
+while (1)
+{
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+    HAL_Delay(500);   /* 500 ms on / 500 ms off */
+    /* USER CODE END WHILE */
+}</code></pre>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div>
+          <strong>Build &amp; Flash</strong><br />
+          Press <kbd>Ctrl+B</kbd> (or <kbd>⌘B</kbd> on Mac) to build. Then click the green <em>Run</em> button (▶).
+          CubeIDE flashes via ST-LINK and starts the debug session. The LED should blink at 1 Hz.
+        </div>
+      </div>
+    </div>
+
+    <div class="success-box">
+      🎉 <strong>Success!</strong> If your board's LED blinks, your complete toolchain — CubeMX, CubeIDE, and ST-LINK — is
+      verified and working correctly on your platform. You are ready for Chapter 1.
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 0.8 – TROUBLESHOOTING                          -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section>
+    <h2>0.8 &nbsp; 🔧 Common Troubleshooting</h2>
+
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th>Problem</th>
+          <th>Platform</th>
+          <th>Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><em>"App can't be opened because it is from an unidentified developer"</em></td>
+          <td>macOS</td>
+          <td>Run <code>xattr -dr com.apple.quarantine /Applications/STM32CubeIDE.app</code></td>
+        </tr>
+        <tr>
+          <td>CubeMX won't launch (white screen / crashes)</td>
+          <td>macOS / Ubuntu</td>
+          <td>Ensure Java 11+ is installed and <code>JAVA_HOME</code> is set correctly.</td>
+        </tr>
+        <tr>
+          <td>ST-LINK not detected in CubeIDE / CubeProgrammer</td>
+          <td>Ubuntu</td>
+          <td>Create/reload udev rules, add user to <code>plugdev</code>, then log out and back in.</td>
+        </tr>
+        <tr>
+          <td>Device Manager shows yellow warning icon for ST-LINK</td>
+          <td>Windows</td>
+          <td>Download and run <code>stsw-link009.zip</code> driver from st.com manually.</td>
+        </tr>
+        <tr>
+          <td><em>"libncurses.so.5: cannot open shared object"</em></td>
+          <td>Ubuntu 22.04+</td>
+          <td>Run <code>sudo apt install libncurses5</code>.</td>
+        </tr>
+        <tr>
+          <td>Build fails: <em>"arm-none-eabi-gcc not found"</em></td>
+          <td>All</td>
+          <td>Re-run the CubeIDE installer; ensure the GCC toolchain component was not skipped.</td>
+        </tr>
+        <tr>
+          <td>CubeIDE runs very slowly on Apple Silicon (M1/M2/M3)</td>
+          <td>macOS (ARM)</td>
+          <td>Ensure Rosetta 2 is installed: <code>softwareupdate --install-rosetta</code>.</td>
+        </tr>
+        <tr>
+          <td>Flash verification fails after programming</td>
+          <td>All</td>
+          <td>Try erasing flash first: in CubeProgrammer → <em>Erase &amp; Programming</em> tab → check <em>Full chip erase</em>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- MCQ QUIZ                                                -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="mcq-section">
+    <h2>📝 Chapter 0 – Knowledge Check</h2>
+
+    <div class="mcq-container" data-mcq-id="ch0-q1">
+      <p class="mcq-question"><strong>Q1.</strong> Which file format does STM32CubeProgrammer <em>not</em> support for flashing?</p>
+      <ul class="mcq-options">
+        <li><label><input type="radio" name="ch0-q1" value="a" /> A) <code>.bin</code></label></li>
+        <li><label><input type="radio" name="ch0-q1" value="b" /> B) <code>.hex</code></label></li>
+        <li><label><input type="radio" name="ch0-q1" value="c" /> C) <code>.elf</code></label></li>
+        <li><label><input type="radio" name="ch0-q1" value="d" /> D) <code>.py</code></label></li>
+      </ul>
+      <div class="mcq-feedback" data-correct="d">
+        ✅ <strong>Correct: D.</strong> CubeProgrammer supports <code>.bin</code>, <code>.hex</code>, and <code>.elf</code>
+        binaries. It does not flash Python (<code>.py</code>) files.
+      </div>
+    </div>
+
+    <div class="mcq-container" data-mcq-id="ch0-q2">
+      <p class="mcq-question"><strong>Q2.</strong> On Linux Ubuntu, why is it necessary to add udev rules for ST-LINK?</p>
+      <ul class="mcq-options">
+        <li><label><input type="radio" name="ch0-q2" value="a" /> A) To increase USB transfer speed</label></li>
+        <li><label><input type="radio" name="ch0-q2" value="b" /> B) To allow non-root users to access the ST-LINK USB device</label></li>
+        <li><label><input type="radio" name="ch0-q2" value="c" /> C) To install the GCC ARM toolchain</label></li>
+        <li><label><input type="radio" name="ch0-q2" value="d" /> D) To configure the firewall for JTAG traffic</label></li>
+      </ul>
+      <div class="mcq-feedback" data-correct="b">
+        ✅ <strong>Correct: B.</strong> Linux's security model requires explicit udev rules granting <code>plugdev</code>
+        group members read/write access to the ST-LINK USB device. Without them, only root can access it.
+      </div>
+    </div>
+
+    <div class="mcq-container" data-mcq-id="ch0-q3">
+      <p class="mcq-question"><strong>Q3.</strong> What is the primary function of STM32CubeMX?</p>
+      <ul class="mcq-options">
+        <li><label><input type="radio" name="ch0-q3" value="a" /> A) A real-time operating system for STM32</label></li>
+        <li><label><input type="radio" name="ch0-q3" value="b" /> B) A graphical MCU configurator and HAL initialisation code generator</label></li>
+        <li><label><input type="radio" name="ch0-q3" value="c" /> C) A hardware simulator for debugging without a physical board</label></li>
+        <li><label><input type="radio" name="ch0-q3" value="d" /> D) A PCB design tool for STM32 circuits</label></li>
+      </ul>
+      <div class="mcq-feedback" data-correct="b">
+        ✅ <strong>Correct: B.</strong> STM32CubeMX is a graphical configuration wizard that lets you configure
+        MCU pins, peripherals, and clocks visually, then generates the corresponding HAL/LL C initialisation code.
+      </div>
+    </div>
+
+    <div class="mcq-container" data-mcq-id="ch0-q4">
+      <p class="mcq-question"><strong>Q4.</strong> On macOS with Apple Silicon (M1/M2/M3), what additional component must be installed to run STM32CubeIDE?</p>
+      <ul class="mcq-options">
+        <li><label><input type="radio" name="ch0-q4" value="a" /> A) Homebrew package manager</label></li>
+        <li><label><input type="radio" name="ch0-q4" value="b" /> B) Docker Desktop for Apple Silicon</label></li>
+        <li><label><input type="radio" name="ch0-q4" value="c" /> C) Rosetta 2 (x86-64 translation layer)</label></li>
+        <li><label><input type="radio" name="ch0-q4" value="d" /> D) Parallels Desktop virtual machine</label></li>
+      </ul>
+      <div class="mcq-feedback" data-correct="c">
+        ✅ <strong>Correct: C.</strong> STM32CubeIDE ships as an x86-64 binary. On Apple Silicon Macs, macOS uses
+        <strong>Rosetta 2</strong> to transparently translate x86-64 instructions to ARM64. It is installed on first
+        launch or via <code>softwareupdate --install-rosetta</code>.
+      </div>
+    </div>
+
+    <div class="mcq-container" data-mcq-id="ch0-q5">
+      <p class="mcq-question"><strong>Q5.</strong> After adding a user to the <code>plugdev</code> group on Ubuntu, what must be done for the change to take effect?</p>
+      <ul class="mcq-options">
+        <li><label><input type="radio" name="ch0-q5" value="a" /> A) Run <code>sudo reboot now</code> immediately</label></li>
+        <li><label><input type="radio" name="ch0-q5" value="b" /> B) Log out and log back in (or reboot)</label></li>
+        <li><label><input type="radio" name="ch0-q5" value="c" /> C) Run <code>sudo apt update</code></label></li>
+        <li><label><input type="radio" name="ch0-q5" value="d" /> D) Nothing — the change takes effect instantly</label></li>
+      </ul>
+      <div class="mcq-feedback" data-correct="b">
+        ✅ <strong>Correct: B.</strong> Linux group memberships are applied at login time. You must log out and
+        back in (or reboot) for the <code>plugdev</code> group membership to be recognised in your session.
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- CHAPTER SUMMARY                                         -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <section class="summary-box">
+    <h2>📌 Chapter 0 Summary</h2>
+    <ul>
+      <li><strong>Three tools</strong> form the STM32 development backbone: <em>CubeMX</em> (code generator), <em>CubeIDE</em> (build &amp; debug), and <em>CubeProgrammer</em> (flash).</li>
+      <li>On <strong>macOS</strong>: install via <code>.dmg</code> / <code>.app</code>; use <code>xattr</code> to bypass Gatekeeper; install Rosetta 2 for Apple Silicon.</li>
+      <li>On <strong>Windows</strong>: run installers as Administrator; the ST-LINK USB driver is bundled; watch for AV interference.</li>
+      <li>On <strong>Linux Ubuntu</strong>: install via <code>.deb</code> bundle / <code>.linux</code> scripts; configure udev rules and add your user to <code>plugdev</code>.</li>
+      <li>Verify everything end-to-end with a 1 Hz LED blink on a Nucleo board before proceeding.</li>
+    </ul>
+    <p><strong>Next:</strong> Chapter 1 — Constrained Systems Prelude &amp; C History.</p>
+  </section>
+
+</article>
+</body>
+</html>

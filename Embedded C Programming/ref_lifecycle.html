@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ref 6: Firmware Lifecycle &amp; Deployment - Embedded C Programming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script>
+        const savedTheme = localStorage.getItem('embedded-c-theme') || localStorage.getItem('rust-book-theme') || localStorage.getItem('embedded-theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Embedded C Programming</h2>
+            </div>
+            <div class="sidebar-content">
+                <ul class="toc">
+                    <li><a href="index.html">Course Overview</a></li>
+                    <li><a href="intro.html">Prelude: Constrained Systems</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">Module 1: Foundations &amp; Discipline</li>
+                    <li><a href="topic_01.html">Topic 1: C History &amp; Tools</a></li>
+                    <li><a href="topic_02.html">Topic 2: C Best Practices</a></li>
+                    <li><a href="topic_03.html">Topic 3: Compile, Link &amp; Logic Errors</a></li>
+                    <li><a href="topic_04.html">Topic 4: Assertions &amp; Logging</a></li>
+                    <li><a href="topic_05.html">Topic 5: Unit Testing in C</a></li>
+                    <li><a href="project_01.html">Project 1: Module 1 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #10b981; letter-spacing: 0.05em;">Module 2: Toolchains &amp; Binaries</li>
+                    <li><a href="topic_06.html">Topic 6: The Build Pipeline</a></li>
+                    <li><a href="topic_07.html">Topic 7: GCC &amp; Cross-Compilers</a></li>
+                    <li><a href="topic_08.html">Topic 8: objdump, size, nm &amp; GDB</a></li>
+                    <li><a href="topic_09.html">Topic 9: Make &amp; CMake Basics</a></li>
+                    <li><a href="topic_10.html">Topic 10: Git Workflow for Firmware</a></li>
+                    <li><a href="project_02.html">Project 2: Module 2 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #3b82f6; letter-spacing: 0.05em;">Module 3: Reactive &amp; Event-Driven Systems</li>
+                    <li><a href="topic_11.html">Topic 11: Events &amp; Event Handling</a></li>
+                    <li><a href="topic_12.html">Topic 12: Polling vs Interrupts</a></li>
+                    <li><a href="topic_13.html">Topic 13: Callbacks &amp; Timers</a></li>
+                    <li><a href="topic_14.html">Topic 14: Non-Blocking Firmware Design</a></li>
+                    <li><a href="project_03.html">Project 3: Module 3 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #8b5cf6; letter-spacing: 0.05em;">Module 4: Standards &amp; State Machines</li>
+                    <li><a href="topic_15.html">Topic 15: Naming Conventions &amp; Style</a></li>
+                    <li><a href="topic_16.html">Topic 16: Defensive Programming</a></li>
+                    <li><a href="topic_17.html">Topic 17: Documentation &amp; Doxygen</a></li>
+                    <li><a href="topic_18.html">Topic 18: MISRA-C Concepts</a></li>
+                    <li><a href="topic_19.html">Topic 19: States, Events &amp; Transitions</a></li>
+                    <li><a href="topic_20.html">Topic 20: State Tables &amp; FSMs</a></li>
+                    <li><a href="project_04.html">Project 4: Module 4 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #f59e0b; letter-spacing: 0.05em;">Module 5: Architecture &amp; Integration</li>
+                    <li><a href="topic_21.html">Topic 21: Modular .c &amp; .h Files</a></li>
+                    <li><a href="topic_22.html">Topic 22: Interfaces &amp; Abstraction</a></li>
+                    <li><a href="topic_23.html">Topic 23: Reusable Components</a></li>
+                    <li><a href="topic_24.html">Topic 24: App, Driver, HAL &amp; BSP</a></li>
+                    <li><a href="topic_25.html">Topic 25: Integrated Firmware Architecture</a></li>
+                    <li><a href="project_05.html">Project 5: Module 5 Milestone</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #ec4899; letter-spacing: 0.05em;">Engineering Reference</li>
+                    <li><a href="reference.html">Overview: Hardware Triad</a></li>
+                    <li><a href="ref_sensors.html">Ref 1: Sensors &amp; Transducers</a></li>
+                    <li><a href="ref_actuators.html">Ref 2: Actuators &amp; Power Drivers</a></li>
+                    <li><a href="ref_silicon.html">Ref 3: MCUs vs. MPUs (Silicon)</a></li>
+                    <li><a href="ref_devices.html">Ref 4: 20 Industrial Architectures</a></li>
+                    <li><a href="ref_standards.html">Ref 5: Standards &amp; Protocols</a></li>
+                    <li class="active"><a href="ref_lifecycle.html">Ref 6: Firmware Lifecycle &amp; Deployment</a></li>
+
+                    <li class="toc-module-header" style="padding: 0.75rem 1rem 0.25rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #38bdf8; letter-spacing: 0.05em;">Interactive Lab</li>
+                    <li><a href="stm32-firmware-journey.html">⚡ Visualize Execution (STM32)</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-nav" id="top-nav">
+                <div class="nav-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="nav-actions">
+                    <div class="mcq-score-badge" id="mcq-score-badge" title="Topic Quiz Score (Click for breakdown)">
+                        <span class="score-icon">🎯</span>
+                        <span class="score-label">Score:</span>
+                        <span class="score-value" id="mcq-score-value">0/10</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Light/Dark Theme">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <article class="book-page">
+                <span class="chapter-number" style="background-color: rgba(236, 72, 153, 0.1); color: #ec4899; border-color: rgba(236, 72, 153, 0.3);">Engineering Reference 6</span>
+                <h1>The Complete Firmware Engineering Lifecycle: From Requirements to Deployment</h1>
+
+                <p>
+                    Writing Embedded C in safety-critical and commercial products is never an ad-hoc exercise of typing code into an IDE and hitting "Run". In aerospace (<strong>DO-178C</strong>), automotive (<strong>ISO 26262 / ASPICE</strong>), medical devices (<strong>IEC 62304</strong>), and industrial automation (<strong>IEC 61508</strong>), every single binary byte flashed onto silicon must trace back to a verifiable requirement, pass static and dynamic quality gates, and be securely packaged for production provisioning and field updates.
+                </p>
+
+                <p>
+                    This comprehensive reference breaks down the complete <strong>10-Stage Embedded Engineering Lifecycle</strong> — guiding you step-by-step from customer requirements and Software Requirements Specifications (SRS), through layered architecture, defensive coding, host unit testing, cross-compilation, linker script layout, cryptographic signing, factory flashing, and Fail-Safe Firmware Over-The-Air (FOTA) deployment.
+                </p>
+
+                <!-- High-Level Flow Visualization Card -->
+                <div style="background: var(--sidebar-bg); border: 1.5px solid var(--border-color); border-radius: 12px; padding: 2rem; margin: 2rem 0; box-shadow: var(--shadow-sm);">
+                    <h3 style="margin-top: 0; color: var(--accent); font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🔄</span> The Embedded V-Model &amp; Deployment Pipeline
+                    </h3>
+                    <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
+                        Notice how the classical V-Model governs the development and verification phases, which feed seamlessly into the automated build, signing, factory flashing, and OTA deployment pipeline:
+                    </p>
+
+                    <div style="overflow-x: auto; padding: 1rem 0;">
+                        <div style="min-width: 780px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; text-align: center;">
+                            <!-- Stage 1 -->
+                            <div style="background: var(--bg-color); border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem 0.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #3b82f6; text-transform: uppercase;">Stage 1 &amp; 2</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; margin: 0.35rem 0;">Requirements &amp; Architecture</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">SRS IDs &bull; Layered HAL/BSP &bull; Resource Budget</div>
+                            </div>
+                            <!-- Stage 2 -->
+                            <div style="background: var(--bg-color); border: 1px solid #8b5cf6; border-radius: 8px; padding: 1rem 0.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #8b5cf6; text-transform: uppercase;">Stage 3 &amp; 4</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; margin: 0.35rem 0;">Design &amp; Embedded C</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">FSM Tables &bull; MISRA-C &bull; Defensive Checks</div>
+                            </div>
+                            <!-- Stage 3 -->
+                            <div style="background: var(--bg-color); border: 1px solid #10b981; border-radius: 8px; padding: 1rem 0.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Stage 5 &amp; 6</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; margin: 0.35rem 0;">Static &amp; Unit Tests</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">cppcheck &bull; Unity/CMock &bull; MC/DC Coverage</div>
+                            </div>
+                            <!-- Stage 4 -->
+                            <div style="background: var(--bg-color); border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem 0.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #f59e0b; text-transform: uppercase;">Stage 7 &amp; 8</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; margin: 0.35rem 0;">Build &amp; Signing</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">arm-none-eabi &bull; .ld Script &bull; ECDSA / CRC32</div>
+                            </div>
+                            <!-- Stage 5 -->
+                            <div style="background: var(--bg-color); border: 1px solid #ef4444; border-radius: 8px; padding: 1rem 0.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 700; color: #ef4444; text-transform: uppercase;">Stage 9 &amp; 10</div>
+                                <div style="font-weight: 800; font-size: 0.95rem; margin: 0.35rem 0;">Provision &amp; Deploy</div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted);">JTAG/SWD Flashing &bull; RDP Lock &bull; Dual-Bank FOTA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 1 -->
+                <h2>1. Phase 1: Requirements Engineering &amp; Traceability</h2>
+                <p>
+                    Every firmware project originates from system requirements. A system requirement captures customer expectations, operating environments, physical safety limitations, and regulatory standards. The firmware engineering team decomposes these into a formal <strong>Software Requirements Specification (SRS)</strong>.
+                </p>
+
+                <h3>1.1 Anatomy of a Robust Firmware Requirement</h3>
+                <p>
+                    Ambiguous requirements produce defective firmware. Industry standards such as ISO 26262 and IEC 62304 mandate that every software requirement must be <strong>unambiguous, verifiable, testable, and uniquely identifiable</strong>.
+                </p>
+
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Field</th>
+                                <th style="padding: 0.75rem 1rem;">Example Specification</th>
+                                <th style="padding: 0.75rem 1rem;">Significance in C Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #3b82f6;">Requirement ID</td>
+                                <td style="padding: 0.75rem 1rem;"><code>REQ_SW_TEMP_042</code></td>
+                                <td style="padding: 0.75rem 1rem;">Referenced in C Doxygen comments, Git commits, and test assertions.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #10b981;">Type</td>
+                                <td style="padding: 0.75rem 1rem;">Functional / Safety Critical (ASIL B / SIL 2)</td>
+                                <td style="padding: 0.75rem 1rem;">Determines coding standard stringency (e.g., MISRA Mandatory vs Required).</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #f59e0b;">Functional Statement</td>
+                                <td style="padding: 0.75rem 1rem;">"The firmware shall sample the PT100 temperature sensor at 50 Hz ± 2% via SPI1."</td>
+                                <td style="padding: 0.75rem 1rem;">Dictates hardware timer prescaler and reload values (20 ms period).</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #ef4444;">Safety / Fail-Safe</td>
+                                <td style="padding: 0.75rem 1rem;">"If temperature exceeds 85.0°C for > 100 ms, de-energize the heater relay within 10 ms."</td>
+                                <td style="padding: 0.75rem 1rem;">Guarantees dedicated hardware comparator or high-priority timer interrupt.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #8b5cf6;">Verification Method</td>
+                                <td style="padding: 0.75rem 1rem;">Automated Host Unit Test + Hardware HIL Test</td>
+                                <td style="padding: 0.75rem 1rem;">Maps directly to <code>test_temp_sensor.c</code> and automated HIL test rack.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>1.2 Bi-Directional Traceability Matrix (RTM)</h3>
+                <p>
+                    In an audit, you must demonstrate <strong>bi-directional traceability</strong>:
+                </p>
+                <ul>
+                    <li><strong>Forward Traceability:</strong> Can every customer requirement be traced down to an architectural module, a specific C function, and a unit test?</li>
+                    <li><strong>Backward Traceability:</strong> Does every line of C code exist for a documented reason? (Any code without a corresponding requirement is deemed <em>dead code</em> or <em>unintended functionality</em>, strictly forbidden under DO-178C Level A and ISO 26262 ASIL D).</li>
+                </ul>
+
+                <pre><code class="language-c">/**
+ * @file    sensor_temp.c
+ * @brief   Temperature Acquisition and Over-Temperature Protection Driver
+ * @implements REQ_SW_TEMP_042, REQ_SW_TEMP_043
+ * @standard   ISO 26262 ASIL-B
+ */
+#include "sensor_temp.h"
+#include "bsp_gpio.h"
+
+#define MAX_SAFE_TEMP_MILLICELSIUS   (85000L)
+#define MAX_OVERTEMP_DUR_TICKS       (5U)       /* 5 * 20ms = 100ms */
+
+static uint32_t s_overtemp_counter = 0U;
+
+void SensorTemp_ProcessSample(int32_t current_temp_mc)
+{
+    /* Trace: REQ_SW_TEMP_043 - Over-temperature safety cutoff */
+    if (current_temp_mc > MAX_SAFE_TEMP_MILLICELSIUS) {
+        s_overtemp_counter++;
+        if (s_overtemp_counter >= MAX_OVERTEMP_DUR_TICKS) {
+            BSP_Relay_Deenergize(); /* Force safe state within 10ms */
+        }
+    } else {
+        s_overtemp_counter = 0U;
+    }
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.1: Documenting Requirement Traceability directly in C Production Drivers</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 2 -->
+                <h2>2. Phase 2: Hardware-Software Partitioning &amp; Architecture</h2>
+                <p>
+                    Before writing application logic, the lead systems and firmware architects perform <strong>Hardware/Software Partitioning</strong>. They decide which tasks belong in hardware logic (DMA streams, CRC hardware accelerators, PWM timer dead-time generators) and which tasks run in firmware.
+                </p>
+
+                <h3>2.1 Layered Architecture Model</h3>
+                <p>
+                    To ensure the business logic is portable across silicon revisions and testable on a Linux development workstation without hardware attached, the codebase must adhere to strict architectural layers:
+                </p>
+
+                <div style="background: var(--bg-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0;">
+                    <ol style="margin: 0; padding-left: 1.2rem; line-height: 1.8;">
+                        <li><strong>Application Layer:</strong> Pure business logic, decision trees, control loops (PID), telemetry encoders. <em>Zero hardware register dependencies.</em></li>
+                        <li><strong>Services &amp; Middleware:</strong> Ring buffers, software timer wheels, state machine dispatchers, communication protocol stacks (CANopen, Modbus, MQTT).</li>
+                        <li><strong>Device Driver Layer:</strong> Chip-specific drivers for external sensors, EEPROMs, displays, and motor drivers (e.g., BME280, DRV8301).</li>
+                        <li><strong>Hardware Abstraction Layer (HAL):</strong> Clean generic interfaces for MCU peripherals (<code>I2C_Write()</code>, <code>GPIO_SetPin()</code>).</li>
+                        <li><strong>Board Support Package (BSP) &amp; Startup:</strong> Silicon-level vector tables, clock tree init, pin-mux configuration, and linker script layout.</li>
+                    </ol>
+                </div>
+
+                <h3>2.2 Memory Budgeting &amp; Sizing</h3>
+                <p>
+                    Embedded systems operate within severe static memory envelopes. The architect must create a deterministic static memory budget before implementation:
+                </p>
+                <ul>
+                    <li><strong>Flash Budget:</strong> Vector Table (1 KB) + Bootloader (32 KB) + App Image (256 KB) + Factory Config (16 KB) + Calibration Data (16 KB).</li>
+                    <li><strong>SRAM Budget:</strong> Stack (allocated conservatively for worst-case ISR nesting, e.g. 4 KB) + <code>.data</code> / <code>.bss</code> (static global variables, e.g. 20 KB) + DMA circular buffers (8 KB). <em>Dynamic heap (<code>malloc</code>) is sized to 0 KB.</em></li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 3 -->
+                <h2>3. Phase 3: Detailed Design &amp; State Machine Modeling</h2>
+                <p>
+                    Unstructured firmware written with arbitrary <code>if-else</code> chains degenerates into "spaghetti code" as features grow. Complex firmware is modeled formally using <strong>Finite-State Machines (FSMs)</strong> or <strong>Hierarchical State Machines (HSMs)</strong> before coding.
+                </p>
+
+                <div class="info-callout" style="background-color: var(--sidebar-bg); border-left: 4px solid #2196F3; padding: 1rem; margin: 1.5rem 0; border-radius: 4px;">
+                    <strong>Design Rule:</strong> Every mission-critical peripheral driver or application supervisor must have an accompanying <em>State Transition Table</em> mapping current state + event &rarr; guard condition, action callback, and next state.
+                </div>
+
+                <pre><code class="language-c">/* Tabular 2D State Machine Transition Entry */
+typedef enum {
+    STATE_BOOT = 0,
+    STATE_SELF_TEST,
+    STATE_IDLE,
+    STATE_ARMED,
+    STATE_FAULT,
+    STATE_MAX
+} SystemState_t;
+
+typedef enum {
+    EVENT_POWER_ON = 0,
+    EVENT_TEST_PASSED,
+    EVENT_TEST_FAILED,
+    EVENT_ARM_COMMAND,
+    EVENT_EMERGENCY_STOP,
+    EVENT_MAX
+} SystemEvent_t;
+
+typedef void (*StateAction_t)(void);
+
+typedef struct {
+    SystemState_t next_state;
+    StateAction_t action;
+} StateTransition_t;
+
+/* Constant transition matrix stored strictly in Flash (.rodata) */
+static const StateTransition_t g_state_table[STATE_MAX][EVENT_MAX] = {
+    [STATE_BOOT] = {
+        [EVENT_POWER_ON] = { STATE_SELF_TEST, Action_RunPOST }
+    },
+    [STATE_SELF_TEST] = {
+        [EVENT_TEST_PASSED] = { STATE_IDLE,  Action_InitPeripherals },
+        [EVENT_TEST_FAILED] = { STATE_FAULT, Action_TriggerAlarm }
+    },
+    [STATE_IDLE] = {
+        [EVENT_ARM_COMMAND]    = { STATE_ARMED, Action_EngageMotors },
+        [EVENT_EMERGENCY_STOP] = { STATE_FAULT, Action_IsolateActuators }
+    },
+    [STATE_ARMED] = {
+        [EVENT_EMERGENCY_STOP] = { STATE_FAULT, Action_IsolateActuators }
+    }
+};</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.2: Deterministic Tabular State Machine Engine with O(1) Execution Time</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 4 -->
+                <h2>4. Phase 4: Embedded C Implementation &amp; Coding Standards</h2>
+                <p>
+                    Embedded C implementation demands strict defensive disciplines. In desktop applications, an invalid pointer causes a crash report and an OS exit. In automotive or medical devices, an unhandled trap can cause catastrophic physical injury.
+                </p>
+
+                <h3>4.1 Cardinal Rules of Embedded C Production Code</h3>
+                <ul>
+                    <li><strong>Prohibit Dynamic Heap Allocation:</strong> Functions like <code>malloc()</code>, <code>calloc()</code>, and <code>free()</code> are banned by MISRA-C Directive 4.12. Heap allocation introduces runtime indeterminism, memory fragmentation, and potential allocation failures in long-running systems.</li>
+                    <li><strong>Fixed-Width Integer Types:</strong> Always use <code>stdint.h</code> types (<code>uint8_t</code>, <code>int32_t</code>, <code>uint32_t</code>). The standard C <code>int</code> varies in width between 16-bit and 32-bit compilers, causing silent overflow bugs.</li>
+                    <li><strong>Volatile for Hardware Registers &amp; Shared Flags:</strong> Any memory address modified outside the normal compiler control flow (peripherals, DMA, ISRs) must be qualified with <code class="keyword-hl">volatile</code> to prevent the compiler from caching values in CPU registers.</li>
+                    <li><strong>Defensive Parameter Validation:</strong> All public API entry points must check for NULL pointers and numerical range violations before performing memory or peripheral operations.</li>
+                </ul>
+
+                <details style="background: var(--sidebar-bg); padding: 1rem; border-radius: 8px; border-left: 4px solid #f44336; cursor: pointer; margin-bottom: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <summary style="font-weight: 600; font-size: 1.1rem; outline: none; color: #f44336;">View Dangerous / Non-Compliant C Code (Anti-Pattern)</summary>
+                    <pre><code class="language-c">/* ANTI-PATTERN: Non-deterministic, unsafe embedded C */
+int calculate_crc(char *data, int len) {
+    char *buf = (char *)malloc(len); // VIOLATION: Heap allocation!
+    int crc = 0;
+    for(int i = 0; i <= len; i++) {   // VIOLATION: Off-by-one buffer overrun!
+        crc += data[i];
+    }
+    free(buf);
+    return crc;
+}</code></pre>
+                    <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.3-A: Non-compliant code exhibiting heap usage, ambiguous integer types, and potential memory leaks</div>
+                </details>
+
+                <pre><code class="language-c">/* PRODUCTION-GRADE: MISRA-C compliant, deterministic, defensive */
+#include &lt;stdint.h&gt;
+#include &lt;stdbool.h&gt;
+#include "status_codes.h"
+
+Status_t CRC16_Calculate(const uint8_t * const p_data, 
+                         uint16_t length, 
+                         uint16_t * const p_crc_out)
+{
+    /* Rule: Validate all pointers and ranges before access */
+    if ((p_data == NULL) || (p_crc_out == NULL) || (length == 0U)) {
+        return STATUS_ERROR_INVALID_PARAM;
+    }
+
+    uint16_t crc = 0xFFFFU;
+    for (uint16_t i = 0U; i < length; ++i) {
+        crc ^= (uint16_t)p_data[i];
+        for (uint8_t bit = 0U; bit < 8U; ++bit) {
+            if ((crc & 0x0001U) != 0U) {
+                crc = (crc >> 1U) ^ 0xA001U;
+            } else {
+                crc = (crc >> 1U);
+            }
+        }
+    }
+
+    *p_crc_out = crc;
+    return STATUS_OK;
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.3-B: Deterministic, stack-only, defensive C function with zero dynamic memory</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 5 -->
+                <h2>5. Phase 5: Static Analysis &amp; Quality Gates</h2>
+                <p>
+                    Static Code Analysis inspects source code without executing it, checking for syntax violations, memory leaks, unreachable code, integer overflows, and MISRA-C conformance.
+                </p>
+
+                <h3>5.1 Multi-Layered Static Analysis Toolchain</h3>
+                <ol>
+                    <li><strong>Compiler Warning Enforcement:</strong> Compiling with <code>-Wall -Wextra -Werror -pedantic -Wconversion -Wshadow</code> guarantees that no warning passes into the build.</li>
+                    <li><strong>Open-Source Linters:</strong> <code>cppcheck --enable=all --inconclusive --error-exitcode=1</code> executed during local development and pre-commit Git hooks.</li>
+                    <li><strong>Commercial Deep-Static Analyzers:</strong> Tools like PC-lint Plus, Coverity, or Polyspace verify formal mathematical proofs that variables cannot exceed bounds or divide by zero.</li>
+                </ol>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 6 -->
+                <h2>6. Phase 6: Dynamic Verification &amp; Testing Hierarchy</h2>
+                <p>
+                    In the V-Model, verification mirrors the design phases on the left side of the "V". Testing is performed in three progressive tiers:
+                </p>
+
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Testing Tier</th>
+                                <th style="padding: 0.75rem 1rem;">Execution Environment</th>
+                                <th style="padding: 0.75rem 1rem;">Test Tooling</th>
+                                <th style="padding: 0.75rem 1rem;">Primary Objective</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #3b82f6;">Tier 1: Unit Testing</td>
+                                <td style="padding: 0.75rem 1rem;">Host PC / Linux CI (x86_64)</td>
+                                <td style="padding: 0.75rem 1rem;">Unity, CMock, Ceedling, GoogleTest</td>
+                                <td style="padding: 0.75rem 1rem;">Verify algorithms, drivers, and state transitions with mocked hardware interfaces. Fast feedback (seconds).</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #10b981;">Tier 2: Integration Testing</td>
+                                <td style="padding: 0.75rem 1rem;">Target MCU or Virtual Emulators (QEMU, Renode)</td>
+                                <td style="padding: 0.75rem 1rem;">GDB automated scripts, OpenOCD, PySerial</td>
+                                <td style="padding: 0.75rem 1rem;">Verify interactions between RTOS tasks, DMA controllers, peripheral ISRs, and hardware timing jitter.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700; color: #f59e0b;">Tier 3: Hardware-in-the-Loop (HIL)</td>
+                                <td style="padding: 0.75rem 1rem;">Automated Test Racks with physical hardware</td>
+                                <td style="padding: 0.75rem 1rem;">CANoe, NI LabVIEW, Rigol Oscilloscopes, Logic Analyzers</td>
+                                <td style="padding: 0.75rem 1rem;">System validation against real physical loads, bus errors, brown-out power spikes, and environmental stress.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>6.1 Structural Code Coverage Metrics</h3>
+                <ul>
+                    <li><strong>Statement Coverage:</strong> Has every executable line been touched at least once? (Baseline requirement).</li>
+                    <li><strong>Branch / Decision Coverage:</strong> Has every <code>if</code>, <code>else</code>, and <code>case</code> branch evaluated to both TRUE and FALSE?</li>
+                    <li><strong>Modified Condition / Decision Coverage (MC/DC):</strong> Has every condition in a multi-condition boolean statement (e.g., <code>if (A || B)</code>) been proven to independently affect the decision outcome? (Mandated by DO-178C Level A and ISO 26262 ASIL D).</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 7 -->
+                <h2>7. Phase 7: Cross-Compilation, Linker Scripts &amp; Binary Artifacts</h2>
+                <p>
+                    Embedded C source files are compiled on a host computer (x86_64) targeting a completely different processor architecture (e.g., ARM Cortex-M4 32-bit RISC). This requires an <strong>Embedded Cross-Compiler Toolchain</strong> like <code>arm-none-eabi-gcc</code>.
+                </p>
+
+                <h3>7.1 The Four Stages of the Build Pipeline</h3>
+                <div style="background: var(--sidebar-bg); border-left: 4px solid var(--accent); padding: 1.25rem; margin: 1.5rem 0; border-radius: 6px;">
+                    <ol style="margin: 0; padding-left: 1.2rem; line-height: 1.8;">
+                        <li><strong>Preprocessor (<code>cpp</code>):</strong> Expands <code>#include</code> directives, strips comments, and evaluates macro expressions (<code>#define</code>, <code>#ifdef</code>). Emits <code>.i</code> files.</li>
+                        <li><strong>Compiler (<code>cc1</code>):</strong> Translates preprocessed C code into architecture-specific Assembly instructions. Emits <code>.s</code> files.</li>
+                        <li><strong>Assembler (<code>as</code>):</strong> Assembles human-readable assembly into machine-code relocatable object files. Emits <code>.o</code> files.</li>
+                        <li><strong>Linker (<code>ld</code>):</strong> Merges all object files, resolves function and global variable addresses, and places sections according to the <strong>Linker Script (<code>.ld</code>)</strong>. Emits the final <code>.elf</code> binary.</li>
+                    </ol>
+                </div>
+
+                <h3>7.2 Anatomy of the Linker Script</h3>
+                <p>
+                    The linker script dictates the exact byte-level physical address where machine code and data reside inside silicon Flash and SRAM:
+                </p>
+
+                <pre><code class="language-c">/* Minimal ARM Cortex-M4 Linker Script (stm32f401.ld) */
+MEMORY
+{
+  FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = 512K
+  RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 96K
+}
+
+SECTIONS
+{
+  /* Interrupt Vector Table placed at beginning of Flash */
+  .isr_vector :
+  {
+    . = ALIGN(4);
+    KEEP(*(.isr_vector))
+    . = ALIGN(4);
+  } > FLASH
+
+  /* Executable code and constants */
+  .text :
+  {
+    . = ALIGN(4);
+    *(.text)
+    *(.text*)
+    *(.rodata)
+    *(.rodata*)
+    . = ALIGN(4);
+    _etext = .; 
+  } > FLASH
+
+  /* Initialized variables: load in Flash, executed in RAM */
+  .data : AT (_etext)
+  {
+    . = ALIGN(4);
+    _sdata = .;
+    *(.data)
+    *(.data*)
+    . = ALIGN(4);
+    _edata = .;
+  } > RAM
+
+  /* Zero-initialized variables */
+  .bss :
+  {
+    . = ALIGN(4);
+    _sbss = .;
+    *(.bss)
+    *(.bss*)
+    . = ALIGN(4);
+    _ebss = .;
+  } > RAM
+
+  /* Stack boundary symbol for CRT0 initialization */
+  _estack = ORIGIN(RAM) + LENGTH(RAM);
+}</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.4: Standard Cortex-M Linker Script assigning memory regions and boundary symbols</div>
+
+                <h3>7.3 Output Artifacts</h3>
+                <ul>
+                    <li><strong><code>firmware.elf</code>:</strong> Executable and Linkable Format containing machine code, symbol names, and DWARF debugging data used by GDB.</li>
+                    <li><strong><code>firmware.hex</code>:</strong> Intel HEX ASCII format with explicit physical address records, utilized by factory gang programmers.</li>
+                    <li><strong><code>firmware.bin</code>:</strong> Raw binary representation containing the exact byte-for-byte stream programmed into MCU flash.</li>
+                    <li><strong><code>firmware.map</code>:</strong> Crucial text report listing every object file, function address, static variable size, and RAM/Flash consumption.</li>
+                </ul>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 8 -->
+                <h2>8. Phase 8: Cryptographic Signing, CRC &amp; Secure Boot Packaging</h2>
+                <p>
+                    A raw binary image cannot be deployed directly to modern connected devices. To protect against malicious firmware injection and memory corruption, production firmware must be packaged with a <strong>Cryptographic Header</strong> verified by an on-chip Secure Bootloader.
+                </p>
+
+                <pre><code class="language-c">/* 64-byte Canonical Production Firmware Header */
+typedef struct __attribute__((packed)) {
+    uint32_t magic_word;        /* E.g., 0x41505443 ("APTC") */
+    uint32_t header_version;   /* Header layout version */
+    uint32_t app_version;      /* Semantic version: Major.Minor.Patch.Build */
+    uint32_t payload_size_bytes;/* Exact size of the raw application binary */
+    uint32_t load_address;     /* Physical Flash entry address (e.g. 0x08020000) */
+    uint32_t crc32;            /* CRC32 of payload for rapid integrity check */
+    uint8_t  sha256[32];       /* Cryptographic digest of the application payload */
+    uint8_t  ecdsa_sig[64];    /* Elliptic Curve Digital Signature (NIST P-256) */
+} FirmwareHeader_t;</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.5: Production Firmware Header prepended to raw binary for Secure Boot authentication</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 9 -->
+                <h2>9. Phase 9: Factory Provisioning &amp; Mass Flashing</h2>
+                <p>
+                    During mass manufacturing on the assembly line, newly assembled printed circuit boards (PCBs) arrive with completely blank silicon microcontrollers.
+                </p>
+
+                <h3>9.1 Manufacturing Test &amp; Provisioning Workflow</h3>
+                <div style="background: var(--bg-color); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.5rem 0;">
+                    <ol style="margin: 0; padding-left: 1.2rem; line-height: 1.8;">
+                        <li><strong>Bed-of-Nails Test Fixture:</strong> Spring-loaded pogo pins contact SWD (<code>SWCLK</code>, <code>SWDIO</code>), UART, power rails (3.3V, GND), and test points.</li>
+                        <li><strong>Power Rail In-Circuit Test (ICT):</strong> Measure resistance and supply currents to ensure zero shorts before applying active power.</li>
+                        <li><strong>Primary Flashing:</strong> An automated gang programmer (e.g. Segger Flasher ATE or STM32CubeProgrammer CLI) flashes the Primary Bootloader, Option Bytes, and Calibration Data.</li>
+                        <li><strong>Board Functional Self-Test:</strong> The factory firmware executes an automated suite testing all peripheral buses, crystal oscillator lock, and sensor communications, logging results to manufacturing MES servers.</li>
+                        <li><strong>Silicon Locking (RDP):</strong> Once verified, the programmer writes MCU Option Bytes to enable <strong>Readout Protection (RDP Level 1 or 2)</strong>, permanently disabling SWD debug access to prevent competitors or hackers from dumping intellectual property.</li>
+                    </ol>
+                </div>
+
+                <pre><code class="language-bash">#!/usr/bin/env bash
+# Automated Production Flashing Script via STM32_Programmer_CLI
+set -e
+
+MCU_SN="$1"
+BIN_FILE="build/production_firmware_v2.1.4.bin"
+
+echo "=== Flashing Device S/N: ${MCU_SN} ==="
+
+# 1. Connect, Erase Flash, and Program Signed Binary
+STM32_Programmer_CLI -c port=SWD sn="${MCU_SN}" mode=UR -e all \
+    -w "${BIN_FILE}" 0x08000000 -v
+
+# 2. Lock Flash Readout Protection (RDP Level 1)
+STM32_Programmer_CLI -c port=SWD sn="${MCU_SN}" -ob RDP=0xBB
+
+echo "=== Flashing & Security Lock Succeeded ==="</code></pre>
+                <div class="element-caption" style="text-align: center; font-style: italic; color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">Program 6.6: Production automated shell script for high-throughput gang flashing and security fusing</div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SECTION 10 -->
+                <h2>10. Phase 10: In-Field Deployment &amp; Firmware Over-The-Air (FOTA)</h2>
+                <p>
+                    Once products are in customers' hands or deployed in the field (automobiles, satellites, medical clinics), physical SWD access is impossible. The system must support reliable, fail-safe updates via <strong>Bootloaders and FOTA</strong>.
+                </p>
+
+                <h3>10.1 Dual-Bank A/B Flash Architecture</h3>
+                <p>
+                    The golden rule of remote firmware updates: <em>Never overwrite currently running firmware in-place.</em> If power is lost mid-flash, the device will be "bricked". Robust systems utilize a <strong>Dual-Bank Flash layout</strong>:
+                </p>
+
+                <div style="background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin: 1.5rem 0;">
+                    <div style="font-family: 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.6;">
+                        [0x08000000 - 0x0801FFFF] &rarr; <strong>Secure Bootloader &amp; Keys (128 KB)</strong><br>
+                        [0x08020000 - 0x080FFFFF] &rarr; <strong>Slot A: Active Application (896 KB)</strong> [Currently Running]<br>
+                        [0x08100000 - 0x081DFFFF] &rarr; <strong>Slot B: Staging Slot (896 KB)</strong> [Receives New OTA]<br>
+                        [0x081E0000 - 0x081FFFFF] &rarr; <strong>Non-Volatile Storage (NVS) &amp; Boot Flags (128 KB)</strong>
+                    </div>
+                </div>
+
+                <h3>10.2 Safe Update &amp; Automatic Rollback Protocol</h3>
+                <ol>
+                    <li><strong>Download &amp; Stream:</strong> Application receives incoming chunks over CAN, BLE, or Cellular, writing to the Staging Slot (Slot B).</li>
+                    <li><strong>Header &amp; Cryptographic Check:</strong> Bootloader verifies SHA-256 digest and ECDSA public key signature before touching the active application.</li>
+                    <li><strong>Trial Execution Flag:</strong> Bootloader sets the boot flag to <code>TRIAL_RUN</code> and vectors execution to Slot B.</li>
+                    <li><strong>Watchdog Confirmation:</strong> Slot B must boot successfully, perform self-tests, and write a confirmation flag (<code>IMAGE_CONFIRMED</code>) within 30 seconds.</li>
+                    <li><strong>Automatic Rollback:</strong> If the trial firmware triggers a HardFault or the hardware watchdog resets the MCU before confirmation, the Bootloader automatically reverts execution back to Slot A!</li>
+                </ol>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- SUMMARY COMPARISON TABLE -->
+                <h2>11. Complete Lifecycle Summary Table</h2>
+                <div style="overflow-x: auto; margin: 1.5rem 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem;">
+                        <thead>
+                            <tr style="background-color: var(--sidebar-bg); border-bottom: 2px solid var(--accent); text-align: left;">
+                                <th style="padding: 0.75rem 1rem;">Phase</th>
+                                <th style="padding: 0.75rem 1rem;">Core Deliverable</th>
+                                <th style="padding: 0.75rem 1rem;">Standard / Methodology</th>
+                                <th style="padding: 0.75rem 1rem;">Automated Tooling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">1. Requirements</td>
+                                <td style="padding: 0.75rem 1rem;">Software Requirements Spec (SRS) &amp; RTM</td>
+                                <td style="padding: 0.75rem 1rem;">ASPICE, ISO 26262, IEC 62304</td>
+                                <td style="padding: 0.75rem 1rem;">Jama, Polarion, Doors, Jira</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">2. Architecture</td>
+                                <td style="padding: 0.75rem 1rem;">Layered Model (App/Driver/HAL/BSP) &amp; Memory Map</td>
+                                <td style="padding: 0.75rem 1rem;">Hardware-Software Partitioning</td>
+                                <td style="padding: 0.75rem 1rem;">Enterprise Architect, draw.io</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">3. Detailed Design</td>
+                                <td style="padding: 0.75rem 1rem;">State Tables, FSMs, Sequence Diagrams</td>
+                                <td style="padding: 0.75rem 1rem;">UML Statecharts, Moore/Mealy</td>
+                                <td style="padding: 0.75rem 1rem;">QP/QM, Stateflow, PlantUML</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">4. Implementation</td>
+                                <td style="padding: 0.75rem 1rem;">Production C Source Code &amp; Header Files</td>
+                                <td style="padding: 0.75rem 1rem;">MISRA-C:2012, CERT C, Defensive C</td>
+                                <td style="padding: 0.75rem 1rem;">VS Code, CLion, Eclipse, Vim</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">5. Static Analysis</td>
+                                <td style="padding: 0.75rem 1rem;">Compliance Reports &amp; Zero Compiler Warnings</td>
+                                <td style="padding: 0.75rem 1rem;">Formal verification, zero dead code</td>
+                                <td style="padding: 0.75rem 1rem;">cppcheck, PC-lint Plus, Coverity</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">6. Dynamic Testing</td>
+                                <td style="padding: 0.75rem 1rem;">Unit, Integration &amp; HIL Test Suites</td>
+                                <td style="padding: 0.75rem 1rem;">100% MC/DC &amp; Branch Coverage</td>
+                                <td style="padding: 0.75rem 1rem;">Unity, CMock, Ceedling, CANoe</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">7. Build Pipeline</td>
+                                <td style="padding: 0.75rem 1rem;"><code>.elf</code>, <code>.hex</code>, <code>.bin</code>, <code>.map</code></td>
+                                <td style="padding: 0.75rem 1rem;">Cross-compilation, Linker scripts</td>
+                                <td style="padding: 0.75rem 1rem;">arm-none-eabi-gcc, Make, CMake</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">8. Packaging</td>
+                                <td style="padding: 0.75rem 1rem;">Cryptographically Signed Binary</td>
+                                <td style="padding: 0.75rem 1rem;">ECDSA NIST P-256, SHA-256, CRC32</td>
+                                <td style="padding: 0.75rem 1rem;">OpenSSL, MCUboot imgtool</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">9. Provisioning</td>
+                                <td style="padding: 0.75rem 1rem;">Programmed &amp; Security-Locked Silicon</td>
+                                <td style="padding: 0.75rem 1rem;">Bed-of-Nails ICT &amp; RDP Fusing</td>
+                                <td style="padding: 0.75rem 1rem;">Segger Flasher, STM32CubeProg CLI</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem 1rem; font-weight: 700;">10. In-Field OTA</td>
+                                <td style="padding: 0.75rem 1rem;">Remote Fail-Safe Field Updates</td>
+                                <td style="padding: 0.75rem 1rem;">Dual-Bank A/B with Rollback Guard</td>
+                                <td style="padding: 0.75rem 1rem;">UDS (ISO 14229), Hawkbit, AWS IoT</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- TOPIC QUIZ -->
+                <h2>Topic Quiz (10 Questions)</h2>
+
+                <!-- Q1 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">1. In safety-critical embedded systems, what is "Backward Traceability"?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">The ability to roll back the microcontroller to an older firmware version over UART.</li>
+                        <li class="mcq-option" data-correct="true">Demonstrating that every line of production source code traces back to an approved system or software requirement, proving zero undocumented dead code exists.</li>
+                        <li class="mcq-option" data-correct="false">Stepping backward through CPU instructions using a JTAG hardware debugger.</li>
+                        <li class="mcq-option" data-correct="false">Reversing the direction of current in an H-bridge actuator driver.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Backward traceability proves that no unauthorized or orphaned code exists in the binary. Every function must exist for a verified requirement.">Backward traceability proves that no unauthorized or orphaned code exists in the binary. Every function must exist for a verified requirement.</div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">2. Why does MISRA-C Directive 4.12 prohibit the use of dynamic memory allocation (malloc, calloc, free) in production embedded C?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Dynamic memory allocation is only supported in C++, not in C.</li>
+                        <li class="mcq-option" data-correct="true">Heap allocation introduces non-deterministic execution times, heap fragmentation, and the catastrophic risk of runtime allocation failure.</li>
+                        <li class="mcq-option" data-correct="false">Microcontroller silicon does not have hardware memory management units (MMUs) capable of reading RAM.</li>
+                        <li class="mcq-option" data-correct="false">Dynamic memory allocation causes the CPU clock frequency to drop by 50%.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Heap allocation cannot guarantee deterministic execution time and invariably leads to fragmentation in long-running embedded systems. Static allocation guarantees all memory is bounded at link time.">Heap allocation cannot guarantee deterministic execution time and invariably leads to fragmentation in long-running embedded systems. Static allocation guarantees all memory is bounded at link time.</div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">3. What is the fundamental role of the Linker Script (.ld file) during the cross-compilation pipeline?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">It executes unit tests on the host computer before compilation starts.</li>
+                        <li class="mcq-option" data-correct="false">It converts C language syntax into Python scripts for test automation.</li>
+                        <li class="mcq-option" data-correct="true">It defines physical memory boundaries (Flash, RAM) and maps code and data sections (.text, .rodata, .data, .bss, vector table) to exact physical target addresses.</li>
+                        <li class="mcq-option" data-correct="false">It encrypts the source code to protect intellectual property from competitors.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="The linker script instructs the GNU Linker (ld) where physical memory banks reside and where each symbol and section must be mapped in target address space.">The linker script instructs the GNU Linker (ld) where physical memory banks reside and where each symbol and section must be mapped in target address space.</div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">4. What is the difference between a .elf file and a .bin file?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="true">The .elf file contains metadata, section headers, symbol tables, and DWARF debug info; the .bin file is a stripped, raw byte-for-byte binary image flashed directly into memory.</li>
+                        <li class="mcq-option" data-correct="false">The .bin file can only run on Linux; the .elf file can only run on ARM Cortex-M.</li>
+                        <li class="mcq-option" data-correct="false">The .elf file is compressed with ZIP; the .bin file is uncompressed.</li>
+                        <li class="mcq-option" data-correct="false">There is no difference; they are identical files with different extensions.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="An ELF file contains rich debugging symbols and sections used by GDB. The raw .bin contains only the raw bytes destined for flash without headers.">An ELF file contains rich debugging symbols and sections used by GDB. The raw .bin contains only the raw bytes destined for flash without headers.</div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">5. In a Dual-Bank Flash A/B update scheme, why is an automated "Rollback Guard" essential?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">To allow the user to downgrade to an older software version if they dislike the new UI.</li>
+                        <li class="mcq-option" data-correct="true">If the newly installed firmware crashes, hangs, or fails self-tests during its trial run, the bootloader automatically reverts to the previous working slot, preventing field bricking.</li>
+                        <li class="mcq-option" data-correct="false">To save flash memory space by compressing the firmware binary.</li>
+                        <li class="mcq-option" data-correct="false">To prevent the microcontroller from overheating during flash writes.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Rollback protection guarantees high availability. If the new slot fails to boot and kick the watchdog or mark itself confirmed, the bootloader reverts to the known-good image.">Rollback protection guarantees high availability. If the new slot fails to boot and kick the watchdog or mark itself confirmed, the bootloader reverts to the known-good image.</div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">6. What critical security step is performed during factory mass provisioning to protect intellectual property?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Removing the crystal oscillator from the PCB.</li>
+                        <li class="mcq-option" data-correct="false">Overclocking the MCU core by 200%.</li>
+                        <li class="mcq-option" data-correct="true">Configuring Option Bytes to activate Readout Protection (RDP Level 1 or 2), disabling SWD/JTAG debug port access.</li>
+                        <li class="mcq-option" data-correct="false">Filling the remaining flash sectors with random ascii characters.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Setting Readout Protection (RDP) disables hardware debug probe access, preventing unauthorized extraction of binary firmware via SWD/JTAG.">Setting Readout Protection (RDP) disables hardware debug probe access, preventing unauthorized extraction of binary firmware via SWD/JTAG.</div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">7. Why are unit tests in professional embedded systems typically executed on a Host PC (Linux x86_64) rather than directly on target microcontrollers?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Microcontrollers cannot run any test assertion code.</li>
+                        <li class="mcq-option" data-correct="true">Host testing executes thousands of tests in seconds, integrates seamlessly into CI/CD pipelines, uses AddressSanitizer/Valgrind, and tests logic before hardware silicon is fabricated.</li>
+                        <li class="mcq-option" data-correct="false">Because target microcontrollers only support assembly code.</li>
+                        <li class="mcq-option" data-correct="false">Host execution eliminates the need for any hardware integration testing.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Host-based testing provides instantaneous developer feedback, runs headlessly in cloud CI pipelines, and allows decoupling algorithmic logic from hardware peripherals via mocks.">Host-based testing provides instantaneous developer feedback, runs headlessly in cloud CI pipelines, and allows decoupling algorithmic logic from hardware peripherals via mocks.</div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">8. What is the role of CMock in an embedded C unit test environment?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A cross-compiler that translates C code to ARM assembly.</li>
+                        <li class="mcq-option" data-correct="true">A tool that parses C header files and automatically generates mock functions to simulate hardware peripherals and external dependencies.</li>
+                        <li class="mcq-option" data-correct="false">A hardware probe used to measure voltage transients on I2C buses.</li>
+                        <li class="mcq-option" data-correct="false">A flash memory erase utility for ST-LINK programmers.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="CMock inspects your C interface headers and generates mock implementations where you can configure expected arguments and canned return values.">CMock inspects your C interface headers and generates mock implementations where you can configure expected arguments and canned return values.</div>
+                </div>
+
+                <!-- Q9 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">9. What cryptographic mechanism ensures that an incoming OTA firmware update was created by the legitimate device manufacturer and was not tampered with?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">A simple XOR checksum.</li>
+                        <li class="mcq-option" data-correct="true">An asymmetric digital signature (e.g., ECDSA NIST P-256 or RSA-3072) verified against a public key burned into on-chip Secure Boot ROM.</li>
+                        <li class="mcq-option" data-correct="false">A secret string stored in an unencrypted C header file.</li>
+                        <li class="mcq-option" data-correct="false">Checking if the file extension ends in .bin.</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="Asymmetric cryptography ensures only holders of the private key (the OEM) can sign binary images, while the device verifies using the embedded public key.">Asymmetric cryptography ensures only holders of the private key (the OEM) can sign binary images, while the device verifies using the embedded public key.</div>
+                </div>
+
+                <!-- Q10 -->
+                <div class="mcq-container">
+                    <div class="mcq-question">10. What code coverage metric required by DO-178C Level A and ISO 26262 ASIL D verifies that each condition in a multi-condition Boolean expression independently affects the decision outcome?</div>
+                    <ul class="mcq-options">
+                        <li class="mcq-option" data-correct="false">Line Coverage</li>
+                        <li class="mcq-option" data-correct="false">Function Call Coverage</li>
+                        <li class="mcq-option" data-correct="true">MC/DC (Modified Condition / Decision Coverage)</li>
+                        <li class="mcq-option" data-correct="false">Cyclomatic Complexity Index</li>
+                    </ul>
+                    <button class="mcq-submit" disabled>Submit</button>
+                    <div class="mcq-feedback" data-raw-explanation="MC/DC is the gold standard of dynamic structural coverage for highest-tier functional safety standards.">MC/DC is the gold standard of dynamic structural coverage for highest-tier functional safety standards.</div>
+                </div>
+
+                <hr style="margin: 3rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <!-- HANDS-ON ASSIGNMENTS -->
+                <h2>Hands-On Engineering Assignments</h2>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 1: Requirements Deconstruction &amp; Traceability Matrix</h3>
+                    <p style="margin-bottom: 0;"><strong>Task:</strong> Take a high-level customer requirement: <em>"The automotive steering angle sensor must report the wheel position over CAN-FD every 10 ms, with fault detection triggering a limp-home state within 20 ms."</em> Deconstruct this into three atomic software requirements (Functional, Timing, and Safety). Write the C header file declarations and Doxygen traceability tags implementing them.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 2: Host-Based Mock Test Harness with Unity</h3>
+                    <p style="margin-bottom: 0;"><strong>Task:</strong> Write a pure C motor controller supervisor function. Using the Unity unit-test framework on Linux/WSL, mock the hardware GPIO and timer interfaces. Write test cases that verify normal operation, overcurrent shutdown, and timeout fallback without requiring physical hardware.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 3: Linker Script Partitioning for Dual-Bank Bootloading</h3>
+                    <p style="margin-bottom: 0;"><strong>Task:</strong> Create a GNU Linker Script (<code>.ld</code>) for a 1 MB Flash Cortex-M4 microcontroller. Divide Flash into Bootloader (128 KB), Application Slot A (448 KB), and Application Slot B (448 KB). Ensure that Vector Table symbols are properly aligned to 512-byte boundaries to support ARM VTOR reallocation.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 4: Binary Packaging &amp; Cryptographic Checksum Tool</h3>
+                    <p style="margin-bottom: 0;"><strong>Task:</strong> Write a host C or Python build-step script that takes a raw <code>firmware.bin</code> file, computes its CRC32 and SHA-256 digest, prepends the 64-byte <code>FirmwareHeader_t</code> structure, and outputs a production-ready <code>firmware_signed.bin</code>.</p>
+                </div>
+
+                <div style="background-color: var(--sidebar-bg); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--accent);">
+                    <h3 style="margin-top: 0; color: var(--accent);">Assignment 5: Automated Factory Flashing &amp; Fusing Script</h3>
+                    <p style="margin-bottom: 0;"><strong>Task:</strong> Write a bash or Python script utilizing <code>STM32_Programmer_CLI</code> or Segger <code>JLink.exe</code> that automates factory programming: probe detection, chip erase, programming <code>firmware_signed.bin</code>, verifying checksums, configuring Option Bytes for Readout Protection (RDP), and generating a serial-number manufacturing log file.</p>
+                </div>
+
+                <!-- Footer Navigation -->
+                <footer class="page-navigation" style="margin-top: 4rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                    <a href="ref_standards.html" class="nav-button prev" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--text-color); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--border-color); border-radius: 8px; transition: all 0.2s ease;">
+                        <span style="font-size: 1.2rem;">&larr;</span>
+                        <div style="text-align: left;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Previous</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">Ref 5: Standards &amp; Protocols</span>
+                        </div>
+                    </a>
+                    <a href="stm32-firmware-journey.html" class="nav-button next" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: var(--accent); font-weight: 600; padding: 0.75rem 1.25rem; border: 1px solid var(--accent); border-radius: 8px; transition: all 0.2s ease; background-color: var(--accent-light);">
+                        <div style="text-align: right;">
+                            <span class="nav-label" style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase;">Next Up &rarr;</span>
+                            <span class="nav-title" style="font-size: 0.95rem;">⚡ Visualize Execution (STM32)</span>
+                        </div>
+                        <span style="font-size: 1.2rem;">&rarr;</span>
+                    </a>
+                </footer>
+
+                <div style="text-align: center; padding: 2rem 0; margin-top: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem;">
+                    Prepared by <a href="https://www.aptcomputinglabs.com/" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: bold;">Apt Computing Labs</a><br>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">&copy; 2026 Apt Computing Labs. This material may be distributed freely provided that credit is given to Apt Computing Labs.</span>
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
