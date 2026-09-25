@@ -95,6 +95,30 @@ typedef struct {
  * ==============================================================================
  */
 static volatile sig_atomic_t g_time_up = 0;
+static struct termios g_orig_termios;
+static bool g_termios_saved = false;
+
+/**
+ * @brief Restores terminal to original canonical echo mode.
+ */
+static void Terminal_Restore(void)
+{
+    if (g_termios_saved) {
+        tcsetattr(STDIN_FILENO, TCSANOW, &g_orig_termios);
+        g_termios_saved = false;
+    }
+}
+
+/**
+ * @brief Handles Ctrl+C (SIGINT) to ensure terminal is restored before exit.
+ */
+static void Sigint_Handler(int signum)
+{
+    (void)signum;
+    Terminal_Restore();
+    printf("\n\n[Test interrupted by user]. Exiting.\n");
+    exit(EXIT_SUCCESS);
+}
 
 /**
  * @brief OS Signal Handler for SIGALRM (Timer Expiry).
@@ -121,6 +145,14 @@ static void Timer_Configure(void)
      */
     sa.sa_flags = 0; 
     sigaction(SIGALRM, &sa, NULL);
+
+    /* Also catch SIGINT (Ctrl+C) to safely restore terminal echo */
+    struct sigaction sa_int;
+    memset(&sa_int, 0, sizeof(sa_int));
+    sa_int.sa_handler = Sigint_Handler;
+    sigemptyset(&sa_int.sa_mask);
+    sa_int.sa_flags = 0;
+    sigaction(SIGINT, &sa_int, NULL);
 }
 
 /* ==============================================================================
@@ -338,15 +370,17 @@ int main(void)
 
     /* Check if standard input is an interactive terminal */
     bool is_terminal = isatty(STDIN_FILENO);
-    struct termios orig_termios;
 
     if (is_terminal) {
-        /* Enable non-canonical mode so each keystroke is buffered into user_input immediately! */
-        tcgetattr(STDIN_FILENO, &orig_termios);
-        struct termios raw_termios = orig_termios;
-        raw_termios.c_lflag &= ~(ICANON); /* Disable canonical mode (line buffering) */
-        raw_termios.c_cc[VMIN]  = 1;      /* Wait for at least 1 character */
-        raw_termios.c_cc[VTIME] = 0;      /* No character timer timeout */
+        /* Enable non-canonical mode without driver auto-echo so program echoes exactly once */
+        tcgetattr(STDIN_FILENO, &g_orig_termios);
+        g_termios_saved = true;
+        atexit(Terminal_Restore);
+
+        struct termios raw_termios = g_orig_termios;
+        raw_termios.c_lflag &= ~(ICANON | ECHO); /* Disable canonical mode AND driver auto-echo */
+        raw_termios.c_cc[VMIN]  = 1;              /* Wait for at least 1 character */
+        raw_termios.c_cc[VTIME] = 0;              /* No character timer timeout */
         tcsetattr(STDIN_FILENO, TCSANOW, &raw_termios);
     }
 
@@ -409,7 +443,7 @@ int main(void)
 
     /* Restore original terminal settings */
     if (is_terminal) {
-        tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+        Terminal_Restore();
     }
 
     double elapsed_sec = difftime(end_time, start_time);

@@ -32,3 +32,5 @@ Thumbs.db
 build/
 typing_speed
 
+*.swp
+*.swo
